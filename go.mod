@@ -1,3 +1,3 @@
 module github.com/JSYoo5B/convertago
 
-go 1.21.0
+go 1.20
