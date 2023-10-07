@@ -55,6 +55,24 @@ type InlineStyled struct {
 	Color  InlineColor
 }
 
+type InlineColor string
+
+const (
+	InlineColorEmpty   = InlineColor("")
+	InlineColorDefault = InlineColor("default")
+	InlineColorRed     = InlineColor("red")
+	InlineColorBlue    = InlineColor("blue")
+	InlineColorGrey    = InlineColor("grey")
+)
+
+var inlineColorConstants = map[InlineColor]bool{
+	InlineColorEmpty:   true,
+	InlineColorDefault: true,
+	InlineColorRed:     true,
+	InlineColorBlue:    true,
+	InlineColorGrey:    true,
+}
+
 func (i InlineStyled) Type() string {
 	return "inline"
 }
@@ -73,6 +91,9 @@ func (i InlineStyled) MarshalJSON() ([]byte, error) {
 		Color  InlineColor `json:"color,omitempty"`
 	}
 
+	if _, exists := inlineColorConstants[i.Color]; !exists {
+		i.Color = InlineColorDefault
+	}
 	return json.Marshal(_InlineStyled{
 		Type:   i.InlineType(),
 		Text:   i.Text,
@@ -86,15 +107,6 @@ func (i InlineStyled) MarshalJSON() ([]byte, error) {
 func (i InlineStyled) InlineType() string {
 	return "styled"
 }
-
-type InlineColor string
-
-const (
-	InlineColorDefault = InlineColor("default")
-	InlineColorRed     = InlineColor("red")
-	InlineColorBlue    = InlineColor("blue")
-	InlineColorGrey    = InlineColor("grey")
-)
 
 type InlineLink struct {
 	Text string
