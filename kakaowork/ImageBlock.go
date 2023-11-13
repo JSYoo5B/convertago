@@ -5,7 +5,7 @@ import "encoding/json"
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/imagelinkblock/
 
 type ImageBlock struct {
-	Url string
+	Url string `validate:"required,url"`
 }
 
 func (i ImageBlock) Type() string {
