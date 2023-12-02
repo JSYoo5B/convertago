@@ -2,9 +2,11 @@ package kakaowork
 
 import "encoding/json"
 
+// Reference: https://docs.kakaoi.ai/kakao_work/blockkit/headerblock/
+
 type HeaderBlock struct {
-	Text  string
-	Style HeaderStyle
+	Text  string      `json:"text"`
+	Style HeaderStyle `json:"style"`
 }
 
 type HeaderStyle string
@@ -34,18 +36,16 @@ func (h HeaderBlock) String() string {
 }
 
 func (h HeaderBlock) MarshalJSON() ([]byte, error) {
-	type _HeaderBlock struct {
-		Type  string      `json:"type"`
-		Text  string      `json:"text"`
-		Style HeaderStyle `json:"style"`
-	}
-
 	if _, exists := headerStyleConstants[h.Style]; !exists {
 		h.Style = HeaderStyleWhite
 	}
-	return json.Marshal(_HeaderBlock{
+
+	type Embed HeaderBlock
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		Embed
+	}{
 		Type:  h.Type(),
-		Text:  h.Text,
-		Style: h.Style,
+		Embed: (Embed)(h),
 	})
 }

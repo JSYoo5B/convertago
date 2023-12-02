@@ -2,6 +2,8 @@ package kakaowork
 
 import "encoding/json"
 
+// Reference: https://docs.kakaoi.ai/kakao_work/blockkit/dividerblock/
+
 type DividerBlock struct{}
 
 func (d DividerBlock) Type() string {
@@ -13,11 +15,9 @@ func (d DividerBlock) String() string {
 }
 
 func (d DividerBlock) MarshalJSON() ([]byte, error) {
-	type _DividerBlock struct {
+	return json.Marshal(&struct {
 		Type string `json:"type"`
-	}
-
-	return json.Marshal(_DividerBlock{
+	}{
 		Type: d.Type(),
 	})
 }
