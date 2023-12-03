@@ -14,21 +14,27 @@ func TestAmpersandEscapeIssue(t *testing.T) {
 	openExtAction := kakaowork.OpenExternalAppAction{
 		Value: "ios=kakaomap%3A%2F%2Flook%3Fp%3D37.537229%2C127.005515&aos=kakaomap%3A%2F%2Flook%3Fp%3D37.537229%2C127.005515",
 	}
+	require.Contains(t, openExtAction.Value, "&")
+	require.NotContains(t, openExtAction.Value, `\u0026`)
+
 	marshaledJson := `
 	{
 		"type": "open_external_app",
 		"value": "ios=kakaomap%3A%2F%2Flook%3Fp%3D37.537229%2C127.005515\u0026aos=kakaomap%3A%2F%2Flook%3Fp%3D37.537229%2C127.005515"
 	}`
+	require.Contains(t, marshaledJson, `\u0026`)
+	require.NotContains(t, marshaledJson, "&")
 
 	t.Run("Default marshal with ampersand", func(t *testing.T) {
 		var jsonBytes []byte
 		var err error
-		if jsonBytes, err = json.MarshalIndent(openExtAction, "", "    "); err != nil {
+		if jsonBytes, err = json.Marshal(openExtAction); err != nil {
 			t.Fatal(err)
 		}
 		jsonMarshalString := string(jsonBytes)
 
 		assert.Contains(t, jsonMarshalString, `\u0026`)
+		assert.NotContains(t, jsonMarshalString, "&")
 	})
 
 	t.Run("New Encoder marshaling with ampersand", func(t *testing.T) {
@@ -42,6 +48,7 @@ func TestAmpersandEscapeIssue(t *testing.T) {
 		newEncoderString := html.UnescapeString(buf.String())
 
 		assert.Contains(t, newEncoderString, `\u0026`)
+		assert.NotContains(t, newEncoderString, "&")
 	})
 
 	t.Run("Unmarshal", func(t *testing.T) {
