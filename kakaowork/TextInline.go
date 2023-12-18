@@ -5,7 +5,7 @@ import "encoding/json"
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/textblock/#inlines
 
 type Inline interface {
-	MessageBubbleBlock
+	BubbleBlock
 	InlineType() string
 }
 

@@ -3,7 +3,7 @@ package kakaowork
 import "encoding/json"
 
 type ButtonAction interface {
-	MessageBubbleBlock
+	BubbleBlock
 	ActionType() string
 }
 
