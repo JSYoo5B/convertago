@@ -6,7 +6,7 @@ import (
 	"github.com/JSYoo5B/convertago/kakaowork"
 )
 
-func ExampleOpenSystemBrowserAction() {
+func ExampleOpenSystemBrowserAction_MarshalJSON() {
 	buttonBlock := kakaowork.ButtonBlock{
 		Text:  "자세히보기",
 		Style: kakaowork.ButtonStylePrimary,
@@ -16,7 +16,7 @@ func ExampleOpenSystemBrowserAction() {
 		},
 	}
 
-	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -24,47 +24,18 @@ func ExampleOpenSystemBrowserAction() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "button",
-	//     "text": "자세히보기",
-	//     "style": "primary",
-	//     "action": {
-	//         "type": "open_system_browser",
-	//         "name": "button1",
-	//         "value": "http://example.com/details/999"
-	//     }
+	//   "type": "button",
+	//   "text": "자세히보기",
+	//   "style": "primary",
+	//   "action": {
+	//     "type": "open_system_browser",
+	//     "name": "button1",
+	//     "value": "http://example.com/details/999"
+	//   }
 	// }
 }
 
-func ExampleOpenInAppBrowserAction() {
-	buttonBlock := kakaowork.ButtonBlock{
-		Text:  "자세히보기",
-		Style: kakaowork.ButtonStylePrimary,
-		Action: kakaowork.OpenInAppBrowserAction{
-			Name:  "button1",
-			Value: "http://example.com/details/999",
-		},
-	}
-
-	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "    ")
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
-	fmt.Println(string(jsonBytes))
-	// Output: {
-	//     "type": "button",
-	//     "text": "자세히보기",
-	//     "style": "primary",
-	//     "action": {
-	//         "type": "open_inapp_browser",
-	//         "name": "button1",
-	//         "value": "http://example.com/details/999"
-	//     }
-	// }
-}
-
-func ExampleOpenInAppBrowserAction_Standalone() {
+func ExampleOpenInAppBrowserAction_MarshalJSON() {
 	buttonBlock := kakaowork.ButtonBlock{
 		Text:  "새 창에서 보기",
 		Style: kakaowork.ButtonStylePrimary,
@@ -77,7 +48,7 @@ func ExampleOpenInAppBrowserAction_Standalone() {
 		},
 	}
 
-	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -85,21 +56,21 @@ func ExampleOpenInAppBrowserAction_Standalone() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "button",
-	//     "text": "새 창에서 보기",
-	//     "style": "primary",
-	//     "action": {
-	//         "type": "open_inapp_browser",
-	//         "name": "button1",
-	//         "value": "http://example.com/details/999",
-	//         "standalone": true,
-	//         "width": 980,
-	//         "height": 720
-	//     }
+	//   "type": "button",
+	//   "text": "새 창에서 보기",
+	//   "style": "primary",
+	//   "action": {
+	//     "type": "open_inapp_browser",
+	//     "name": "button1",
+	//     "value": "http://example.com/details/999",
+	//     "standalone": true,
+	//     "width": 980,
+	//     "height": 720
+	//   }
 	// }
 }
 
-func ExampleOpenExternalAppAction() {
+func ExampleOpenExternalAppAction_MarshalJSON() {
 	buttonBlock := kakaowork.ButtonBlock{
 		Text: "카카오 지도에서 보기",
 		Action: kakaowork.OpenExternalAppAction{
@@ -107,7 +78,7 @@ func ExampleOpenExternalAppAction() {
 		},
 	}
 
-	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -115,16 +86,16 @@ func ExampleOpenExternalAppAction() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "button",
-	//     "text": "카카오 지도에서 보기",
-	//     "action": {
-	//         "type": "open_external_app",
-	//         "value": "ios=kakaomap%3A%2F%2Flook%3Fp%3D37.537229%2C127.005515"
-	//     }
+	//   "type": "button",
+	//   "text": "카카오 지도에서 보기",
+	//   "action": {
+	//     "type": "open_external_app",
+	//     "value": "ios=kakaomap%3A%2F%2Flook%3Fp%3D37.537229%2C127.005515"
+	//   }
 	// }
 }
 
-func ExampleSubmitAction() {
+func ExampleSubmitAction_MarshalJSON() {
 	buttonBlock := kakaowork.ButtonBlock{
 		Text: "일정 수락",
 		Action: kakaowork.SubmitAction{
@@ -133,7 +104,7 @@ func ExampleSubmitAction() {
 		},
 	}
 
-	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -141,17 +112,17 @@ func ExampleSubmitAction() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "button",
-	//     "text": "일정 수락",
-	//     "action": {
-	//         "type": "submit_action",
-	//         "name": "accept",
-	//         "value": "event_id=20210301-0024"
-	//     }
+	//   "type": "button",
+	//   "text": "일정 수락",
+	//   "action": {
+	//     "type": "submit_action",
+	//     "name": "accept",
+	//     "value": "event_id=20210301-0024"
+	//   }
 	// }
 }
 
-func ExampleCallModalAction() {
+func ExampleCallModalAction_MarshalJSON() {
 	buttonBlock := kakaowork.ButtonBlock{
 		Text: "결재창 띄우기",
 		Action: kakaowork.CallModalAction{
@@ -159,7 +130,7 @@ func ExampleCallModalAction() {
 		},
 	}
 
-	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -167,16 +138,16 @@ func ExampleCallModalAction() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "button",
-	//     "text": "결재창 띄우기",
-	//     "action": {
-	//         "type": "call_modal",
-	//         "value": "number=20200401-PR-0024"
-	//     }
+	//   "type": "button",
+	//   "text": "결재창 띄우기",
+	//   "action": {
+	//     "type": "call_modal",
+	//     "value": "number=20200401-PR-0024"
+	//   }
 	// }
 }
 
-func ExampleExclusiveAction() {
+func ExampleExclusiveAction_MarshalJSON() {
 	buttonBlock := kakaowork.ButtonBlock{
 		Text:  "자세히보기",
 		Style: kakaowork.ButtonStylePrimary,
@@ -193,7 +164,7 @@ func ExampleExclusiveAction() {
 		},
 	}
 
-	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(buttonBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -201,23 +172,23 @@ func ExampleExclusiveAction() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "button",
-	//     "text": "자세히보기",
-	//     "style": "primary",
-	//     "action": {
-	//         "type": "exclusive",
-	//         "default": {
-	//             "type": "open_system_browser",
-	//             "value": "https://example.com"
-	//         },
-	//         "android": {
-	//             "type": "open_external_app",
-	//             "value": "geo:37.537229,127.005515"
-	//         },
-	//         "ios": {
-	//             "type": "open_inapp_browser",
-	//             "value": "http://m.example.com"
-	//         }
+	//   "type": "button",
+	//   "text": "자세히보기",
+	//   "style": "primary",
+	//   "action": {
+	//     "type": "exclusive",
+	//     "default": {
+	//       "type": "open_system_browser",
+	//       "value": "https://example.com"
+	//     },
+	//     "android": {
+	//       "type": "open_external_app",
+	//       "value": "geo:37.537229,127.005515"
+	//     },
+	//     "ios": {
+	//       "type": "open_inapp_browser",
+	//       "value": "http://m.example.com"
 	//     }
+	//   }
 	// }
 }

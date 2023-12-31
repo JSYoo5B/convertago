@@ -6,7 +6,7 @@ import (
 	"github.com/JSYoo5B/convertago/kakaowork"
 )
 
-func ExampleContextBlock() {
+func ExampleContextBlock_MarshalJSON() {
 	contextBlock := kakaowork.ContextBlock{
 		Content: kakaowork.TextBlock{
 			Text: "카카오 판교 오피스",
@@ -17,7 +17,7 @@ func ExampleContextBlock() {
 		Image: kakaowork.ImageBlock{Url: "https://something.storage.host/upload/path/filename"},
 	}
 
-	jsonBytes, err := json.MarshalIndent(contextBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(contextBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -25,21 +25,21 @@ func ExampleContextBlock() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "context",
-	//     "content": {
-	//         "type": "text",
+	//   "type": "context",
+	//   "content": {
+	//     "type": "text",
+	//     "text": "카카오 판교 오피스",
+	//     "inlines": [
+	//       {
+	//         "type": "link",
 	//         "text": "카카오 판교 오피스",
-	//         "inlines": [
-	//             {
-	//                 "type": "link",
-	//                 "text": "카카오 판교 오피스",
-	//                 "url": "http://kko.to/RRWQwZQj0"
-	//             }
-	//         ]
-	//     },
-	//     "image": {
-	//         "type": "image_link",
-	//         "url": "https://something.storage.host/upload/path/filename"
-	//     }
+	//         "url": "http://kko.to/RRWQwZQj0"
+	//       }
+	//     ]
+	//   },
+	//   "image": {
+	//     "type": "image_link",
+	//     "url": "https://something.storage.host/upload/path/filename"
+	//   }
 	// }
 }

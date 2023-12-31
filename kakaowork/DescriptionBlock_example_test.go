@@ -6,7 +6,7 @@ import (
 	"github.com/JSYoo5B/convertago/kakaowork"
 )
 
-func ExampleDescriptionBlock() {
+func ExampleDescriptionBlock_MarshalJSON() {
 	descriptionBlock := kakaowork.DescriptionBlock{
 		Term: "일시",
 		Content: kakaowork.TextBlock{
@@ -18,7 +18,7 @@ func ExampleDescriptionBlock() {
 		Accent: true,
 	}
 
-	jsonBytes, err := json.MarshalIndent(descriptionBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(descriptionBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -26,19 +26,19 @@ func ExampleDescriptionBlock() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "description",
-	//     "content": {
-	//         "type": "text",
+	//   "type": "description",
+	//   "content": {
+	//     "type": "text",
+	//     "text": "2020년 2월 22일 오후 2시",
+	//     "inlines": [
+	//       {
+	//         "type": "styled",
 	//         "text": "2020년 2월 22일 오후 2시",
-	//         "inlines": [
-	//             {
-	//                 "type": "styled",
-	//                 "text": "2020년 2월 22일 오후 2시",
-	//                 "bold": true
-	//             }
-	//         ]
-	//     },
-	//     "term": "일시",
-	//     "accent": true
+	//         "bold": true
+	//       }
+	//     ]
+	//   },
+	//   "term": "일시",
+	//   "accent": true
 	// }
 }

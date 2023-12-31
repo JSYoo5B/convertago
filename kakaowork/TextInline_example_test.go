@@ -6,7 +6,7 @@ import (
 	"github.com/JSYoo5B/convertago/kakaowork"
 )
 
-func ExampleInlineStyled() {
+func ExampleInlineStyled_MarshalJSON() {
 	textBlock := kakaowork.TextBlock{
 		Text: "카카오워크 텍스트 블록 변경",
 		Inlines: []kakaowork.Inline{
@@ -16,7 +16,7 @@ func ExampleInlineStyled() {
 		},
 	}
 
-	jsonBytes, err := json.MarshalIndent(textBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(textBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -24,28 +24,28 @@ func ExampleInlineStyled() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "text",
-	//     "text": "카카오워크 텍스트 블록 변경",
-	//     "inlines": [
-	//         {
-	//             "type": "styled",
-	//             "text": "카카오워크 "
-	//         },
-	//         {
-	//             "type": "styled",
-	//             "text": "텍스트",
-	//             "bold": true
-	//         },
-	//         {
-	//             "type": "styled",
-	//             "text": " 블록 변경",
-	//             "color": "red"
-	//         }
-	//     ]
+	//   "type": "text",
+	//   "text": "카카오워크 텍스트 블록 변경",
+	//   "inlines": [
+	//     {
+	//       "type": "styled",
+	//       "text": "카카오워크 "
+	//     },
+	//     {
+	//       "type": "styled",
+	//       "text": "텍스트",
+	//       "bold": true
+	//     },
+	//     {
+	//       "type": "styled",
+	//       "text": " 블록 변경",
+	//       "color": "red"
+	//     }
+	//   ]
 	// }
 }
 
-func ExampleInlineLink() {
+func ExampleInlineLink_MarshalJSON() {
 	textBlock := kakaowork.TextBlock{
 		Text: "카카오워크 기술문서",
 		Inlines: []kakaowork.Inline{
@@ -53,7 +53,7 @@ func ExampleInlineLink() {
 		},
 	}
 
-	jsonBytes, err := json.MarshalIndent(textBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(textBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -61,19 +61,19 @@ func ExampleInlineLink() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "text",
-	//     "text": "카카오워크 기술문서",
-	//     "inlines": [
-	//         {
-	//             "type": "link",
-	//             "text": "카카오워크 기술 문서",
-	//             "url": "https://blog.kakaowork.com/43"
-	//         }
-	//     ]
+	//   "type": "text",
+	//   "text": "카카오워크 기술문서",
+	//   "inlines": [
+	//     {
+	//       "type": "link",
+	//       "text": "카카오워크 기술 문서",
+	//       "url": "https://blog.kakaowork.com/43"
+	//     }
+	//   ]
 	// }
 }
 
-func ExampleInlineMention() {
+func ExampleInlineMention_MarshalJSON() {
 	textBlock := kakaowork.TextBlock{
 		Text: "@ryan",
 		Inlines: []kakaowork.Inline{
@@ -81,7 +81,7 @@ func ExampleInlineMention() {
 		},
 	}
 
-	jsonBytes, err := json.MarshalIndent(textBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(textBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -89,17 +89,17 @@ func ExampleInlineMention() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "text",
-	//     "text": "@ryan",
-	//     "inlines": [
-	//         {
-	//             "type": "mention",
-	//             "text": "@ryan",
-	//             "ref": {
-	//                 "type": "kw",
-	//                 "value": 800
-	//             }
-	//         }
-	//     ]
+	//   "type": "text",
+	//   "text": "@ryan",
+	//   "inlines": [
+	//     {
+	//       "type": "mention",
+	//       "text": "@ryan",
+	//       "ref": {
+	//         "type": "kw",
+	//         "value": 800
+	//       }
+	//     }
+	//   ]
 	// }
 }

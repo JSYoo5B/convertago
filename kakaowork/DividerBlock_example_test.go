@@ -6,10 +6,10 @@ import (
 	"github.com/JSYoo5B/convertago/kakaowork"
 )
 
-func ExampleDividerBlock() {
+func ExampleDividerBlock_MarshalJSON() {
 	dividerBlock := kakaowork.DividerBlock{}
 
-	jsonBytes, err := json.MarshalIndent(dividerBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(dividerBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -17,6 +17,6 @@ func ExampleDividerBlock() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "divider"
+	//   "type": "divider"
 	// }
 }
