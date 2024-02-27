@@ -29,20 +29,11 @@ type InlineStyled struct {
 type InlineColor string
 
 const (
-	InlineColorEmpty   = InlineColor("")
 	InlineColorDefault = InlineColor("default")
 	InlineColorRed     = InlineColor("red")
 	InlineColorBlue    = InlineColor("blue")
 	InlineColorGrey    = InlineColor("grey")
 )
-
-var inlineColorConstants = map[InlineColor]bool{
-	InlineColorEmpty:   true,
-	InlineColorDefault: true,
-	InlineColorRed:     true,
-	InlineColorBlue:    true,
-	InlineColorGrey:    true,
-}
 
 func (i InlineStyled) InlineType() string { return "styled" }
 func (i InlineStyled) Type() string       { return "inline" }
@@ -60,6 +51,14 @@ func (i InlineStyled) MarshalJSON() ([]byte, error) {
 		Type:  i.InlineType(),
 		Embed: (Embed)(i),
 	})
+}
+
+var inlineColorConstants = map[InlineColor]bool{
+	InlineColor(""):    true, // Empty allowed. (will be applied as default)
+	InlineColorDefault: true,
+	InlineColorRed:     true,
+	InlineColorBlue:    true,
+	InlineColorGrey:    true,
 }
 
 // InlineLink links text to scheme (http/https, mailto, tel).
