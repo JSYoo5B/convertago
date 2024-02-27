@@ -2,20 +2,14 @@ package kakaowork
 
 import "encoding/json"
 
+// ImageBlock draws image with given Url
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/imagelinkblock/
-
 type ImageBlock struct {
 	Url string `json:"url" validate:"required,url"`
 }
 
-func (i ImageBlock) Type() string {
-	return "image_link"
-}
-
-func (i ImageBlock) String() string {
-	return `{"image": "` + i.Url + `"}`
-}
-
+func (i ImageBlock) Type() string   { return "image_link" }
+func (i ImageBlock) String() string { return `{"image": "` + i.Url + `"}` }
 func (i ImageBlock) MarshalJSON() ([]byte, error) {
 	type Embed ImageBlock
 	return json.Marshal(&struct {
