@@ -10,7 +10,7 @@ import (
 //
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/textblock/
 type TextBlock struct {
-	// Text 에 표현할 텍스트를 입력합니다.
+	// Text 에 표현할 텍스트를 입력
 	// - 전체 텍스트를 \n을 포함하여 기술
 	// - Inlines 서식을 적용할 텍스트까지 포함하여 작성 필요
 	// - Inlines 와 정합성이 맞지 않을 경우, Inlines 의 String()를 우선으로 적용함

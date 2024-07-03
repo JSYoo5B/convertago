@@ -6,11 +6,11 @@ import "encoding/json"
 //
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/descriptionblock/
 type DescriptionBlock struct {
-	// Content 에 상세 내용을 TextBlock 으로 입력합니다.
+	// Content 에 상세 내용을 TextBlock 으로 입력
 	Content TextBlock `json:"content"`
-	// Term 에 Content 의 내용을 요약하는 문구로 입력합니다.
+	// Term 에 Content 의 내용을 요약하는 문구로 입력
 	Term string `json:"term"`
-	// Accent 는 Term 의 내용을 굵은 글씨체로 적용하며, 기본값은 false 입니다.
+	// Accent 는 Term 의 내용을 굵은 글씨체로 적용하며, 기본값은 false
 	Accent bool `json:"accent,omitempty"`
 }
 

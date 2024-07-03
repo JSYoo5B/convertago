@@ -6,7 +6,7 @@ import "encoding/json"
 //
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/imagelinkblock/
 type ImageBlock struct {
-	// Url 에 출력할 이미지의 URL 을 입력합니다.
+	// Url 에 출력할 이미지의 URL 을 입력
 	Url string `json:"url" validate:"required,url"`
 }
 

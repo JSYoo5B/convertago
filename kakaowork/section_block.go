@@ -7,11 +7,11 @@ import "encoding/json"
 //
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/sectionblock/
 type SectionBlock struct {
-	// Content 에 텍스트를 표현하는 속성 블럭을 입력합니다.
+	// Content 에 텍스트를 표현하는 속성 블럭을 입력
 	Content TextBlock `json:"content"`
-	// Accesory 에 이미지를 표현하는 속성 블럭을 입력합니다. (선택)
+	// Accessory 에 이미지를 표현하는 속성 블럭을 입력 (선택)
 	Accessory *ImageBlock `json:"accessory,omitempty"`
-	// ButtonAction 에 클릭 시 수행될 동작을 입력합니다. (선택)
+	// ButtonAction 에 클릭 시 수행될 동작을 입력합 (선택)
 	Action ButtonAction `json:"action,omitempty"`
 }
 
