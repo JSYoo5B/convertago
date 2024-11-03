@@ -15,7 +15,7 @@ type SectionBlock struct {
 	Action ButtonAction `json:"action,omitempty"`
 }
 
-func (s SectionBlock) Type() string   { return "section" }
+func (SectionBlock) Type() string     { return "section" }
 func (s SectionBlock) String() string { return s.Content.String() }
 func (s SectionBlock) MarshalJSON() ([]byte, error) {
 	type Embed SectionBlock

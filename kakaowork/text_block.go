@@ -20,7 +20,7 @@ type TextBlock struct {
 	Inlines []Inline `json:"inlines,omitempty"`
 }
 
-func (t TextBlock) Type() string { return "text" }
+func (TextBlock) Type() string { return "text" }
 func (t TextBlock) String() string {
 	if t.Inlines == nil {
 		return t.Text
