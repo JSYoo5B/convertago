@@ -2,6 +2,8 @@ package kakaowork
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -41,4 +43,37 @@ func (t TextBlock) MarshalJSON() ([]byte, error) {
 		Type:  t.Type(),
 		Embed: (Embed)(t),
 	})
+}
+
+func ConvertTextBlock(target any) (result TextBlock, err error) {
+	Type, Value := reflect.TypeOf(target), reflect.ValueOf(target)
+	for i := 0; i < Type.NumField(); i++ {
+		fieldType, fieldValue := Type.Field(i), Value.Field(i)
+		tag := fieldType.Tag.Get("kakaowork")
+		if !fieldType.IsExported() {
+			continue
+		} else if tag == "" {
+			continue
+		}
+
+		tags := strings.Split(tag, ";")
+		if len(tags) == 0 ||
+			(tags[0] != "TextBlock" && tags[0] != "text") {
+			continue
+		}
+
+		result, err = convertTextField(result, tags[1:], fieldValue)
+		if err != nil {
+			return TextBlock{}, err
+		}
+	}
+
+	return result, nil
+}
+
+func convertTextField(previous TextBlock, _ []string, value reflect.Value) (result TextBlock, err error) {
+	result = previous
+	result.Text += fmt.Sprintf("%v", value)
+
+	return result, nil
 }
