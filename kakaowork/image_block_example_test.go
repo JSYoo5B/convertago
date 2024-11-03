@@ -6,10 +6,10 @@ import (
 	"github.com/JSYoo5B/convertago/kakaowork"
 )
 
-func ExampleImageBlock() {
+func ExampleImageBlock_MarshalJSON() {
 	textBlock := kakaowork.ImageBlock{Url: "https://something.storage.host/upload/path/filename"}
 
-	jsonBytes, err := json.MarshalIndent(textBlock, "", "    ")
+	jsonBytes, err := json.MarshalIndent(textBlock, "", "  ")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -17,7 +17,7 @@ func ExampleImageBlock() {
 
 	fmt.Println(string(jsonBytes))
 	// Output: {
-	//     "type": "image_link",
-	//     "url": "https://something.storage.host/upload/path/filename"
+	//   "type": "image_link",
+	//   "url": "https://something.storage.host/upload/path/filename"
 	// }
 }
