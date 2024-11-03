@@ -10,13 +10,13 @@ import (
 type ButtonBlock struct {
 	// Text 에 버튼이 표현할 텍스트를 입력
 	Text string `json:"text"`
-	// Style 은 버튼의 색상을 표현하며, 기본값은 회색
+	// Style 은 버튼의 색상을 설정, 기본값은 회색
 	// - 기본, 회색: ButtonStyleDefault 혹은 ButtonStyleGray
 	// - 강조, 파랑: ButtonStylePrimary 혹은 ButtonStyleBlue
 	// - 위험, 빨강: ButtonStyleDanger 혹은 ButtonStyleRed
 	Style ButtonStyle `json:"style,omitempty"`
-	// Action 에 버튼을 클릭했을 때 수행할 동작을 설정
-	// 설정 가능한 값: OpenSystemBrowserAction, OpenInAppBrowserAction, OpenExternalAppAction, SubmitAction, CallModalAction, ExclusiveAction 참고
+	// Action 에 버튼을 클릭했을 때 수행할 동작을 설정,
+	// 적용 가능한 ButtonAction: OpenSystemBrowserAction, OpenInAppBrowserAction, OpenExternalAppAction, SubmitAction, CallModalAction, ExclusiveAction 참고
 	Action ButtonAction `json:"action"`
 }
 
@@ -26,9 +26,9 @@ const (
 	ButtonStyleDefault = ButtonStyle("default")
 	ButtonStylePrimary = ButtonStyle("primary")
 	ButtonStyleDanger  = ButtonStyle("danger")
-	// ButtonStyleGray 는 ButtonStyleDefault 와 동일.
+	// ButtonStyleGray 는 ButtonStyleDefault 와 동일
 	ButtonStyleGray = ButtonStyleDefault
-	// ButtonStyleBlue 는  ButtonStylePrimary 와 동일
+	// ButtonStyleBlue 는 ButtonStylePrimary 와 동일
 	ButtonStyleBlue = ButtonStylePrimary
 	// ButtonStyleRed 는 ButtonStyleDanger 와 동일
 	ButtonStyleRed = ButtonStyleDanger
