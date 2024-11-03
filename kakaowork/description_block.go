@@ -14,7 +14,7 @@ type DescriptionBlock struct {
 	Accent bool `json:"accent,omitempty"`
 }
 
-func (d DescriptionBlock) Type() string   { return "description" }
+func (DescriptionBlock) Type() string     { return "description" }
 func (d DescriptionBlock) String() string { return d.Term + ": " + d.Content.String() }
 func (d DescriptionBlock) MarshalJSON() ([]byte, error) {
 	type Embed DescriptionBlock

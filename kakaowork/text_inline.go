@@ -4,10 +4,9 @@ import "encoding/json"
 
 // Inline 은 텍스트에 다양한 추가 서식을 적용할 때 사용하는 TextBlock 포맷입니다.
 // 포맷은 InlineStyled, InlineLink, InlineMention 속성으로 구성됩니다.
+// TextBlock.Inlines 내 캐스팅을 위해 제공되는 interface 입니다.
 //
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/textblock/#inlines
-//
-// TextBlock.Inlines 내 캐스팅을 위해 제공되는 interface 입니다.
 type Inline interface {
 	InlineType() string
 	BubbleBlock
@@ -41,11 +40,11 @@ const (
 	InlineColorGrey    = InlineColor("grey")
 )
 
-func (i InlineStyled) InlineType() string { return "styled" }
-func (i InlineStyled) Type() string       { return "inline" }
-func (i InlineStyled) String() string     { return i.Text }
+func (InlineStyled) InlineType() string { return "styled" }
+func (InlineStyled) Type() string       { return "inline" }
+func (i InlineStyled) String() string   { return i.Text }
 func (i InlineStyled) MarshalJSON() ([]byte, error) {
-	if _, exists := inlineColorConstants[i.Color]; !exists {
+	if exists := inlineColorConstants[i.Color]; !exists {
 		i.Color = InlineColorDefault
 	}
 
@@ -81,9 +80,9 @@ type InlineLink struct {
 	Url string `json:"url"`
 }
 
-func (i InlineLink) InlineType() string { return "link" }
-func (i InlineLink) Type() string       { return "inline" }
-func (i InlineLink) String() string     { return i.Text }
+func (InlineLink) InlineType() string { return "link" }
+func (InlineLink) Type() string       { return "inline" }
+func (i InlineLink) String() string   { return i.Text }
 func (i InlineLink) MarshalJSON() ([]byte, error) {
 	type Embed InlineLink
 	return json.Marshal(&struct {
@@ -106,9 +105,9 @@ type InlineMention struct {
 	UserId int
 }
 
-func (i InlineMention) InlineType() string { return "mention" }
-func (i InlineMention) Type() string       { return "inline" }
-func (i InlineMention) String() string     { return i.Text }
+func (InlineMention) InlineType() string { return "mention" }
+func (InlineMention) Type() string       { return "inline" }
+func (i InlineMention) String() string   { return i.Text }
 func (i InlineMention) MarshalJSON() ([]byte, error) {
 	type Ref struct {
 		Type  string `json:"type"`

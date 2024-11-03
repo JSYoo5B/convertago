@@ -14,7 +14,7 @@ type ContextBlock struct {
 	Image ImageBlock `json:"image"`
 }
 
-func (c ContextBlock) Type() string   { return "context" }
+func (ContextBlock) Type() string     { return "context" }
 func (c ContextBlock) String() string { return c.Content.String() }
 func (c ContextBlock) MarshalJSON() ([]byte, error) {
 	type Embed ContextBlock

@@ -26,10 +26,10 @@ const (
 	HeaderStyleYellow = HeaderStyle("yellow")
 )
 
-func (h HeaderBlock) Type() string   { return "header" }
+func (HeaderBlock) Type() string     { return "header" }
 func (h HeaderBlock) String() string { return h.Text }
 func (h HeaderBlock) MarshalJSON() ([]byte, error) {
-	if _, exists := headerStyleConstants[h.Style]; !exists {
+	if exists := headerStyleConstants[h.Style]; !exists {
 		h.Style = HeaderStyleWhite
 	}
 
