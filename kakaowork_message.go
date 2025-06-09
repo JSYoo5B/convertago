@@ -36,7 +36,7 @@ func MarshalKakaoworkMessage(v any) (kakaowork.Message, error) {
 		case "text":
 			// Convert text block
 		case "image", "image_link":
-			// Convert image block
+			blocks = append(blocks, convertKakaoworkImageBlock(fieldValue, option))
 		case "button":
 			// Convert button block
 		case "divider":
@@ -55,6 +55,25 @@ func MarshalKakaoworkMessage(v any) (kakaowork.Message, error) {
 	}
 
 	return kakaowork.Message{Preview: preview, Blocks: blocks}, nil
+}
+
+func convertKakaoworkImageBlock(v reflect.Value, option string) kakaowork.ImageBlock {
+	var url, format string
+	if strings.HasPrefix(option, "prefix=") {
+		format = option[len("prefix="):] + "%v"
+	} else if strings.HasPrefix(option, "format=") {
+		format = option[len("format="):]
+	} else if strings.HasPrefix(option, "fmt=") {
+		format = option[len("fmt="):]
+	} else {
+		format = "%v"
+	}
+
+	url = sprintf(format, v)
+
+	return kakaowork.ImageBlock{
+		Url: url,
+	}
 }
 
 func convertKakaoworkHeaderBlock(v reflect.Value, option string) kakaowork.HeaderBlock {
