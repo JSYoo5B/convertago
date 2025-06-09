@@ -2,6 +2,7 @@ package convertago
 
 import (
 	"errors"
+	"fmt"
 	"github.com/JSYoo5B/convertago/kakaowork"
 	"reflect"
 	"strings"
@@ -17,7 +18,7 @@ func MarshalKakaoworkMessage(v any) (kakaowork.Message, error) {
 
 	preview, blocks := "", make([]kakaowork.BubbleBlock, 0, Type.NumField())
 	for i := 0; i < Type.NumField(); i++ {
-		fieldType := Type.Field(i)
+		fieldType, fieldValue := Type.Field(i), dereference(Value.Field(i))
 		if !fieldType.IsExported() {
 			continue
 		}
@@ -30,7 +31,7 @@ func MarshalKakaoworkMessage(v any) (kakaowork.Message, error) {
 
 		switch convertType {
 		case "preview":
-			// Convert message preview
+			preview += fmt.Sprintf("%v", fieldValue)
 		case "text":
 			// Convert text block
 		case "image", "image_link":
@@ -38,7 +39,7 @@ func MarshalKakaoworkMessage(v any) (kakaowork.Message, error) {
 		case "button":
 			// Convert button block
 		case "divider":
-			// Convert divider block
+			blocks = append(blocks, kakaowork.DividerBlock{})
 		case "header":
 			// Convert header block
 		case "action":
