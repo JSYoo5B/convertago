@@ -4,13 +4,12 @@ import "encoding/json"
 
 // Inline 은 텍스트에 다양한 추가 서식을 적용할 때 사용하는 TextBlock 포맷입니다.
 // 포맷은 InlineStyled, InlineLink, InlineMention 속성으로 구성됩니다.
+// TextBlock.Inlines 내 캐스팅을 위해 제공되는 interface 입니다.
 //
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/textblock/#inlines
-//
-// TextBlock.Inlines 내 캐스팅을 위해 제공되는 interface 입니다.
 type Inline interface {
 	InlineType() string
-	BubbleBlock
+	MarshalJSON() ([]byte, error)
 }
 
 // InlineStyled 는 TextBlock 에 Bold, Italic, Strike, Color 스타일을 지정하여 텍스트를 꾸미는 속성입니다.
@@ -41,13 +40,9 @@ const (
 	InlineColorGrey    = InlineColor("grey")
 )
 
-func (i InlineStyled) InlineType() string { return "styled" }
-func (i InlineStyled) Type() string       { return "inline" }
-func (i InlineStyled) String() string     { return i.Text }
+func (InlineStyled) InlineType() string { return "styled" }
 func (i InlineStyled) MarshalJSON() ([]byte, error) {
-	if _, exists := inlineColorConstants[i.Color]; !exists {
-		i.Color = InlineColorDefault
-	}
+	i.Color = InlineColors[i.Color]
 
 	type Embed InlineStyled
 	return json.Marshal(&struct {
@@ -59,12 +54,12 @@ func (i InlineStyled) MarshalJSON() ([]byte, error) {
 	})
 }
 
-var inlineColorConstants = map[InlineColor]bool{
-	InlineColor(""):    true, // Empty allowed. (will be applied as default)
-	InlineColorDefault: true,
-	InlineColorRed:     true,
-	InlineColorBlue:    true,
-	InlineColorGrey:    true,
+var InlineColors = map[InlineColor]InlineColor{
+	InlineColor(""):    InlineColor(""),
+	InlineColorDefault: InlineColorDefault,
+	InlineColorRed:     InlineColorRed,
+	InlineColorBlue:    InlineColorBlue,
+	InlineColorGrey:    InlineColorGrey,
 }
 
 // InlineLink 는 TextBlock 에 다음과 같은 HTTP 또는 HTTPS 스킴을 적용할 수 있는 속성입니다.
@@ -81,9 +76,7 @@ type InlineLink struct {
 	Url string `json:"url"`
 }
 
-func (i InlineLink) InlineType() string { return "link" }
-func (i InlineLink) Type() string       { return "inline" }
-func (i InlineLink) String() string     { return i.Text }
+func (InlineLink) InlineType() string { return "link" }
 func (i InlineLink) MarshalJSON() ([]byte, error) {
 	type Embed InlineLink
 	return json.Marshal(&struct {
@@ -106,9 +99,7 @@ type InlineMention struct {
 	UserId int
 }
 
-func (i InlineMention) InlineType() string { return "mention" }
-func (i InlineMention) Type() string       { return "inline" }
-func (i InlineMention) String() string     { return i.Text }
+func (InlineMention) InlineType() string { return "mention" }
 func (i InlineMention) MarshalJSON() ([]byte, error) {
 	type Ref struct {
 		Type  string `json:"type"`

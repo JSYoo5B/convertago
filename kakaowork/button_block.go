@@ -27,33 +27,34 @@ const (
 	ButtonStylePrimary = ButtonStyle("primary")
 	ButtonStyleDanger  = ButtonStyle("danger")
 	// ButtonStyleGray 는 ButtonStyleDefault 와 동일
-	ButtonStyleGray = ButtonStyleDefault
+	ButtonStyleGray = ButtonStyle("gray")
 	// ButtonStyleBlue 는 ButtonStylePrimary 와 동일
-	ButtonStyleBlue = ButtonStylePrimary
+	ButtonStyleBlue = ButtonStyle("blue")
 	// ButtonStyleRed 는 ButtonStyleDanger 와 동일
-	ButtonStyleRed = ButtonStyleDanger
+	ButtonStyleRed = ButtonStyle("red")
 )
 
-func (b ButtonBlock) Type() string   { return "button" }
-func (b ButtonBlock) String() string { return b.Text + ": " + b.Action.String() }
+func (ButtonBlock) BubbleType() string { return "button" }
 func (b ButtonBlock) MarshalJSON() ([]byte, error) {
-	if _, exists := buttonStyleConstants[b.Style]; !exists {
-		b.Style = ButtonStyleDefault
-	}
+	b.Style = ButtonStyles[b.Style]
 
 	type Embed ButtonBlock
 	return json.Marshal(struct {
 		Type string `json:"type"`
 		Embed
 	}{
-		Type:  b.Type(),
+		Type:  b.BubbleType(),
 		Embed: (Embed)(b),
 	})
 }
 
-var buttonStyleConstants = map[ButtonStyle]bool{
-	ButtonStyle(""): true,
-	ButtonStyleGray: true,
-	ButtonStyleBlue: true,
-	ButtonStyleRed:  true,
+var ButtonStyles = map[ButtonStyle]ButtonStyle{
+	ButtonStyle(""):    ButtonStyle(""),
+	ButtonStyleDefault: ButtonStyleDefault,
+	ButtonStylePrimary: ButtonStylePrimary,
+	ButtonStyleDanger:  ButtonStyleDanger,
+
+	ButtonStyleGray: ButtonStyleDefault,
+	ButtonStyleBlue: ButtonStylePrimary,
+	ButtonStyleRed:  ButtonStyleDanger,
 }

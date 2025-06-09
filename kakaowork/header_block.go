@@ -1,6 +1,8 @@
 package kakaowork
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // HeaderBlock 은 말풍선의 최상단에만 지정할 수 있는 블록으로, 말풍선의 헤더를 색상으로 구분하여 표시할 수 있습니다.
 //
@@ -24,29 +26,39 @@ const (
 	HeaderStyleBlue   = HeaderStyle("blue")
 	HeaderStyleRed    = HeaderStyle("red")
 	HeaderStyleYellow = HeaderStyle("yellow")
+	// HeaderStylePlain 은 HeaderStyleWhite 와 동일
+	HeaderStylePlain = HeaderStyle("plain")
+	// HeaderStyleSuccess 는 HeaderStyleBlue 와 동일
+	HeaderStyleSuccess = HeaderStyle("success")
+	// HeaderStyleError 는 HeaderStyleRed 와 동일
+	HeaderStyleError = HeaderStyle("error")
+	// HeaderStyleWarning 은 HeaderStyleYellow 와 동일
+	HeaderStyleWarning = HeaderStyle("warning")
 )
 
-func (h HeaderBlock) Type() string   { return "header" }
-func (h HeaderBlock) String() string { return h.Text }
+func (HeaderBlock) BubbleType() string { return "header" }
 func (h HeaderBlock) MarshalJSON() ([]byte, error) {
-	if _, exists := headerStyleConstants[h.Style]; !exists {
-		h.Style = HeaderStyleWhite
-	}
+	h.Style = HeaderStyles[h.Style]
 
 	type Embed HeaderBlock
 	return json.Marshal(&struct {
 		Type string `json:"type"`
 		Embed
 	}{
-		Type:  h.Type(),
+		Type:  h.BubbleType(),
 		Embed: (Embed)(h),
 	})
 }
 
-var headerStyleConstants = map[HeaderStyle]bool{
-	HeaderStyle(""):   true,
-	HeaderStyleWhite:  true,
-	HeaderStyleBlue:   true,
-	HeaderStyleRed:    true,
-	HeaderStyleYellow: true,
+var HeaderStyles = map[HeaderStyle]HeaderStyle{
+	HeaderStyle(""):   HeaderStyle(""),
+	HeaderStyleWhite:  HeaderStyleWhite,
+	HeaderStyleBlue:   HeaderStyleBlue,
+	HeaderStyleRed:    HeaderStyleRed,
+	HeaderStyleYellow: HeaderStyleYellow,
+
+	HeaderStylePlain:   HeaderStyleWhite,
+	HeaderStyleSuccess: HeaderStyleBlue,
+	HeaderStyleError:   HeaderStyleRed,
+	HeaderStyleWarning: HeaderStyleYellow,
 }

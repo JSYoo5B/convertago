@@ -2,7 +2,6 @@ package kakaowork
 
 import (
 	"encoding/json"
-	"strings"
 )
 
 // TextBlock 은 말풍선에서 가장 기본인 텍스트를 표현하는 블록입니다.
@@ -20,25 +19,14 @@ type TextBlock struct {
 	Inlines []Inline `json:"inlines,omitempty"`
 }
 
-func (t TextBlock) Type() string { return "text" }
-func (t TextBlock) String() string {
-	if t.Inlines == nil {
-		return t.Text
-	} else {
-		var inlineTexts []string
-		for _, inline := range t.Inlines {
-			inlineTexts = append(inlineTexts, inline.String())
-		}
-		return strings.Join(inlineTexts, "")
-	}
-}
+func (TextBlock) BubbleType() string { return "text" }
 func (t TextBlock) MarshalJSON() ([]byte, error) {
 	type Embed TextBlock
 	return json.Marshal(&struct {
 		Type string `json:"type"`
 		Embed
 	}{
-		Type:  t.Type(),
+		Type:  t.BubbleType(),
 		Embed: (Embed)(t),
 	})
 }

@@ -4,7 +4,7 @@ import "encoding/json"
 
 type ButtonAction interface {
 	ActionType() string
-	BubbleBlock
+	MarshalJSON() ([]byte, error)
 }
 
 // OpenSystemBrowserAction 은 Value 속성 값의 URL 을 시스템 브라우저로 연결합니다.
@@ -18,9 +18,7 @@ type OpenSystemBrowserAction struct {
 	Value string `json:"value"`
 }
 
-func (o OpenSystemBrowserAction) ActionType() string { return "open_system_browser" }
-func (o OpenSystemBrowserAction) Type() string       { return "action" }
-func (o OpenSystemBrowserAction) String() string     { return o.Value }
+func (OpenSystemBrowserAction) ActionType() string { return "open_system_browser" }
 func (o OpenSystemBrowserAction) MarshalJSON() ([]byte, error) {
 	type Embed OpenSystemBrowserAction
 	return json.Marshal(&struct {
@@ -49,9 +47,7 @@ type OpenInAppBrowserAction struct {
 	Height int `json:"height,omitempty"`
 }
 
-func (o OpenInAppBrowserAction) ActionType() string { return "open_inapp_browser" }
-func (o OpenInAppBrowserAction) Type() string       { return "action" }
-func (o OpenInAppBrowserAction) String() string     { return o.Value }
+func (OpenInAppBrowserAction) ActionType() string { return "open_inapp_browser" }
 func (o OpenInAppBrowserAction) MarshalJSON() ([]byte, error) {
 	if !o.Standalone {
 		o.Width, o.Height = 0, 0
@@ -78,9 +74,7 @@ type OpenExternalAppAction struct {
 	Value string `json:"value"`
 }
 
-func (o OpenExternalAppAction) ActionType() string { return "open_external_app" }
-func (o OpenExternalAppAction) Type() string       { return "action" }
-func (o OpenExternalAppAction) String() string     { return o.Value }
+func (OpenExternalAppAction) ActionType() string { return "open_external_app" }
 func (o OpenExternalAppAction) MarshalJSON() ([]byte, error) {
 	type Embed OpenExternalAppAction
 	return json.Marshal(&struct {
@@ -104,9 +98,7 @@ type SubmitAction struct {
 	Value string `json:"value"`
 }
 
-func (s SubmitAction) ActionType() string { return "submit_action" }
-func (s SubmitAction) Type() string       { return "action" }
-func (s SubmitAction) String() string     { return s.Value }
+func (SubmitAction) ActionType() string { return "submit_action" }
 func (s SubmitAction) MarshalJSON() ([]byte, error) {
 	type Embed SubmitAction
 	return json.Marshal(&struct {
@@ -129,9 +121,7 @@ type CallModalAction struct {
 	Value string `json:"value"`
 }
 
-func (c CallModalAction) ActionType() string { return "call_modal" }
-func (c CallModalAction) Type() string       { return "action" }
-func (c CallModalAction) String() string     { return c.Value }
+func (CallModalAction) ActionType() string { return "call_modal" }
 func (c CallModalAction) MarshalJSON() ([]byte, error) {
 	type Embed CallModalAction
 	return json.Marshal(&struct {
@@ -165,9 +155,7 @@ type ExclusiveAction struct {
 	Ios ButtonAction `json:"ios,omitempty"`
 }
 
-func (e ExclusiveAction) ActionType() string { return "exclusive" }
-func (e ExclusiveAction) Type() string       { return "action" }
-func (e ExclusiveAction) String() string     { return e.Default.String() }
+func (ExclusiveAction) ActionType() string { return "exclusive" }
 func (e ExclusiveAction) MarshalJSON() ([]byte, error) {
 	type Embed ExclusiveAction
 	return json.Marshal(&struct {

@@ -14,15 +14,14 @@ type DescriptionBlock struct {
 	Accent bool `json:"accent,omitempty"`
 }
 
-func (d DescriptionBlock) Type() string   { return "description" }
-func (d DescriptionBlock) String() string { return d.Term + ": " + d.Content.String() }
+func (DescriptionBlock) BubbleType() string { return "description" }
 func (d DescriptionBlock) MarshalJSON() ([]byte, error) {
 	type Embed DescriptionBlock
 	return json.Marshal(&struct {
 		Type string `json:"type"`
 		Embed
 	}{
-		Type:  d.Type(),
+		Type:  d.BubbleType(),
 		Embed: (Embed)(d),
 	})
 }

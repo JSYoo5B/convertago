@@ -15,15 +15,14 @@ type SectionBlock struct {
 	Action ButtonAction `json:"action,omitempty"`
 }
 
-func (s SectionBlock) Type() string   { return "section" }
-func (s SectionBlock) String() string { return s.Content.String() }
+func (SectionBlock) BubbleType() string { return "section" }
 func (s SectionBlock) MarshalJSON() ([]byte, error) {
 	type Embed SectionBlock
 	return json.Marshal(&struct {
 		Type string `json:"type"`
 		Embed
 	}{
-		Type:  s.Type(),
+		Type:  s.BubbleType(),
 		Embed: (Embed)(s),
 	})
 }

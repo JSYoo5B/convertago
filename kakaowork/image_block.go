@@ -1,6 +1,8 @@
 package kakaowork
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // ImageBlock 은 말풍선 안에서 이미지를 표현하는 블록으로, 레이아웃 블록을 구성하는 엘리먼트의 속성으로 사용되기도 합니다.
 //
@@ -10,15 +12,14 @@ type ImageBlock struct {
 	Url string `json:"url" validate:"required,url"`
 }
 
-func (i ImageBlock) Type() string   { return "image_link" }
-func (i ImageBlock) String() string { return `{"image": "` + i.Url + `"}` }
+func (ImageBlock) BubbleType() string { return "image_link" }
 func (i ImageBlock) MarshalJSON() ([]byte, error) {
 	type Embed ImageBlock
 	return json.Marshal(&struct {
 		Type string `json:"type"`
 		Embed
 	}{
-		Type:  i.Type(),
+		Type:  i.BubbleType(),
 		Embed: (Embed)(i),
 	})
 }

@@ -10,21 +10,14 @@ type ActionBlock struct {
 	Buttons []ButtonBlock `json:"elements"`
 }
 
-func (ActionBlock) Type() string { return "action" }
-func (a ActionBlock) String() string {
-	str := ""
-	for _, b := range a.Buttons {
-		str += b.String()
-	}
-	return str
-}
+func (ActionBlock) BubbleType() string { return "action" }
 func (a ActionBlock) MarshalJSON() ([]byte, error) {
 	type Embed ActionBlock
 	return json.Marshal(struct {
 		Type string `json:"type"`
 		Embed
 	}{
-		Type:  a.Type(),
+		Type:  a.BubbleType(),
 		Embed: (Embed)(a),
 	})
 }
