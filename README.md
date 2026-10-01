@@ -179,6 +179,23 @@ JSON examples are attached to each conversion function in its corresponding
 package and compare JSON, error diagnostics, and skip diagnostics for all three
 platforms against reflection.
 
+## Verification
+
+CI runs tests, the race detector, and `go vet` on Go 1.25 and the current stable
+release. It regenerates the checked-in benchmark accessors and rejects a diff.
+It also runs bounded fuzz checks and exercises each benchmark without timing
+thresholds.
+
+`FuzzParse` checks canonical tag round trips. `FuzzGeneratedReflectionConversion`
+compares generated and reflected diagnostics and JSON for flat, nested, and
+dynamic inputs across all three platforms, then validates successful native
+messages. Run longer local fuzz sessions with:
+
+```sh
+go test ./internal/conversion -run '^$' -fuzz '^FuzzParse$' -fuzztime=1m
+go test . -run '^$' -fuzz '^FuzzGeneratedReflectionConversion$' -fuzztime=1m
+```
+
 ## Benchmarks
 
 See [measured CPU and memory comparisons](benchmarks/README.md) for the recorded

@@ -1,0 +1,42 @@
+name: Go
+
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ['1.25.x', 'stable']
+    env:
+      GOFLAGS: -mod=readonly
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go }}
+          cache-dependency-path: go.sum
+      - name: Test
+        run: go test -count=1 ./...
+      - name: Race
+        run: go test -race -count=1 ./...
+      - name: Vet
+        run: go vet ./...
+      - name: Check generated accessors
+        run: |
+          go generate ./internal/benchmarksource
+          git diff --exit-code
+      - name: Fuzz tag parsing
+        run: go test ./internal/conversion -run '^$' -fuzz '^FuzzParse$' -fuzztime=10s -parallel=2
+      - name: Fuzz conversion parity
+        run: go test . -run '^$' -fuzz '^FuzzGeneratedReflectionConversion$' -fuzztime=10s -parallel=2
+      - name: Exercise benchmark cases
+        run: go test -run '^$' -bench 'Benchmark(SourcePlan|Fields|SourceFields|To.*Message)$' -benchtime=1x -benchmem . ./internal/conversion
