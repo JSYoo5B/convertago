@@ -29,8 +29,10 @@ func TestActionBlock_Validate(t *testing.T) {
 		t.Fatal("nested button length was not validated")
 	}
 	block.Elements[0].Text = "확인"
+	block.Elements[1].Text = "확인"
 	block.Elements[0].Action = kakaowork.OpenSystemBrowserAction{Value: "relative"}
-	if err := v.Struct(block); err == nil {
-		t.Fatal("nested button URL was not validated")
+	failures, ok := v.Struct(block).(validator.ValidationErrors)
+	if !ok || len(failures) != 1 || failures[0].Namespace() != "ActionBlock.Elements[0].Action.Value" {
+		t.Fatalf("expected an isolated nested URL failure, got %v", failures)
 	}
 }
