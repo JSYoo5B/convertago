@@ -3,9 +3,11 @@ package conversion
 import "github.com/JSYoo5B/convertago/internal/validation"
 
 func ValidateURL(platform, path, text string, httpsOnly bool) error {
-	valid := validation.AbsoluteURI(text, "http", "https")
+	var valid bool
 	if httpsOnly {
 		valid = validation.AbsoluteURI(text, "https")
+	} else {
+		valid = validation.AbsoluteURI(text, "http", "https")
 	}
 	if valid {
 		return nil
