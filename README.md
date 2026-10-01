@@ -178,3 +178,47 @@ JSON examples are attached to each conversion function in its corresponding
 `*_example_test.go`. Generator integration tests compile a separate consumer
 package and compare JSON, error diagnostics, and skip diagnostics for all three
 platforms against reflection.
+
+## Benchmarks
+
+Run the reflection cache and messenger benchmarks with allocation reporting:
+
+```sh
+go test -run '^$' -bench 'Benchmark(SourcePlan|Fields|To.*Message)$' -benchmem -count=3 . ./internal/conversion
+```
+
+`BenchmarkSourcePlan` compares a cached type-plan lookup with compiling and
+statically validating the same type on every call. Its uncached case excludes
+cache insertion. `BenchmarkFields` measures the source reader with cold and warm
+plans, including a dynamic interface value's separate type cache. The cold case
+evicts only the fixture's plans outside the timer, then measures compilation,
+validation, insertion, and reading current values. Its timer pauses add overhead
+to the benchmark process, so use `BenchmarkSourcePlan` for process CPU comparisons.
+
+`BenchmarkToKakaoworkMessage`, `BenchmarkToSlackMessage`, and
+`BenchmarkToGoogleChatMessage` measure complete conversion after warming the
+caches. They use identical flat, nested, and dynamic source values with no
+generated accessors. Caller-side JSON marshaling is excluded; any serialization
+performed inside a converter is included.
+
+`ns/op` reports elapsed time per operation. `B/op` and `allocs/op` report allocated
+bytes and allocation counts per operation, rather than retained cache memory or
+peak resident memory. To compare CPU time, compile the benchmark binary once and
+run each case with the same fixed iteration count:
+
+```sh
+go test -c -o /tmp/convertago-conversion.bench ./internal/conversion
+/usr/bin/time -p /tmp/convertago-conversion.bench -test.run '^$' \
+    -test.bench '^BenchmarkSourcePlan/Nested/Cached$' \
+    -test.benchtime=1000000x -test.benchmem
+/usr/bin/time -p /tmp/convertago-conversion.bench -test.run '^$' \
+    -test.bench '^BenchmarkSourcePlan/Nested/Uncached$' \
+    -test.benchtime=1000000x -test.benchmem
+```
+
+Compare the sum of `user` and `sys` CPU seconds. These process totals include
+startup, benchmark setup, and garbage collection. Repeat measurements under the
+same Go version, machine, and `GOMAXPROCS`; timings are informational and are not
+test pass/fail thresholds. On macOS, `/usr/bin/time -l` also reports peak resident
+memory. Build the root package's test binary to measure the messenger cases in
+the same way.
