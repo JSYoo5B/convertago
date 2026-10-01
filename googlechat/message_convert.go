@@ -10,51 +10,68 @@ import (
 
 // ToMessage builds a Message from googlechat tags in source declaration order.
 // Native elements are validated against their containing widget.
-// Widgets are placed in one section of one card, with a header when supplied.
+// Top-level widgets form an implicit card; card and section builders select explicit layouts.
 func ToMessage(input any, options ...conversion.Option) (Message, error) {
 	nodes, err := conversion.Prepare(input, "googlechat", options)
 	if err != nil {
 		return Message{}, err
 	}
 	message := Message{}
-	card := Card{}
-	var widgets []Widget
+	var implicit []conversion.Node
+	flush := func() error {
+		if len(implicit) == 0 {
+			return nil
+		}
+		card, err := convertCardNodes(implicit, "$")
+		if err != nil {
+			return err
+		}
+		message.CardsV2 = append(message.CardsV2, CardWithID{Card: card})
+		implicit = nil
+		return nil
+	}
 	for _, node := range nodes {
 		switch node.Role {
 		case "text":
 			message.Text += node.Text("text")
 		case "fallbackText":
 			message.FallbackText += node.Text("text")
-		case "header":
-			if card.Header != nil || len(widgets) != 0 {
-				return Message{}, conversion.Error("googlechat", node.Path, "invalid_position", "header must precede widgets and occur only once")
-			}
-			header := &CardHeader{Title: node.Text("text"), Subtitle: node.Text("subtitle"), ImageURL: node.Text("url"), ImageAltText: node.Text("alt"), ImageType: ImageType(node.Text("imageType"))}
-			if err := conversion.ValidateText("googlechat", node.Path, header.Title, 1, 0); err != nil {
+		case "card", "cardWithId":
+			if err := flush(); err != nil {
 				return Message{}, err
 			}
-			if node.Has("url") {
-				if err := conversion.ValidateURL("googlechat", node.Path, header.ImageURL, true); err != nil {
-					return Message{}, err
-				}
+			wrapped := CardWithID{}
+			cardNode := node
+			if node.Role == "cardWithId" {
+				wrapped.CardID = node.Text("cardId")
+				cardNode = node.Children("card")[0]
 			}
-			card.Header = header
-		default:
-			widget, err := convertWidget(node)
+			card, err := convertCard(cardNode)
 			if err != nil {
 				return Message{}, err
 			}
-			widgets = append(widgets, widget)
-		}
-		if len(widgets) > 100 {
-			return Message{}, conversion.Error("googlechat", node.Path, "limit_exceeded", "card exceeds 100 widgets")
+			wrapped.Card = card
+			message.CardsV2 = append(message.CardsV2, wrapped)
+		default:
+			implicit = append(implicit, node)
 		}
 	}
-	if len(widgets) != 0 {
-		card.Sections = []Section{{Widgets: widgets}}
+	if err := flush(); err != nil {
+		return Message{}, err
 	}
-	if card.Header != nil || len(widgets) != 0 {
-		message.CardsV2 = []CardWithID{{Card: card}}
+	ids := map[string]bool{}
+	for _, card := range message.CardsV2 {
+		if len(message.CardsV2) > 1 && card.CardID == "" {
+			return Message{}, conversion.Error("googlechat", "$", "missing_input", "multiple cards require distinct cardId values")
+		}
+		if card.CardID != "" {
+			if ids[card.CardID] {
+				return Message{}, conversion.Error("googlechat", "$", "duplicate_input", "duplicate cardId")
+			}
+			ids[card.CardID] = true
+		}
+	}
+	if len(message.CardsV2) != 0 {
 		data, err := json.Marshal(message.CardsV2)
 		if err != nil {
 			return Message{}, err

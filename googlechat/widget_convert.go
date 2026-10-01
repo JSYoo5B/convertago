@@ -43,6 +43,8 @@ func convertContent(node conversion.Node) (WidgetContent, error) {
 		result = value
 	case "decoratedText":
 		return convertDecorated(node)
+	case "columns", "grid", "carousel", "chipList":
+		return convertLayout(node)
 	default:
 		r.Fail("invalid_tag", "unsupported widget")
 	}

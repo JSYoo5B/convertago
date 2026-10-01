@@ -28,7 +28,6 @@ func init() {
 		"materialIcon":     {NestedOnly: true, DefaultSlot: "name", Slots: map[string]conversion.Slot{"name": {Required: true}, "fill": {}, "weight": {}, "grade": {}}},
 		"switchControl":    {NestedOnly: true, DefaultSlot: "name", Slots: map[string]conversion.Slot{"name": {Required: true}, "value": {}, "selected": {}, "onChangeAction": child([]string{"action"}, false, false), "controlType": {}}},
 		"decoratedText":    {DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text, "startIcon": child([]string{"icon"}, false, false), "startIconVerticalAlignment": {}, "topLabel": {Repeated: true}, "topLabelText": child([]string{"textParagraph"}, false, false), "contentText": child([]string{"textParagraph"}, false, false), "wrapText": {}, "bottomLabel": {Repeated: true}, "bottomLabelText": child([]string{"textParagraph"}, false, false), "onClick": child(click, false, false), "button": child([]string{"button"}, false, false), "switchControl": child([]string{"switchControl"}, false, false), "endIcon": child([]string{"icon"}, false, false)}, Styles: []string{"bold", "italic", "strike", "code", "underline"}, Formats: []string{"plain", "html"}},
-		"columns":          {Unavailable: true}, "grid": {Unavailable: true}, "carousel": {Unavailable: true}, "chipList": {Unavailable: true},
 	}
 	for _, name := range []string{"textParagraph", "image", "divider", "buttonList", "decoratedText"} {
 		role := roles[name]
@@ -38,5 +37,6 @@ func init() {
 		role.Slots["horizontalAlignment"] = conversion.Slot{}
 		roles[name] = role
 	}
+	addLayoutRoles(roles)
 	conversion.Register(conversion.Profile{Platform: "googlechat", Roles: roles})
 }
