@@ -4,8 +4,10 @@
 
 | Location | Responsibility |
 | --- | --- |
-| Root `*.go` | Public conversion functions, options, diagnostics, and the generated-code contract. |
-| Root `*_example_test.go` | Executable godoc examples attached to those public functions. |
+| `message.go` | Public message conversion functions for all three platforms. |
+| `message_example_test.go` | Executable godoc examples for those conversion functions. |
+| `conversion.go` | Public conversion options and diagnostics. |
+| `generated_source.go` | Public contract used by generated accessors. |
 | `kakaowork/`, `slack/`, `googlechat/` | Native models, platform conversion and validation, package tests, and function-specific examples. |
 | `internal/conversion/` | Shared tag reading and assembly, with unit tests and reflection-cache benchmarks. |
 | `internal/generate/` | Code generation, consumer compilation tests, and cross-compilation tests. |
