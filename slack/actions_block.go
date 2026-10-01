@@ -20,9 +20,9 @@ type Element interface {
 // Reference: https://docs.slack.dev/reference/block-kit/blocks/actions-block/
 type ActionsBlock struct {
 	// Elements contains up to 25 interactive elements. ImageElement belongs in a section or context.
-	Elements []ActionElement `json:"elements"`
+	Elements []ActionElement `json:"elements" validate:"min=1,max=25,dive,required"`
 	// BlockID identifies the block, up to 255 characters. Replace it when updating a message.
-	BlockID string `json:"block_id,omitempty"`
+	BlockID string `json:"block_id,omitempty" validate:"max=255"`
 }
 
 // ActionElement is an interactive element that can be placed in an ActionsBlock.

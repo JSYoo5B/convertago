@@ -10,13 +10,13 @@ type Grid struct {
 	// Title appears in the grid header.
 	Title string `json:"title,omitempty"`
 	// Items contains the grid entries.
-	Items []GridItem `json:"items"`
+	Items []GridItem `json:"items" validate:"min=1,dive"`
 	// BorderStyle applies a border to each item.
-	BorderStyle *BorderStyle `json:"borderStyle,omitempty"`
+	BorderStyle *BorderStyle `json:"borderStyle,omitempty" validate:"omitempty"`
 	// ColumnCount sets the column count. Omission uses a default depending on the display surface.
-	ColumnCount int `json:"columnCount,omitempty"`
+	ColumnCount int `json:"columnCount,omitempty" validate:"omitempty,min=1"`
 	// OnClick is shared by the items, with each item's identifier and index added to parameters.
-	OnClick *OnClick `json:"onClick,omitempty"`
+	OnClick *OnClick `json:"onClick,omitempty" validate:"omitempty"`
 }
 
 func (Grid) WidgetType() string { return "grid" }
@@ -44,13 +44,13 @@ type GridItem struct {
 	// ID is returned in the parent grid's click callback parameters.
 	ID string `json:"id,omitempty"`
 	// Image is the image displayed in the item.
-	Image *ImageComponent `json:"image,omitempty"`
+	Image *ImageComponent `json:"image,omitempty" validate:"omitempty"`
 	// Title is the item's primary text.
-	Title string `json:"title,omitempty"`
+	Title string `json:"title,omitempty" validate:"required_without_all=Subtitle Image"`
 	// Subtitle is the item's secondary text.
 	Subtitle string `json:"subtitle,omitempty"`
 	// Layout places text above or below the image.
-	Layout GridItemLayout `json:"layout,omitempty"`
+	Layout GridItemLayout `json:"layout,omitempty" validate:"omitempty,oneof=TEXT_BELOW TEXT_ABOVE"`
 }
 
 // GridItemLayout selects the position of text relative to a grid image.
@@ -66,13 +66,13 @@ const (
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#ImageComponent
 type ImageComponent struct {
 	// ImageURI is the image URL.
-	ImageURI string `json:"imageUri"`
+	ImageURI string `json:"imageUri" validate:"required,http_url"`
 	// AltText describes the image for accessibility.
 	AltText string `json:"altText,omitempty"`
 	// CropStyle sets the crop applied to the image.
-	CropStyle *ImageCropStyle `json:"cropStyle,omitempty"`
+	CropStyle *ImageCropStyle `json:"cropStyle,omitempty" validate:"omitempty"`
 	// BorderStyle sets the image border.
-	BorderStyle *BorderStyle `json:"borderStyle,omitempty"`
+	BorderStyle *BorderStyle `json:"borderStyle,omitempty" validate:"omitempty"`
 }
 
 // ImageCropStyle selects an image crop and an optional custom aspect ratio.
@@ -80,9 +80,9 @@ type ImageComponent struct {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#ImageCropStyle
 type ImageCropStyle struct {
 	// Type selects the crop. Omission uses a square crop.
-	Type ImageCropType `json:"type,omitempty"`
+	Type ImageCropType `json:"type,omitempty" validate:"omitempty,oneof=SQUARE CIRCLE RECTANGLE_CUSTOM RECTANGLE_4_3"`
 	// AspectRatio applies when Type is ImageCropTypeRectangleCustom.
-	AspectRatio float64 `json:"aspectRatio,omitempty"`
+	AspectRatio float64 `json:"aspectRatio,omitempty" validate:"required_if=Type RECTANGLE_CUSTOM,excluded_unless=Type RECTANGLE_CUSTOM,min=0"`
 }
 
 // ImageCropType selects the image's crop shape.
@@ -100,11 +100,11 @@ const (
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#BorderStyle
 type BorderStyle struct {
 	// Type selects an outline or no border. Omission uses an outline.
-	Type BorderType `json:"type,omitempty"`
+	Type BorderType `json:"type,omitempty" validate:"omitempty,oneof=NO_BORDER STROKE"`
 	// StrokeColor specifies the outline color when Type is BorderTypeStroke.
-	StrokeColor *Color `json:"strokeColor,omitempty"`
+	StrokeColor *Color `json:"strokeColor,omitempty" validate:"excluded_if=Type NO_BORDER,omitempty"`
 	// CornerRadius controls the rounding of the border corners.
-	CornerRadius int `json:"cornerRadius,omitempty"`
+	CornerRadius int `json:"cornerRadius,omitempty" validate:"min=0"`
 }
 
 // BorderType selects whether a border is drawn.

@@ -19,5 +19,5 @@ type Message struct {
 	// Text is the notification and accessibility fallback when Blocks is supplied.
 	Text string `json:"text,omitempty"`
 	// Blocks contains up to 50 layout blocks in display order.
-	Blocks []Block `json:"blocks,omitempty"`
+	Blocks []Block `json:"blocks,omitempty" validate:"max=50,dive,required"`
 }

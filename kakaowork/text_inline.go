@@ -20,7 +20,7 @@ type Inline interface {
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/textblock/#styled
 type InlineStyled struct {
 	// Text 에 스타일을 적용할 텍스트를 입력
-	Text string `json:"text"`
+	Text string `json:"text" validate:"max=500"`
 	// Bold 는 굵은 글씨체를 적용하며, 기본값은 false
 	Bold bool `json:"bold,omitempty"`
 	// Italic 은 기울어진 글씨체를 적용하며, 기본값은 false
@@ -29,7 +29,7 @@ type InlineStyled struct {
 	Strike bool `json:"strike,omitempty"`
 	// Color 는 글자 색상을 적용하며, 기본값은 검은색
 	// 설정 가능한 값: InlineColorRed, InlineColorBlue, InlineColorGrey
-	Color InlineColor `json:"color,omitempty"`
+	Color InlineColor `json:"color,omitempty" validate:"omitempty,oneof=default red blue grey"`
 }
 
 type InlineColor string
@@ -75,12 +75,12 @@ var inlineColorConstants = map[InlineColor]bool{
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/textblock/#link
 type InlineLink struct {
 	// Text 에 링크를 적용할 텍스트를 입력
-	Text string `json:"text"`
+	Text string `json:"text" validate:"max=500"`
 	// Url 에 연결할 링크 주소를 입력
 	// "http:", "https:" 로 시작한다면 브라우저로 연결
 	// "tel:" 로 시작한다면 통화 또는 브라우저로 연결
 	// "mailto:" 로 시작한다면 메일 작성으로 연결
-	Url string `json:"url"`
+	Url string `json:"url" validate:"required,url"`
 }
 
 func (i InlineLink) InlineType() string { return "link" }
@@ -105,9 +105,9 @@ func (i InlineLink) MarshalJSON() ([]byte, error) {
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/textblock/#mention
 type InlineMention struct {
 	// Text 에 멘션을 적용할 텍스트를 입력
-	Text string
+	Text string `validate:"max=500"`
 	// UserId 에 멘션할 멤버의 고유 정보를 입력
-	UserId int
+	UserId int `validate:"min=1"`
 }
 
 func (i InlineMention) InlineType() string { return "mention" }

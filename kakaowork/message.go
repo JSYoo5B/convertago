@@ -19,5 +19,5 @@ type Message struct {
 	// Preview 는 알림과 채팅 미리보기에서 사용할 간단한 텍스트를 입력
 	Preview string `json:"text"`
 	// Blocks 은 실제 메시지 내용을 기술
-	Blocks []BubbleBlock `json:"blocks"`
+	Blocks []BubbleBlock `json:"blocks" validate:"dive,required"`
 }

@@ -6,7 +6,21 @@ import (
 	"testing"
 
 	"github.com/JSYoo5B/convertago/googlechat"
+	"github.com/go-playground/validator/v10"
+	"github.com/stretchr/testify/require"
 )
+
+func TestWidget_Validate(t *testing.T) {
+	v := validator.New()
+	widget := googlechat.Widget{Content: &googlechat.TextParagraph{Text: "Line"}}
+	require.NoError(t, v.Struct(widget))
+	widget.HorizontalAlignment = "LEFT"
+	require.Error(t, v.Struct(widget))
+	widget.HorizontalAlignment = ""
+	var absent *googlechat.TextParagraph
+	widget.Content = absent
+	require.Error(t, v.Struct(widget))
+}
 
 func TestWidgetRejectsMissingContent(t *testing.T) {
 	var paragraph *googlechat.TextParagraph

@@ -7,9 +7,9 @@ import "strings"
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#ChipList
 type ChipList struct {
 	// Layout selects wrapping or horizontal scrolling. Omission uses wrapping.
-	Layout ChipListLayout `json:"layout,omitempty"`
+	Layout ChipListLayout `json:"layout,omitempty" validate:"omitempty,oneof=WRAPPED HORIZONTAL_SCROLLABLE"`
 	// Chips contains the chips in display order.
-	Chips []Chip `json:"chips"`
+	Chips []Chip `json:"chips" validate:"min=1,dive"`
 }
 
 func (ChipList) WidgetType() string   { return "chipList" }
@@ -28,11 +28,11 @@ func (c ChipList) String() string {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Chip
 type Chip struct {
 	// Icon appears before Label when both are supplied.
-	Icon *Icon `json:"icon,omitempty"`
+	Icon *Icon `json:"icon,omitempty" validate:"required_without=Label,omitempty"`
 	// Label is the displayed text.
-	Label string `json:"label,omitempty"`
+	Label string `json:"label,omitempty" validate:"required_without=Icon"`
 	// OnClick runs when the chip is clicked.
-	OnClick *OnClick `json:"onClick,omitempty"`
+	OnClick *OnClick `json:"onClick,omitempty" validate:"omitempty"`
 	// Disabled prevents the chip from responding to user actions.
 	Disabled bool `json:"disabled,omitempty"`
 	// AltText describes the chip's purpose for accessibility.

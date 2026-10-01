@@ -9,15 +9,15 @@ import (
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/buttonblock/
 type ButtonBlock struct {
 	// Text 에 버튼이 표현할 텍스트를 입력
-	Text string `json:"text"`
+	Text string `json:"text" validate:"required,max=20"`
 	// Style 은 버튼의 색상을 설정, 기본값은 회색
 	// - 기본, 회색: ButtonStyleDefault 혹은 ButtonStyleGray
 	// - 강조, 파랑: ButtonStylePrimary 혹은 ButtonStyleBlue
 	// - 위험, 빨강: ButtonStyleDanger 혹은 ButtonStyleRed
-	Style ButtonStyle `json:"style,omitempty"`
+	Style ButtonStyle `json:"style,omitempty" validate:"omitempty,oneof=default primary danger"`
 	// Action 에 버튼을 클릭했을 때 수행할 동작을 설정,
 	// 적용 가능한 ButtonAction: OpenSystemBrowserAction, OpenInAppBrowserAction, OpenExternalAppAction, SubmitAction, CallModalAction, ExclusiveAction 참고
-	Action ButtonAction `json:"action"`
+	Action ButtonAction `json:"action" validate:"required"`
 }
 
 type ButtonStyle string

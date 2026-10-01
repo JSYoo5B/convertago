@@ -19,6 +19,13 @@ func samplePackage(t *testing.T) string {
 	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(module), 0644); err != nil {
 		t.Fatal(err)
 	}
+	sums, err := os.ReadFile(filepath.Join(root, "go.sum"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "go.sum"), sums, 0644); err != nil {
+		t.Fatal(err)
+	}
 	for _, name := range []string{"input.go", "parity_test.go"} {
 		data, err := os.ReadFile(filepath.Join("testdata/sample", name))
 		if err != nil {
@@ -27,6 +34,11 @@ func samplePackage(t *testing.T) string {
 		if err := os.WriteFile(filepath.Join(dir, name), data, 0644); err != nil {
 			t.Fatal(err)
 		}
+	}
+	command := exec.Command("go", "list", "-mod=mod", "-deps", "-test", ".")
+	command.Dir = dir
+	if output, err := command.CombinedOutput(); err != nil {
+		t.Fatalf("sample dependencies: %v\n%s", err, output)
 	}
 	return dir
 }

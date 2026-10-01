@@ -10,15 +10,15 @@ import (
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Icon
 type Icon struct {
 	// KnownIcon names a built-in icon. Supply exactly one icon source.
-	KnownIcon string `json:"knownIcon,omitempty"`
+	KnownIcon string `json:"knownIcon,omitempty" validate:"required_without_all=IconURL MaterialIcon,excluded_with=IconURL MaterialIcon"`
 	// IconURL hosts a custom PNG or JPG icon over HTTPS.
-	IconURL string `json:"iconUrl,omitempty"`
+	IconURL string `json:"iconUrl,omitempty" validate:"required_without_all=KnownIcon MaterialIcon,excluded_with=KnownIcon MaterialIcon,omitempty,http_url"`
 	// MaterialIcon configures a Google Material icon.
-	MaterialIcon *MaterialIcon `json:"materialIcon,omitempty"`
+	MaterialIcon *MaterialIcon `json:"materialIcon,omitempty" validate:"required_without_all=KnownIcon IconURL,excluded_with=KnownIcon IconURL,omitempty"`
 	// AltText describes the icon or its action for accessibility.
 	AltText string `json:"altText,omitempty"`
 	// ImageType selects a square or circular crop.
-	ImageType ImageType `json:"imageType,omitempty"`
+	ImageType ImageType `json:"imageType,omitempty" validate:"omitempty,oneof=SQUARE CIRCLE"`
 }
 
 func (i Icon) MarshalJSON() ([]byte, error) {
@@ -44,11 +44,11 @@ func (i Icon) MarshalJSON() ([]byte, error) {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#MaterialIcon
 type MaterialIcon struct {
 	// Name identifies the Material icon.
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required"`
 	// Fill switches from an outlined icon to a filled icon.
 	Fill bool `json:"fill,omitempty"`
 	// Weight selects 100, 200, 300, 400, 500, 600, or 700; omission uses 400.
-	Weight int `json:"weight,omitempty"`
+	Weight int `json:"weight,omitempty" validate:"omitempty,oneof=100 200 300 400 500 600 700"`
 	// Grade selects -25, 0, or 200 for finer stroke emphasis; omission uses 0.
-	Grade int `json:"grade,omitempty"`
+	Grade int `json:"grade,omitempty" validate:"oneof=-25 0 200"`
 }

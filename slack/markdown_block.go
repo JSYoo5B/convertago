@@ -8,7 +8,7 @@ import "encoding/json"
 // Reference: https://docs.slack.dev/reference/block-kit/blocks/markdown-block/
 type MarkdownBlock struct {
 	// Text contains standard Markdown. All markdown blocks together have a 12000-character limit.
-	Text string `json:"text"`
+	Text string `json:"text" validate:"required,max=12000"`
 }
 
 func (b MarkdownBlock) Type() string   { return "markdown" }
