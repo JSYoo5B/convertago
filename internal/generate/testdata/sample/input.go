@@ -44,7 +44,7 @@ type Notice struct {
 	Label    Label        `kakaowork:"text;omitempty" slack:"rich_text;omitempty" googlechat:"textParagraph;omitempty"`
 	Caption  fmt.Stringer `kakaowork:"text" slack:"rich_text" googlechat:"textParagraph"`
 	Time     time.Time    `kakaowork:"text;omitempty" slack:"rich_text;omitempty" googlechat:"textParagraph;omitempty"`
-	Optional string       `kakaowork:"divider;optional" slack:"divider;optional" googlechat:"divider;optional"`
+	Optional string       `kakaowork:"header;style=bold;optional" slack:"header;style=bold;optional" googlechat:"header;style=bold;optional"`
 	Dynamic  any          `kakaowork:"flatten" slack:"flatten" googlechat:"flatten"`
 	Next     *Notice      `kakaowork:"flatten" slack:"flatten" googlechat:"flatten"`
 	Ignored  map[string]string
