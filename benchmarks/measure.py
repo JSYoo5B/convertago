@@ -72,7 +72,7 @@ def main():
     records = []
     with tempfile.TemporaryDirectory(prefix="convertago-bench-") as temporary:
         directory = Path(temporary)
-        for binary, package in (("conversion", "./internal/conversion"), ("message", ".")):
+        for binary, package in (("conversion", "./internal/conversion"), ("message", "./benchmarks")):
             subprocess.run([
                 "go", "test", "-mod=readonly", "-c", "-o", str(directory / binary), package,
             ], cwd=root, env=environment, check=True)

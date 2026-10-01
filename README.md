@@ -229,7 +229,7 @@ messages. Run longer local fuzz sessions with:
 
 ```sh
 go test ./internal/conversion -run '^$' -fuzz '^FuzzParse$' -fuzztime=1m
-go test . -run '^$' -fuzz '^FuzzGeneratedReflectionConversion$' -fuzztime=1m
+go test ./internal/integration -run '^$' -fuzz '^FuzzGeneratedReflectionConversion$' -fuzztime=1m
 ```
 
 ## Benchmarks
@@ -247,7 +247,7 @@ go generate ./internal/benchmarksource
 Run the reflection cache, source reader, and messenger benchmarks with allocation reporting:
 
 ```sh
-go test -run '^$' -bench 'Benchmark(SourcePlan|Fields|SourceFields|To.*Message)$' -benchmem -count=3 . ./internal/conversion
+go test -run '^$' -bench 'Benchmark(SourcePlan|Fields|SourceFields|To.*Message)$' -benchmem -count=3 ./benchmarks ./internal/conversion
 ```
 
 `BenchmarkSourcePlan` compares a cached type-plan lookup with compiling and
@@ -293,7 +293,7 @@ Compare the sum of `user` and `sys` CPU seconds. These process totals include
 startup, benchmark setup, and garbage collection. Repeat measurements under the
 same Go version, machine, and `GOMAXPROCS`; timings are informational and are not
 test pass/fail thresholds. On macOS, `/usr/bin/time -l` also reports peak resident
-memory. Build the root package's test binary to measure the messenger cases in
+memory. Build the `./benchmarks` package's test binary to measure the messenger cases in
 the same way.
 
 The optional Python 3.9+ runner builds the test binaries once, measures process

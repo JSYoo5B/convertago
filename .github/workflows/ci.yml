@@ -37,9 +37,9 @@ jobs:
       - name: Fuzz tag parsing
         run: go test ./internal/conversion -run '^$' -fuzz '^FuzzParse$' -fuzztime=10s -parallel=2
       - name: Fuzz conversion parity
-        run: go test . -run '^$' -fuzz '^FuzzGeneratedReflectionConversion$' -fuzztime=10s -parallel=2
+        run: go test ./internal/integration -run '^$' -fuzz '^FuzzGeneratedReflectionConversion$' -fuzztime=10s -parallel=2
       - name: Exercise benchmark cases
-        run: go test -run '^$' -bench 'Benchmark(SourcePlan|Fields|SourceFields|To.*Message)$' -benchtime=1x -benchmem . ./internal/conversion
+        run: go test -run '^$' -bench 'Benchmark(SourcePlan|Fields|SourceFields|To.*Message)$' -benchtime=1x -benchmem ./benchmarks ./internal/conversion
 
   cross-build:
     runs-on: ubuntu-latest

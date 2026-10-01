@@ -1,4 +1,4 @@
-package convertago_test
+package benchmarks_test
 
 import (
 	"bytes"

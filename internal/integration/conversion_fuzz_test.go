@@ -1,4 +1,4 @@
-package convertago_test
+package integration_test
 
 import (
 	"bytes"
@@ -13,6 +13,12 @@ import (
 	"github.com/JSYoo5B/convertago/slack"
 	"github.com/go-playground/validator/v10"
 )
+
+// Defined copies preserve the fixtures' layouts and tags without their generated
+// methods, so these inputs select reflection independently of the benchmarks.
+type reflectionFlatMessage benchmarksource.FlatMessage
+type reflectionNestedMessage benchmarksource.NestedMessage
+type reflectionDynamicMessage benchmarksource.DynamicMessage
 
 func FuzzGeneratedReflectionConversion(f *testing.F) {
 	f.Add(uint8(0), "Notice", "Hello ", "Jane", "https://example.com/image.png", int64(123), true)
@@ -45,9 +51,9 @@ func FuzzGeneratedReflectionConversion(f *testing.F) {
 			},
 		}[platform%3]
 		for _, inputs := range []struct{ generated, reflected any }{
-			{&flat, (*benchmarkReflectionFlatMessage)(&flat)},
-			{&nested, (*benchmarkReflectionNestedMessage)(&nested)},
-			{&dynamic, (*benchmarkReflectionDynamicMessage)(&dynamic)},
+			{&flat, (*reflectionFlatMessage)(&flat)},
+			{&nested, (*reflectionNestedMessage)(&nested)},
+			{&dynamic, (*reflectionDynamicMessage)(&dynamic)},
 		} {
 			got, gotErr := convert(inputs.generated, convertago.WithStrict())
 			want, wantErr := convert(inputs.reflected, convertago.WithStrict())
