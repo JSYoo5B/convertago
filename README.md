@@ -40,50 +40,27 @@ options, and malformed tags are errors even when the field is empty or optional.
 | `omitempty` | Omit an empty source value. |
 | `optional` | Skip a recognized unavailable feature with a diagnostic in normal mode. |
 
-## Initial builders
+## Messenger support
 
-The native packages contain more models than the initial tag converters support.
-The converters currently support the following builders and input slots.
-Text slots concatenate contributions without inserting a separator.
+- [Kakao Work](kakaowork/README.md)
+- [Slack](slack/README.md)
+- [Google Chat](googlechat/README.md)
 
-| Platform | Role | Default slot | Other slots |
-| --- | --- | --- | --- |
-| Kakao Work | `header` | `text` | `style`, a single background color: white, blue, red, or yellow |
-| Kakao Work | `text` | `text` | — |
-| Kakao Work | `image_link` | `url` | — |
-| Kakao Work | `preview` | `text` | — |
-| Slack | `header` | `text` | — |
-| Slack | `section` | `text` | — |
-| Slack | `rich_text` | `text` | — |
-| Slack | `image` | `url` | `alt` required; `title` optional |
-| Google Chat | `header` | `text` | `subtitle`, `url`, `alt` optional |
-| Google Chat | `textParagraph` | `text` | — |
-| Google Chat | `image` | `url` | `alt` optional |
-| Google Chat | `fallbackText` | `text` | — |
+## Builders
 
-Every builder requires its default slot. Only text contributions and Google Chat
-header subtitles can repeat. Duplicate URL, alt, title, or background inputs are
-errors. Image URLs must be absolute HTTP or HTTPS URLs; Google Chat requires
-HTTPS. Slack alt text must be non-empty and is never fabricated from the URL.
+The tag converters cover the native models defined in this repository.
+Text slots concatenate contributions without inserting a separator. Other
+scalar properties normally accept one contribution. Child slots accept only
+the native roles appropriate to that parent.
 
-Kakao Work supports `bold`, `italic`, and `strike` on `text`. Slack supports
-`bold`, `italic`, `strike`, `code`, and `underline` on `rich_text`. Google Chat
-supports those styles on `textParagraph`; Markdown does not support underline.
-Style flags describe inline text, while Kakao Work's header `slot=style` supplies
-its background color.
+The default scalar slot preserves the convenient single-field form. For
+containers, tag a struct whose children select native roles. A child's `slot`
+belongs to its parent; a top-level field's `slot` belongs to its own builder.
+A compatible default child slot is used when the profile specifies one.
+Otherwise a uniquely compatible slot is inferred, and multiple matches require
+an explicit `slot`.
 
-Strings are literal by default. Kakao Work `text` and Slack `rich_text` also
-accept `format=plain`. Slack `section` accepts `plain` or explicit `mrkdwn`;
-a grouped section cannot mix the two. Google Chat `textParagraph` escapes plain
-text into HTML and converts newlines into `<br>`. Explicit `html` and `markdown`
-retain the supplied markup. HTML can include escaped plain contributions;
-Markdown cannot share a paragraph with plain or HTML contributions.
-
-Converters validate supported native constraints, including Kakao Work's header
-position and text lengths, Slack's text lengths and 50-block message limit, and
-Google Chat's 100-widget and 32 KB card limits. Google Chat places widgets in one
-section of one card. Its single header must precede widgets. Values that violate
-these rules return an error; content is not truncated or silently reordered.
+The converters validate modeled native constraints and conflicting inputs.
 
 ## Order, groups, and nesting
 
@@ -96,7 +73,7 @@ have separate scopes. Include any spaces or newlines in the source values.
 A tagged parent struct selects a builder. Its scalar children use `part` to supply that
 builder's inputs, allowing domain types to differ from the native message shape.
 The default slot is inherited when a child has no `slot`. Parent text style and
-format apply to its child contributions, with child styles added and an explicit
+format apply to contributions in its default text slot, with child styles added and an explicit
 child format replacing the inherited format.
 
 ```go
@@ -124,6 +101,9 @@ Inside a builder, scalar lists concatenate parts. Native child builders use a
 parent slot that accepts their role; an explicit `slot` selects among several
 accepted positions. Child lists repeat native elements in declaration order.
 Empty container structs can represent dividers. Nil elements are absent.
+`omitempty` on a list omits an empty list and retains zero-valued elements in
+a nonempty list. Styles and formats on metadata slots are rejected unless that
+slot explicitly supports them.
 
 Strings, booleans, integers, and floats have direct text representations.
 Nested fields that explicitly implement `encoding.TextMarshaler` or `fmt.Stringer`
@@ -136,16 +116,15 @@ zero numbers, false, and zero-length lists are empty. A tagged object is empty
 when all its selected fields are empty. Explicit text representations are empty
 when their returned text is empty. Nil pointers, slices, and interfaces are
 absent; non-nil pointers and interfaces preserve their presence even when they
-contain a zero value. A present builder with no inputs, or a missing required
-slot after omissions, is an error.
+contain a zero value. A present builder with no inputs is an error unless its role supports an empty
+object, such as a divider. A missing required slot after omissions is an error.
 
 ## Diagnostics and strict mode
 
-Recognized unavailable converter roles are Kakao Work `button`, `action`,
-`divider`, `description`, `section`, and `context`; Slack `actions`, `context`,
-`divider`, `markdown`, and `video`; Google Chat `decoratedText`, `buttonList`,
-`divider`, `columns`, `grid`, `carousel`, and `chipList`. Recognized style or
-format names that a selected builder cannot express are also unavailable.
+The currently modeled native roles are available. Recognized styles and formats
+that a selected builder cannot express are unavailable. For example,
+`header;style=bold;optional` can skip a header whose native object has no inline
+style support. Unknown roles or invalid nesting remain errors.
 
 An active unavailable feature errors by default. With `optional` it is skipped
 in normal mode, and `WithDiagnostics` receives its platform, source path, code,
