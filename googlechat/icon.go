@@ -49,6 +49,6 @@ type MaterialIcon struct {
 	Fill bool `json:"fill,omitempty"`
 	// Weight selects 100, 200, 300, 400, 500, 600, or 700; omission uses 400.
 	Weight int `json:"weight,omitempty"`
-	// Grade adjusts emphasis from -25 to 200; omission uses 0.
+	// Grade selects -25, 0, or 200 for finer stroke emphasis; omission uses 0.
 	Grade int `json:"grade,omitempty"`
 }
