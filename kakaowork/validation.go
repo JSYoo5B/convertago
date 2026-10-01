@@ -29,7 +29,7 @@ func validateMessage(sl validator.StructLevel) {
 			if i != 0 {
 				sl.ReportError(block, field, field, "header_position", "")
 			}
-		case TextBlock, ImageBlock, ButtonBlock, DividerBlock, DescriptionBlock, SectionBlock, ContextBlock:
+		case TextBlock, ImageBlock, ButtonBlock, ActionBlock, DividerBlock, DescriptionBlock, SectionBlock, ContextBlock:
 		case nil:
 			// The slice's required tag reports nil blocks.
 		default:

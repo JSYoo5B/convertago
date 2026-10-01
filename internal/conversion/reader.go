@@ -2,8 +2,9 @@ package conversion
 
 import (
 	"math"
-	"net/url"
 	"strconv"
+
+	"github.com/JSYoo5B/convertago/internal/validation"
 )
 
 // Reader validates native scalar properties while retaining the first source error.
@@ -93,11 +94,8 @@ func (r *Reader) URI(slot string, schemes ...string) string {
 	if !r.Node.Has(slot) {
 		return value
 	}
-	parsed, err := url.Parse(value)
-	if err != nil || parsed.Scheme == "" || (parsed.Host == "" && parsed.Opaque == "" && parsed.Path == "") || (len(schemes) != 0 && !contains(schemes, parsed.Scheme)) {
+	if !validation.AbsoluteURI(value, schemes...) {
 		r.invalid(slot, "invalid absolute URI")
-	} else if parsed.Scheme == "http" || parsed.Scheme == "https" {
-		r.URL(slot, false)
 	}
 	return value
 }

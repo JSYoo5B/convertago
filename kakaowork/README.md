@@ -58,5 +58,16 @@
 변환기는 헤더 위치와 블록별 텍스트 길이 등 구현된 제약과 입력 충돌을 검사합니다.
 제약에 맞지 않는 내용은 잘라내거나 임의로 생략하지 않고 오류를 반환합니다.
 
+네이티브 구조체를 직접 만들 때는 `validator.New()`로 만든 검증기에
+`kakaowork.RegisterValidation(v)`를 먼저 호출하고 `v.Struct(message)`로 검사합니다.
+필드 태그의 길이·URL 제한과 함께 헤더 위치, 인라인 텍스트의 합산 길이,
+버튼 액션 조합을 검사합니다. `ActionBlock`은 버튼 두 개 또는 세 개가 필요하며
+각 버튼의 필드도 검사합니다. 검증기 등록 예시는 `ExampleRegisterValidation`에 있습니다.
+
+변환 오류는 원본 필드 경로를 담은 `convertago.Diagnostic`이며, 직접 검증한
+오류는 네이티브 필드 경로를 담은 `validator.ValidationErrors`입니다.
+변환 결과를 다시 `v.Struct`로 검사할 필요는 없습니다. 메시지를 변환한 뒤 직접
+수정했다면 전송 전에 다시 검사할 수 있습니다.
+
 지원하는 규칙은
 [카카오워크 Block Kit 문서](https://docs.kakaoi.ai/kakao_work/blockkit/)를 기준으로 합니다.

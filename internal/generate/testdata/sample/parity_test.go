@@ -9,6 +9,10 @@ import (
 	"time"
 
 	"github.com/JSYoo5B/convertago"
+	"github.com/JSYoo5B/convertago/googlechat"
+	"github.com/JSYoo5B/convertago/kakaowork"
+	"github.com/JSYoo5B/convertago/slack"
+	"github.com/go-playground/validator/v10"
 )
 
 type reflectionNotice Notice
@@ -86,6 +90,10 @@ func TestConcurrentGeneratedConversions(t *testing.T) {
 
 func compare(t *testing.T, generated, reflected any) {
 	t.Helper()
+	v := validator.New(validator.WithRequiredStructEnabled())
+	kakaowork.RegisterValidation(v)
+	slack.RegisterValidation(v)
+	googlechat.RegisterValidation(v)
 	converters := []struct {
 		name string
 		fn   func(any, ...convertago.Option) (any, error)
@@ -108,6 +116,13 @@ func compare(t *testing.T, generated, reflected any) {
 				want, wantErr := converter.fn(reflected, wantOptions...)
 				if !reflect.DeepEqual(gotErr, wantErr) || !reflect.DeepEqual(gotDiagnostics, wantDiagnostics) {
 					t.Fatalf("errors: generated=%#v reflected=%#v\ndiagnostics: generated=%#v reflected=%#v", gotErr, wantErr, gotDiagnostics, wantDiagnostics)
+				}
+				if gotErr == nil {
+					for _, message := range []any{got, want} {
+						if err := v.Struct(message); err != nil {
+							t.Fatalf("converted output validation: %v", err)
+						}
+					}
 				}
 				gotJSON, err := json.Marshal(got)
 				if err != nil {

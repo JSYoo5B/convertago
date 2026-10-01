@@ -86,4 +86,15 @@ The converter enforces at most 100 widgets per card and a 32 KB limit on the
 serialized cards payload. Modeled native constraints and conflicting inputs
 return errors. App scopes must be handled by the sending application.
 
+For manually constructed native models, call `googlechat.RegisterValidation(v)`
+on a new go-playground validator before using `v.Struct(message)`. Field tags
+enforce scalar constraints; registered callbacks enforce HTTPS image URLs,
+widget totals, card identifiers, and the serialized payload limit.
+See `ExampleRegisterValidation`.
+
+Conversion failures are `convertago.Diagnostic` values with source field paths.
+Native validation returns `validator.ValidationErrors` with native field paths.
+Converted messages already enforce the modeled constraints; validate again if
+you subsequently modify their native fields.
+
 The modeled rules follow [Google Chat Cards v2](https://developers.google.com/workspace/chat/api/reference/rest/v1/cards).

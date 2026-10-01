@@ -63,4 +63,14 @@ The converter enforces at most 50 blocks per message and a cumulative limit of
 conflicting inputs return errors. App scopes and registered video unfurl domains
 must be handled by the sending application.
 
+For manually constructed native models, call `slack.RegisterValidation(v)` on a
+new go-playground validator before using `v.Struct(message)`. Field tags enforce
+scalar constraints; registered callbacks enforce contextual text limits, URL
+schemes, and the cumulative Markdown limit. See `ExampleRegisterValidation`.
+
+Conversion failures are `convertago.Diagnostic` values with source field paths.
+Native validation returns `validator.ValidationErrors` with native field paths.
+Converted messages already enforce the modeled constraints; validate again if
+you subsequently modify their native fields.
+
 The modeled rules follow [Slack Block Kit](https://docs.slack.dev/reference/block-kit/).

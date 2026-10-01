@@ -8,8 +8,12 @@ import (
 	"testing"
 
 	"github.com/JSYoo5B/convertago"
+	"github.com/JSYoo5B/convertago/googlechat"
 	"github.com/JSYoo5B/convertago/internal/benchmarksource"
 	"github.com/JSYoo5B/convertago/internal/conversion"
+	"github.com/JSYoo5B/convertago/kakaowork"
+	"github.com/JSYoo5B/convertago/slack"
+	"github.com/go-playground/validator/v10"
 )
 
 // Defined types retain the generated fixtures' field layouts and tags while
@@ -124,6 +128,10 @@ func benchmarkInputs[T any](b *testing.B, read func(any) (T, error)) {
 // Check both benchmark paths before relying on their performance measurements.
 // JSON equality ensures the generated reader does the same useful conversion.
 func TestBenchmarkMessageSources(t *testing.T) {
+	v := validator.New(validator.WithRequiredStructEnabled())
+	kakaowork.RegisterValidation(v)
+	slack.RegisterValidation(v)
+	googlechat.RegisterValidation(v)
 	converters := []struct {
 		platform string
 		convert  func(any) (any, error)
@@ -158,6 +166,9 @@ func TestBenchmarkMessageSources(t *testing.T) {
 						message, err := converter.convert(path.input)
 						if err != nil {
 							t.Fatal(err)
+						}
+						if err := v.Struct(message); err != nil {
+							t.Fatalf("%s output validation: %v", path.name, err)
 						}
 						data, err := json.Marshal(message)
 						if err != nil {

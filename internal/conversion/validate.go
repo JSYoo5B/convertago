@@ -1,13 +1,13 @@
 package conversion
 
-import (
-	"net/url"
-	"strings"
-)
+import "github.com/JSYoo5B/convertago/internal/validation"
 
 func ValidateURL(platform, path, text string, httpsOnly bool) error {
-	u, err := url.ParseRequestURI(text)
-	if err == nil && u.Host != "" && (strings.EqualFold(u.Scheme, "https") || (!httpsOnly && strings.EqualFold(u.Scheme, "http"))) {
+	valid := validation.AbsoluteURI(text, "http", "https")
+	if httpsOnly {
+		valid = validation.AbsoluteURI(text, "https")
+	}
+	if valid {
 		return nil
 	}
 	scheme := "HTTP or HTTPS"
