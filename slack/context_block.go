@@ -20,9 +20,9 @@ type ContextElement interface {
 // Reference: https://docs.slack.dev/reference/block-kit/blocks/context-block/
 type ContextBlock struct {
 	// Elements contains up to 10 text objects or image elements in display order.
-	Elements []ContextElement `json:"elements"`
+	Elements []ContextElement `json:"elements" validate:"min=1,max=10,dive,required"`
 	// BlockID identifies the block, up to 255 characters. Replace it when updating a message.
-	BlockID string `json:"block_id,omitempty"`
+	BlockID string `json:"block_id,omitempty" validate:"max=255"`
 }
 
 func (b ContextBlock) Type() string { return "context" }

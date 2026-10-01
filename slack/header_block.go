@@ -9,9 +9,9 @@ type HeaderBlock struct {
 	// Text is the heading's plain text, up to 150 characters.
 	Text PlainTextObject `json:"text"`
 	// BlockID identifies the block, up to 255 characters. Replace it when updating a message.
-	BlockID string `json:"block_id,omitempty"`
+	BlockID string `json:"block_id,omitempty" validate:"max=255"`
 	// Level selects a heading level from 1 to 4.
-	Level int `json:"level,omitempty"`
+	Level int `json:"level,omitempty" validate:"omitempty,min=1,max=4"`
 }
 
 func (b HeaderBlock) Type() string   { return "header" }
