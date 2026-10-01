@@ -20,6 +20,8 @@ func RegisterValidation(v *validator.Validate) {
 	v.RegisterStructValidation(validateConfirmation, ConfirmationDialogObject{})
 	v.RegisterStructValidation(validateVideo, VideoBlock{})
 	v.RegisterStructValidation(validateMessage, Message{})
+	v.RegisterStructValidation(validateLink, LinkInline{})
+	v.RegisterStructValidation(validateUser, UserInline{})
 }
 
 func validateText(sl validator.StructLevel, field string, text string, maximum int) {
@@ -102,5 +104,22 @@ func validateMessage(sl validator.StructLevel) {
 	}
 	if total > 12000 {
 		sl.ReportError(message.Blocks, "Blocks", "Blocks", "markdown_max", "12000")
+	}
+}
+
+func validateLink(sl validator.StructLevel) {
+	link := sl.Current().Interface().(LinkInline)
+	if !validation.AbsoluteURI(link.URL) {
+		sl.ReportError(link.URL, "URL", "URL", "absolute_uri", "")
+	}
+	if link.Style != nil && link.Style.Code {
+		sl.ReportError(link.Style.Code, "Style.Code", "Style.Code", "excluded", "")
+	}
+}
+
+func validateUser(sl validator.StructLevel) {
+	user := sl.Current().Interface().(UserInline)
+	if user.Style != nil && user.Style.Code {
+		sl.ReportError(user.Style.Code, "Style.Code", "Style.Code", "excluded", "")
 	}
 }
