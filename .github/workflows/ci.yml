@@ -40,3 +40,31 @@ jobs:
         run: go test . -run '^$' -fuzz '^FuzzGeneratedReflectionConversion$' -fuzztime=10s -parallel=2
       - name: Exercise benchmark cases
         run: go test -run '^$' -bench 'Benchmark(SourcePlan|Fields|SourceFields|To.*Message)$' -benchtime=1x -benchmem . ./internal/conversion
+
+  cross-build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: '386'
+          - goos: linux
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache-dependency-path: go.sum
+      - name: Compile all packages for the target
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: '0'
+          GOTOOLCHAIN: local
+        run: go build -mod=readonly ./...
