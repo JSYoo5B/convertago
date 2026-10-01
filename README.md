@@ -36,7 +36,7 @@ func main() {
     if err != nil {
         panic(err)
     }
-    data, err := json.Marshal(message)
+    data, err := json.MarshalIndent(message, "", "  ")
     if err != nil {
         panic(err)
     }

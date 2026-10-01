@@ -19,12 +19,41 @@ func ExampleToKakaoworkMessage() {
 	if err != nil {
 		panic(err)
 	}
-	data, err := json.Marshal(message)
+	data, err := json.MarshalIndent(message, "", "  ")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(string(data))
-	// Output: {"text":"새 알림","blocks":[{"type":"header","text":"알림","style":"white"},{"type":"text","text":"안녕하세요 홍길동","inlines":[{"type":"styled","text":"안녕하세요 "},{"type":"styled","text":"홍길동","bold":true}]},{"type":"image_link","url":"https://example.com/image.png"}]}
+	// Output:
+	// {
+	//   "text": "새 알림",
+	//   "blocks": [
+	//     {
+	//       "type": "header",
+	//       "text": "알림",
+	//       "style": "white"
+	//     },
+	//     {
+	//       "type": "text",
+	//       "text": "안녕하세요 홍길동",
+	//       "inlines": [
+	//         {
+	//           "type": "styled",
+	//           "text": "안녕하세요 "
+	//         },
+	//         {
+	//           "type": "styled",
+	//           "text": "홍길동",
+	//           "bold": true
+	//         }
+	//       ]
+	//     },
+	//     {
+	//       "type": "image_link",
+	//       "url": "https://example.com/image.png"
+	//     }
+	//   ]
+	// }
 }
 
 func ExampleToSlackMessage() {
@@ -43,12 +72,49 @@ func ExampleToSlackMessage() {
 	if err != nil {
 		panic(err)
 	}
-	data, err := json.Marshal(message)
+	data, err := json.MarshalIndent(message, "", "  ")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(string(data))
-	// Output: {"blocks":[{"type":"header","text":{"type":"plain_text","text":"Notice"}},{"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"Hello "},{"type":"text","text":"Jane","style":{"bold":true}}]}]},{"type":"image","image_url":"https://example.com/image.png","alt_text":"Team photo"}]}
+	// Output:
+	// {
+	//   "blocks": [
+	//     {
+	//       "type": "header",
+	//       "text": {
+	//         "type": "plain_text",
+	//         "text": "Notice"
+	//       }
+	//     },
+	//     {
+	//       "type": "rich_text",
+	//       "elements": [
+	//         {
+	//           "type": "rich_text_section",
+	//           "elements": [
+	//             {
+	//               "type": "text",
+	//               "text": "Hello "
+	//             },
+	//             {
+	//               "type": "text",
+	//               "text": "Jane",
+	//               "style": {
+	//                 "bold": true
+	//               }
+	//             }
+	//           ]
+	//         }
+	//       ]
+	//     },
+	//     {
+	//       "type": "image",
+	//       "image_url": "https://example.com/image.png",
+	//       "alt_text": "Team photo"
+	//     }
+	//   ]
+	// }
 }
 
 func ExampleToGoogleChatMessage() {
@@ -62,10 +128,37 @@ func ExampleToGoogleChatMessage() {
 	if err != nil {
 		panic(err)
 	}
-	data, err := json.Marshal(message)
+	data, err := json.MarshalIndent(message, "", "  ")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(string(data))
-	// Output: {"cardsV2":[{"card":{"header":{"title":"Notice"},"sections":[{"widgets":[{"textParagraph":{"text":"Hello \u003cb\u003eJane\u003c/b\u003e"}},{"image":{"imageUrl":"https://example.com/image.png"}}]}]}}]}
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "card": {
+	//         "header": {
+	//           "title": "Notice"
+	//         },
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "textParagraph": {
+	//                   "text": "Hello \u003cb\u003eJane\u003c/b\u003e"
+	//                 }
+	//               },
+	//               {
+	//                 "image": {
+	//                   "imageUrl": "https://example.com/image.png"
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }
