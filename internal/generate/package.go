@@ -13,7 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
+	"strings"
 )
 
 type packageInfo struct {
@@ -26,11 +26,24 @@ type packageInfo struct {
 }
 
 func loadPackage(dir, output string) (*types.Package, error) {
-	command := exec.Command("go", "list", "-mod=readonly", "-e", "-export", "-deps", "-json", ".")
+	command := exec.Command("go", "env", "GOARCH")
 	command.Dir = dir
 	var stderr bytes.Buffer
 	command.Stderr = &stderr
 	data, err := command.Output()
+	if err != nil {
+		return nil, fmt.Errorf("go env GOARCH: %w: %s", err, stderr.String())
+	}
+	arch := strings.TrimSpace(string(data))
+	sizes := types.SizesFor("gc", arch)
+	if sizes == nil {
+		return nil, fmt.Errorf("convertago: unsupported target architecture %q", arch)
+	}
+	command = exec.Command("go", "list", "-mod=readonly", "-e", "-export", "-deps", "-json", ".")
+	command.Dir = dir
+	stderr.Reset()
+	command.Stderr = &stderr
+	data, err = command.Output()
 	if err != nil {
 		return nil, fmt.Errorf("go list: %w: %s", err, stderr.String())
 	}
@@ -69,6 +82,6 @@ func loadPackage(dir, output string) (*types.Package, error) {
 		}
 		return os.Open(file)
 	}
-	config := types.Config{Importer: importer.ForCompiler(fset, "gc", lookup), Sizes: types.SizesFor("gc", runtime.GOARCH)}
+	config := types.Config{Importer: importer.ForCompiler(fset, "gc", lookup), Sizes: sizes}
 	return config.Check(current.ImportPath, fset, files, nil)
 }
