@@ -21,6 +21,7 @@ type TextBlock struct {
 }
 
 func (t TextBlock) Type() string { return "text" }
+func (TextBlock) bubbleBlock()   {}
 func (t TextBlock) String() string {
 	if t.Inlines == nil {
 		return t.Text

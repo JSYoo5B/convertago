@@ -36,6 +36,7 @@ const (
 
 func (b ButtonBlock) Type() string   { return "button" }
 func (b ButtonBlock) String() string { return b.Text + ": " + b.Action.String() }
+func (ButtonBlock) bubbleBlock()     {}
 func (b ButtonBlock) MarshalJSON() ([]byte, error) {
 	if _, exists := buttonStyleConstants[b.Style]; !exists {
 		b.Style = ButtonStyleDefault

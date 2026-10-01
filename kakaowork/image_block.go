@@ -11,6 +11,7 @@ type ImageBlock struct {
 }
 
 func (i ImageBlock) Type() string   { return "image_link" }
+func (ImageBlock) bubbleBlock()     {}
 func (i ImageBlock) String() string { return `{"image": "` + i.Url + `"}` }
 func (i ImageBlock) MarshalJSON() ([]byte, error) {
 	type Embed ImageBlock

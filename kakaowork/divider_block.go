@@ -9,6 +9,7 @@ type DividerBlock struct{}
 
 func (d DividerBlock) Type() string   { return "divider" }
 func (d DividerBlock) String() string { return "---" }
+func (DividerBlock) bubbleBlock()     {}
 func (d DividerBlock) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
 		Type string `json:"type"`

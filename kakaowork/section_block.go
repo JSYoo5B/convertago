@@ -17,6 +17,7 @@ type SectionBlock struct {
 
 func (s SectionBlock) Type() string   { return "section" }
 func (s SectionBlock) String() string { return s.Content.String() }
+func (SectionBlock) bubbleBlock()     {}
 func (s SectionBlock) MarshalJSON() ([]byte, error) {
 	type Embed SectionBlock
 	return json.Marshal(&struct {
