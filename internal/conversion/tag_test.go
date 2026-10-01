@@ -4,8 +4,12 @@ import "testing"
 
 var testProfile = Profile{Platform: "test", Roles: map[string]Role{
 	"text":   {DefaultSlot: "text", Slots: map[string]Slot{"text": {Repeated: true, Required: true}}, Styles: []string{"bold", "italic"}, Formats: []string{"plain"}},
+	"header": {DefaultSlot: "text", Slots: map[string]Slot{"text": {Repeated: true, Required: true}}},
+	"image":  {DefaultSlot: "url", Slots: map[string]Slot{"url": {Required: true}, "alt": {Required: true}}},
 	"button": {Unavailable: true},
 }}
+
+func init() { Register(testProfile) }
 
 func TestParse(t *testing.T) {
 	tag, err := Parse(testProfile, "text;group=body;slot=text;style=bold,italic;format=plain;omitempty;optional")
