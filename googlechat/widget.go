@@ -21,9 +21,9 @@ type WidgetContent interface {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Widget
 type Widget struct {
 	// Content contains exactly one supported widget content object.
-	Content WidgetContent `json:"-"`
+	Content WidgetContent `json:"-" validate:"required"`
 	// HorizontalAlignment positions the widget at the start, center, or end.
-	HorizontalAlignment HorizontalAlignment `json:"-"`
+	HorizontalAlignment HorizontalAlignment `json:"-" validate:"omitempty,oneof=START CENTER END"`
 }
 
 func (w Widget) Type() string {

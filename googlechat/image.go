@@ -5,9 +5,9 @@ package googlechat
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Image
 type Image struct {
 	// ImageURL is the HTTPS URL hosting the image.
-	ImageURL string `json:"imageUrl"`
+	ImageURL string `json:"imageUrl" validate:"required,http_url"`
 	// OnClick runs when the image is clicked.
-	OnClick *OnClick `json:"onClick,omitempty"`
+	OnClick *OnClick `json:"onClick,omitempty" validate:"omitempty"`
 	// AltText describes the image for accessibility.
 	AltText string `json:"altText,omitempty"`
 }

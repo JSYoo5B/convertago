@@ -10,11 +10,11 @@ import (
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#OnClick
 type OnClick struct {
 	// Action invokes an app function. Supply exactly one of Action, OpenLink, or OverflowMenu.
-	Action *Action `json:"action,omitempty"`
+	Action *Action `json:"action,omitempty" validate:"required_without_all=OpenLink OverflowMenu,excluded_with=OpenLink OverflowMenu,omitempty"`
 	// OpenLink opens a hyperlink.
-	OpenLink *OpenLink `json:"openLink,omitempty"`
+	OpenLink *OpenLink `json:"openLink,omitempty" validate:"required_without_all=Action OverflowMenu,excluded_with=Action OverflowMenu,omitempty"`
 	// OverflowMenu opens a menu of secondary actions.
-	OverflowMenu *OverflowMenu `json:"overflowMenu,omitempty"`
+	OverflowMenu *OverflowMenu `json:"overflowMenu,omitempty" validate:"required_without_all=Action OpenLink,excluded_with=Action OpenLink,omitempty"`
 }
 
 func (a OnClick) MarshalJSON() ([]byte, error) {
@@ -40,7 +40,7 @@ func (a OnClick) MarshalJSON() ([]byte, error) {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#OpenLink
 type OpenLink struct {
 	// URL is the link to open.
-	URL string `json:"url"`
+	URL string `json:"url" validate:"required,url"`
 }
 
 // Action invokes a custom function with optional parameters and form requirements.
@@ -48,18 +48,18 @@ type OpenLink struct {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Action
 type Action struct {
 	// Function identifies the app function to invoke.
-	Function string `json:"function"`
+	Function string `json:"function" validate:"required"`
 	// Parameters supplies string values to the function.
-	Parameters []ActionParameter `json:"parameters,omitempty"`
+	Parameters []ActionParameter `json:"parameters,omitempty" validate:"unique=Key,dive"`
 	// LoadIndicator selects the loading feedback. Omission uses a spinner.
-	LoadIndicator LoadIndicator `json:"loadIndicator,omitempty"`
+	LoadIndicator LoadIndicator `json:"loadIndicator,omitempty" validate:"omitempty,oneof=SPINNER NONE"`
 	// PersistValues retains form values after the action. Card messages also need an UPDATE_MESSAGE
 	// response using the original CardID. LoadIndicatorNone allows edits while the action runs.
 	PersistValues bool `json:"persistValues,omitempty"`
 	// Interaction allows a card-message button to open a dialog.
-	Interaction Interaction `json:"interaction,omitempty"`
+	Interaction Interaction `json:"interaction,omitempty" validate:"omitempty,oneof=OPEN_DIALOG"`
 	// RequiredWidgets names inputs that must have values before submission.
-	RequiredWidgets []string `json:"requiredWidgets,omitempty"`
+	RequiredWidgets []string `json:"requiredWidgets,omitempty" validate:"dive,required"`
 	// AllWidgetsAreRequired requires values for all inputs before submission.
 	AllWidgetsAreRequired bool `json:"allWidgetsAreRequired,omitempty"`
 }
@@ -69,7 +69,7 @@ type Action struct {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#ActionParameter
 type ActionParameter struct {
 	// Key names the parameter passed to the function.
-	Key string `json:"key"`
+	Key string `json:"key" validate:"required"`
 	// Value is the parameter's string value.
 	Value string `json:"value"`
 }
@@ -92,7 +92,7 @@ const InteractionOpenDialog Interaction = "OPEN_DIALOG"
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#OverflowMenu
 type OverflowMenu struct {
 	// Items contains the actions offered by the menu.
-	Items []OverflowMenuItem `json:"items"`
+	Items []OverflowMenuItem `json:"items" validate:"min=1,dive"`
 }
 
 // OverflowMenuItem displays text and an optional icon for a menu action.
@@ -100,9 +100,9 @@ type OverflowMenu struct {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#OverflowMenuItem
 type OverflowMenuItem struct {
 	// StartIcon appears before the text.
-	StartIcon *Icon `json:"startIcon,omitempty"`
+	StartIcon *Icon `json:"startIcon,omitempty" validate:"omitempty"`
 	// Text is the required label describing the menu item.
-	Text string `json:"text"`
+	Text string `json:"text" validate:"required"`
 	// OnClick is the required action. An OverflowMenu action is dropped and disables the item.
 	OnClick OnClick `json:"onClick"`
 	// Disabled prevents the menu option from responding to user actions.
