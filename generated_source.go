@@ -13,6 +13,7 @@ type SourceField = conversion.Field
 type SourceValue = conversion.Value
 
 // SourceTag is parsed tag metadata emitted by the generator.
+// Its Style slice may reference shared, read-only metadata; copy it before editing.
 type SourceTag = conversion.Tag
 
 // SourceState tracks traversal for generated accessors and dynamic fields.

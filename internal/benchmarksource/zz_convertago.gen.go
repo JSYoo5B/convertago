@@ -22,11 +22,15 @@ func (value FlatMessage) ConvertagoFields(platform string) ([]_convertago.Source
 	}
 }
 
+var convertagoFlatMessage_kakaowork_0_styles_2 = [...]string{
+	"bold",
+}
+
 func convertagoFlatMessage_kakaowork_0(value FlatMessage, state *_convertago.SourceState) _convertago.SourceValue {
 	return _convertago.SourceObject([]_convertago.SourceField{
 		{Name: "Title", Tag: _convertago.SourceTag{Role: "header"}, Value: convertagoFlatMessage_kakaowork_1(value.Title, state)},
 		{Name: "Prefix", Tag: _convertago.SourceTag{Role: "text", Group: "body"}, Value: convertagoFlatMessage_kakaowork_1(value.Prefix, state)},
-		{Name: "Name", Tag: _convertago.SourceTag{Role: "text", Group: "body", Style: []string{"bold"}}, Value: convertagoFlatMessage_kakaowork_1(value.Name, state)},
+		{Name: "Name", Tag: _convertago.SourceTag{Role: "text", Group: "body", Style: convertagoFlatMessage_kakaowork_0_styles_2[:]}, Value: convertagoFlatMessage_kakaowork_1(value.Name, state)},
 		{Name: "Count", Tag: _convertago.SourceTag{Role: "text"}, Value: convertagoFlatMessage_kakaowork_2(value.Count, state)},
 	})
 }
@@ -39,11 +43,15 @@ func convertagoFlatMessage_kakaowork_2(value int, state *_convertago.SourceState
 	return _convertago.SourceValue{Kind: "scalar", Text: _strconv.FormatInt(int64(value), 10), Empty: value == 0}
 }
 
+var convertagoFlatMessage_slack_0_styles_2 = [...]string{
+	"bold",
+}
+
 func convertagoFlatMessage_slack_0(value FlatMessage, state *_convertago.SourceState) _convertago.SourceValue {
 	return _convertago.SourceObject([]_convertago.SourceField{
 		{Name: "Title", Tag: _convertago.SourceTag{Role: "header"}, Value: convertagoFlatMessage_slack_1(value.Title, state)},
 		{Name: "Prefix", Tag: _convertago.SourceTag{Role: "rich_text", Group: "body"}, Value: convertagoFlatMessage_slack_1(value.Prefix, state)},
-		{Name: "Name", Tag: _convertago.SourceTag{Role: "rich_text", Group: "body", Style: []string{"bold"}}, Value: convertagoFlatMessage_slack_1(value.Name, state)},
+		{Name: "Name", Tag: _convertago.SourceTag{Role: "rich_text", Group: "body", Style: convertagoFlatMessage_slack_0_styles_2[:]}, Value: convertagoFlatMessage_slack_1(value.Name, state)},
 		{Name: "Count", Tag: _convertago.SourceTag{Role: "rich_text"}, Value: convertagoFlatMessage_slack_2(value.Count, state)},
 	})
 }
@@ -56,11 +64,15 @@ func convertagoFlatMessage_slack_2(value int, state *_convertago.SourceState) _c
 	return _convertago.SourceValue{Kind: "scalar", Text: _strconv.FormatInt(int64(value), 10), Empty: value == 0}
 }
 
+var convertagoFlatMessage_googlechat_0_styles_2 = [...]string{
+	"bold",
+}
+
 func convertagoFlatMessage_googlechat_0(value FlatMessage, state *_convertago.SourceState) _convertago.SourceValue {
 	return _convertago.SourceObject([]_convertago.SourceField{
 		{Name: "Title", Tag: _convertago.SourceTag{Role: "header"}, Value: convertagoFlatMessage_googlechat_1(value.Title, state)},
 		{Name: "Prefix", Tag: _convertago.SourceTag{Role: "textParagraph", Group: "body"}, Value: convertagoFlatMessage_googlechat_1(value.Prefix, state)},
-		{Name: "Name", Tag: _convertago.SourceTag{Role: "textParagraph", Group: "body", Style: []string{"bold"}}, Value: convertagoFlatMessage_googlechat_1(value.Name, state)},
+		{Name: "Name", Tag: _convertago.SourceTag{Role: "textParagraph", Group: "body", Style: convertagoFlatMessage_googlechat_0_styles_2[:]}, Value: convertagoFlatMessage_googlechat_1(value.Name, state)},
 		{Name: "Count", Tag: _convertago.SourceTag{Role: "textParagraph"}, Value: convertagoFlatMessage_googlechat_2(value.Count, state)},
 	})
 }
@@ -149,10 +161,14 @@ func convertagoNestedMessage_kakaowork_5(value Picture, state *_convertago.Sourc
 	})
 }
 
+var convertagoNestedMessage_kakaowork_6_styles_1 = [...]string{
+	"bold",
+}
+
 func convertagoNestedMessage_kakaowork_6(value Line, state *_convertago.SourceState) _convertago.SourceValue {
 	return _convertago.SourceObject([]_convertago.SourceField{
 		{Name: "Prefix", Tag: _convertago.SourceTag{Role: "text", Group: "line"}, Value: convertagoNestedMessage_kakaowork_1(value.Prefix, state)},
-		{Name: "Name", Tag: _convertago.SourceTag{Role: "text", Group: "line", Style: []string{"bold"}}, Value: convertagoNestedMessage_kakaowork_1(value.Name, state)},
+		{Name: "Name", Tag: _convertago.SourceTag{Role: "text", Group: "line", Style: convertagoNestedMessage_kakaowork_6_styles_1[:]}, Value: convertagoNestedMessage_kakaowork_1(value.Name, state)},
 	})
 }
 
@@ -219,10 +235,14 @@ func convertagoNestedMessage_slack_5(value Picture, state *_convertago.SourceSta
 	})
 }
 
+var convertagoNestedMessage_slack_6_styles_1 = [...]string{
+	"bold",
+}
+
 func convertagoNestedMessage_slack_6(value Line, state *_convertago.SourceState) _convertago.SourceValue {
 	return _convertago.SourceObject([]_convertago.SourceField{
 		{Name: "Prefix", Tag: _convertago.SourceTag{Role: "rich_text", Group: "line"}, Value: convertagoNestedMessage_slack_1(value.Prefix, state)},
-		{Name: "Name", Tag: _convertago.SourceTag{Role: "rich_text", Group: "line", Style: []string{"bold"}}, Value: convertagoNestedMessage_slack_1(value.Name, state)},
+		{Name: "Name", Tag: _convertago.SourceTag{Role: "rich_text", Group: "line", Style: convertagoNestedMessage_slack_6_styles_1[:]}, Value: convertagoNestedMessage_slack_1(value.Name, state)},
 	})
 }
 
@@ -289,10 +309,14 @@ func convertagoNestedMessage_googlechat_5(value Picture, state *_convertago.Sour
 	})
 }
 
+var convertagoNestedMessage_googlechat_6_styles_1 = [...]string{
+	"bold",
+}
+
 func convertagoNestedMessage_googlechat_6(value Line, state *_convertago.SourceState) _convertago.SourceValue {
 	return _convertago.SourceObject([]_convertago.SourceField{
 		{Name: "Prefix", Tag: _convertago.SourceTag{Role: "textParagraph", Group: "line"}, Value: convertagoNestedMessage_googlechat_1(value.Prefix, state)},
-		{Name: "Name", Tag: _convertago.SourceTag{Role: "textParagraph", Group: "line", Style: []string{"bold"}}, Value: convertagoNestedMessage_googlechat_1(value.Name, state)},
+		{Name: "Name", Tag: _convertago.SourceTag{Role: "textParagraph", Group: "line", Style: convertagoNestedMessage_googlechat_6_styles_1[:]}, Value: convertagoNestedMessage_googlechat_1(value.Name, state)},
 	})
 }
 

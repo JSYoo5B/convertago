@@ -198,8 +198,21 @@ func (r *reader) emit(h helper) {
 	g, out := r.g, &r.g.body
 	prefix := g.prefix
 	t := h.typeOf
-	fmt.Fprintf(out, "func %s(value %s, state *%sSourceState) %sSourceValue {\n", h.name, g.typeName(t), prefix, prefix)
 	underlying := t.Underlying()
+	if object, ok := underlying.(*types.Struct); ok && (h.object || (!types.Implements(t, marshalerInterface) && !types.Implements(t, stringerInterface))) {
+		for i := 0; i < object.NumFields(); i++ {
+			tag, _ := conversion.Parse(r.profile, structTag(object.Tag(i), r.profile.Platform))
+			if len(tag.Style) == 0 {
+				continue
+			}
+			fmt.Fprintf(out, "var %s_styles_%d = [...]string{\n", h.name, i)
+			for _, style := range tag.Style {
+				fmt.Fprintf(out, "%q,\n", style)
+			}
+			out.WriteString("}\n\n")
+		}
+	}
+	fmt.Fprintf(out, "func %s(value %s, state *%sSourceState) %sSourceValue {\n", h.name, g.typeName(t), prefix, prefix)
 	if _, ok := underlying.(*types.Interface); ok {
 		fmt.Fprintf(out, "return state.Dynamic(value, %q)\n}\n\n", r.profile.Platform)
 		return
@@ -247,7 +260,8 @@ func (r *reader) emit(h helper) {
 			if tag.Role == "" {
 				continue
 			}
-			fmt.Fprintf(out, "{Name: %q, Tag: %s, Value: %s(value.%s, state)},\n", field.Name(), tagLiteral(prefix, tag), r.helper(field.Type()), field.Name())
+			styles := fmt.Sprintf("%s_styles_%d[:]", h.name, i)
+			fmt.Fprintf(out, "{Name: %q, Tag: %s, Value: %s(value.%s, state)},\n", field.Name(), tagLiteral(prefix, tag, styles), r.helper(field.Type()), field.Name())
 		}
 		out.WriteString("})\n")
 	case *types.Slice:
@@ -289,7 +303,7 @@ func (r *reader) list(elem types.Type) {
 	fmt.Fprintf(out, "items := make([]%sSourceValue, len(value))\nfor i := range value { items[i] = %s(value[i], state) }\nreturn %sSourceValue{Kind: \"list\", Items: items, Empty: len(value) == 0}\n", r.g.prefix, r.helper(elem), r.g.prefix)
 }
 
-func tagLiteral(prefix string, tag conversion.Tag) string {
+func tagLiteral(prefix string, tag conversion.Tag, styles string) string {
 	pieces := []string{"Role: " + strconv.Quote(tag.Role)}
 	for _, option := range []struct{ name, value string }{{"Group", tag.Group}, {"Slot", tag.Slot}, {"Format", tag.Format}} {
 		if option.value != "" {
@@ -297,11 +311,7 @@ func tagLiteral(prefix string, tag conversion.Tag) string {
 		}
 	}
 	if len(tag.Style) != 0 {
-		var styles []string
-		for _, style := range tag.Style {
-			styles = append(styles, strconv.Quote(style))
-		}
-		pieces = append(pieces, "Style: []string{"+strings.Join(styles, ", ")+"}")
+		pieces = append(pieces, "Style: "+styles)
 	}
 	if tag.OmitEmpty {
 		pieces = append(pieces, "OmitEmpty: true")

@@ -162,8 +162,8 @@ files. Generation currently targets non-generic defined struct types in packages
 without cgo.
 
 Generated `ConvertagoFields` methods access known fields directly, check nil
-pointers, iterate lists, and emit parsed tag metadata. The ordinary `To…Message`
-functions select these methods automatically. Interface-valued fields use a
+pointers, iterate lists, and emit parsed tag literals with shared style arrays.
+The ordinary `To…Message` functions select these methods automatically. Interface-valued fields use a
 cached reflection fallback for their actual runtime types. Without generated
 methods, the entire source uses cached reflection plans by type and platform.
 Both paths share ordering, grouping, assembly, validation, and diagnostics.
@@ -172,7 +172,8 @@ Both paths share ordering, grouping, assembly, validation, and diagnostics.
 `SourceMarshaled` form the generated-code contract. Applications normally use
 tags, the conversion functions, and native message types instead of constructing
 these source representations themselves. Rerun generation after changing tags
-or field types.
+or field types. Tag style slices are shared, read-only metadata in both paths;
+copy a style slice before editing it.
 
 JSON examples are attached to each conversion function in its corresponding
 `*_example_test.go`. Generator integration tests compile a separate consumer

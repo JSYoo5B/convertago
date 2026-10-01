@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// Tag is the parsed metadata emitted by the source generator.
+// Tag is parsed source metadata. Style may reference shared, read-only storage.
 type Tag struct {
 	Role      string
 	Group     string
