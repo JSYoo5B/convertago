@@ -25,11 +25,12 @@ type Slot struct {
 
 // Role describes a native builder or a recognized, unavailable feature.
 type Role struct {
-	DefaultSlot string
-	Slots       map[string]Slot
-	Styles      []string
-	Formats     []string
-	Unavailable bool
+	DefaultSlot  string
+	Slots        map[string]Slot
+	Styles       []string
+	FormatStyles map[string][]string
+	Formats      []string
+	Unavailable  bool
 }
 
 // Profile is owned and registered by the corresponding messenger package.
@@ -126,6 +127,10 @@ func CheckTag(profile Profile, tag Tag) (string, error) {
 		unavailable = append(unavailable, "role "+tag.Role)
 	}
 	seen := make(map[string]bool)
+	styles := role.Styles
+	if allowed, exists := role.FormatStyles[tag.Format]; exists {
+		styles = allowed
+	}
 	for _, style := range tag.Style {
 		if !contains([]string{"bold", "italic", "strike", "code", "underline"}, style) {
 			return "", fmt.Errorf("unknown style %q", style)
@@ -134,7 +139,7 @@ func CheckTag(profile Profile, tag Tag) (string, error) {
 			return "", fmt.Errorf("duplicate style %q", style)
 		}
 		seen[style] = true
-		if tag.Role != "part" && !contains(role.Styles, style) {
+		if tag.Role != "part" && !contains(styles, style) {
 			unavailable = append(unavailable, "style "+style)
 		}
 	}
