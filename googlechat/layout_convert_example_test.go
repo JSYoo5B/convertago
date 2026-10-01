@@ -17,9 +17,53 @@ func ExampleToMessage_columns() {
 	message, err := googlechat.ToMessage(struct {
 		Row rowInput `googlechat:"columns"`
 	}{row})
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"cardsV2":[{"card":{"sections":[{"widgets":[{"columns":{"columnItems":[{"widgets":[{"textParagraph":{"text":"Left"}}]},{"widgets":[{"textParagraph":{"text":"Right"}}]}]}}]}]}}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "card": {
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "columns": {
+	//                   "columnItems": [
+	//                     {
+	//                       "widgets": [
+	//                         {
+	//                           "textParagraph": {
+	//                             "text": "Left"
+	//                           }
+	//                         }
+	//                       ]
+	//                     },
+	//                     {
+	//                       "widgets": [
+	//                         {
+	//                           "textParagraph": {
+	//                             "text": "Right"
+	//                           }
+	//                         }
+	//                       ]
+	//                     }
+	//                   ]
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }
 
 func ExampleToMessage_grid() {
@@ -34,9 +78,42 @@ func ExampleToMessage_grid() {
 	message, err := googlechat.ToMessage(struct {
 		Row rowInput `googlechat:"grid"`
 	}{row})
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"cardsV2":[{"card":{"sections":[{"widgets":[{"grid":{"title":"Items","items":[{"title":"One"},{"title":"Two"}]}}]}]}}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "card": {
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "grid": {
+	//                   "title": "Items",
+	//                   "items": [
+	//                     {
+	//                       "title": "One"
+	//                     },
+	//                     {
+	//                       "title": "Two"
+	//                     }
+	//                   ]
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }
 
 func ExampleToMessage_carousel() {
@@ -51,9 +128,67 @@ func ExampleToMessage_carousel() {
 	message, err := googlechat.ToMessage(struct {
 		Row rowInput `googlechat:"carousel"`
 	}{row})
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"cardsV2":[{"card":{"sections":[{"widgets":[{"carousel":{"carouselCards":[{"widgets":[{"textParagraph":{"text":"First"}}],"footerWidgets":[{"textParagraph":{"text":"one"}}]},{"widgets":[{"textParagraph":{"text":"Second"}}],"footerWidgets":[{"textParagraph":{"text":"two"}}]}]}}]}]}}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "card": {
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "carousel": {
+	//                   "carouselCards": [
+	//                     {
+	//                       "widgets": [
+	//                         {
+	//                           "textParagraph": {
+	//                             "text": "First"
+	//                           }
+	//                         }
+	//                       ],
+	//                       "footerWidgets": [
+	//                         {
+	//                           "textParagraph": {
+	//                             "text": "one"
+	//                           }
+	//                         }
+	//                       ]
+	//                     },
+	//                     {
+	//                       "widgets": [
+	//                         {
+	//                           "textParagraph": {
+	//                             "text": "Second"
+	//                           }
+	//                         }
+	//                       ],
+	//                       "footerWidgets": [
+	//                         {
+	//                           "textParagraph": {
+	//                             "text": "two"
+	//                           }
+	//                         }
+	//                       ]
+	//                     }
+	//                   ]
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }
 
 func ExampleToMessage_chips() {
@@ -64,7 +199,39 @@ func ExampleToMessage_chips() {
 	message, err := googlechat.ToMessage(struct {
 		Row rowInput `googlechat:"chipList"`
 	}{row})
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"cardsV2":[{"card":{"sections":[{"widgets":[{"chipList":{"chips":[{"label":"Go"},{"label":"JSON"}]}}]}]}}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "card": {
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "chipList": {
+	//                   "chips": [
+	//                     {
+	//                       "label": "Go"
+	//                     },
+	//                     {
+	//                       "label": "JSON"
+	//                     }
+	//                   ]
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }

@@ -19,7 +19,36 @@ func ExampleToMessage_decoratedText() {
 	message, err := googlechat.ToMessage(struct {
 		Row rowInput `googlechat:"decoratedText"`
 	}{row})
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"cardsV2":[{"card":{"sections":[{"widgets":[{"decoratedText":{"startIcon":{"knownIcon":"STAR"},"topLabel":"Status","text":"\u003cb\u003eReady\u003c/b\u003e"}}]}]}}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "card": {
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "decoratedText": {
+	//                   "startIcon": {
+	//                     "knownIcon": "STAR"
+	//                   },
+	//                   "topLabel": "Status",
+	//                   "text": "\u003cb\u003eReady\u003c/b\u003e"
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }

@@ -18,9 +18,48 @@ func ExampleToMessage_richTextList() {
 	}{}
 	source.Body.List = list{"ordered", []string{"First", "Second"}}
 	message, err := slack.ToMessage(source)
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"blocks":[{"type":"rich_text","elements":[{"type":"rich_text_list","style":"ordered","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"First"}]},{"type":"rich_text_section","elements":[{"type":"text","text":"Second"}]}]}]}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "blocks": [
+	//     {
+	//       "type": "rich_text",
+	//       "elements": [
+	//         {
+	//           "type": "rich_text_list",
+	//           "style": "ordered",
+	//           "elements": [
+	//             {
+	//               "type": "rich_text_section",
+	//               "elements": [
+	//                 {
+	//                   "type": "text",
+	//                   "text": "First"
+	//                 }
+	//               ]
+	//             },
+	//             {
+	//               "type": "rich_text_section",
+	//               "elements": [
+	//                 {
+	//                   "type": "text",
+	//                   "text": "Second"
+	//                 }
+	//               ]
+	//             }
+	//           ]
+	//         }
+	//       ]
+	//     }
+	//   ]
+	// }
 }
 
 func ExampleToMessage_richTextMention() {
@@ -35,7 +74,42 @@ func ExampleToMessage_richTextMention() {
 	source.Body.User = "U123"
 	source.Body.Emoji = "wave"
 	message, err := slack.ToMessage(source)
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"blocks":[{"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"Hello "},{"type":"user","user_id":"U123","style":{"bold":true}},{"type":"emoji","name":"wave"}]}]}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "blocks": [
+	//     {
+	//       "type": "rich_text",
+	//       "elements": [
+	//         {
+	//           "type": "rich_text_section",
+	//           "elements": [
+	//             {
+	//               "type": "text",
+	//               "text": "Hello "
+	//             },
+	//             {
+	//               "type": "user",
+	//               "user_id": "U123",
+	//               "style": {
+	//                 "bold": true
+	//               }
+	//             },
+	//             {
+	//               "type": "emoji",
+	//               "name": "wave"
+	//             }
+	//           ]
+	//         }
+	//       ]
+	//     }
+	//   ]
+	// }
 }

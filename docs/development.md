@@ -21,6 +21,8 @@
 Keep public declarations in their existing packages to preserve application
 imports and generated-code compatibility. Keep each executable example beside
 the API it documents so godoc associates it with that declaration.
+Use `json.MarshalIndent(value, "", "  ")` and multiline `Output` comments in
+JSON examples so the native message structure is visible in godoc.
 
 Unit tests that exercise a package's implementation stay in that package.
 Checks that combine messenger packages belong in `internal/integration`.

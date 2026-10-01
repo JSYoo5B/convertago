@@ -15,10 +15,29 @@ func ExampleToMessage() {
 	if err != nil {
 		panic(err)
 	}
-	data, err := json.Marshal(message)
+	data, err := json.MarshalIndent(message, "", "  ")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(string(data))
-	// Output: {"cardsV2":[{"card":{"sections":[{"widgets":[{"textParagraph":{"text":"Google Chat notification"}}]}]}}]}
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "card": {
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "textParagraph": {
+	//                   "text": "Google Chat notification"
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }

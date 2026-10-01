@@ -19,9 +19,33 @@ func ExampleToMessage_actions() {
 	message, err := slack.ToMessage(struct {
 		Row rowInput `slack:"actions"`
 	}{row})
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"blocks":[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Open"},"action_id":"open","url":"https://example.com"}]}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "blocks": [
+	//     {
+	//       "type": "actions",
+	//       "elements": [
+	//         {
+	//           "type": "button",
+	//           "text": {
+	//             "type": "plain_text",
+	//             "text": "Open"
+	//           },
+	//           "action_id": "open",
+	//           "url": "https://example.com"
+	//         }
+	//       ]
+	//     }
+	//   ]
+	// }
 }
 
 func ExampleToMessage_context() {
@@ -37,7 +61,31 @@ func ExampleToMessage_context() {
 	message, err := slack.ToMessage(struct {
 		Row rowInput `slack:"context"`
 	}{row})
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"blocks":[{"type":"context","elements":[{"type":"image","image_url":"https://example.com/icon.png","alt_text":"Author"},{"type":"plain_text","text":"Posted by Jane"}]}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "blocks": [
+	//     {
+	//       "type": "context",
+	//       "elements": [
+	//         {
+	//           "type": "image",
+	//           "image_url": "https://example.com/icon.png",
+	//           "alt_text": "Author"
+	//         },
+	//         {
+	//           "type": "plain_text",
+	//           "text": "Posted by Jane"
+	//         }
+	//       ]
+	//     }
+	//   ]
+	// }
 }

@@ -15,10 +15,19 @@ func ExampleToMessage() {
 	if err != nil {
 		panic(err)
 	}
-	data, err := json.Marshal(message)
+	data, err := json.MarshalIndent(message, "", "  ")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(string(data))
-	// Output: {"text":"","blocks":[{"type":"text","text":"카카오워크 알림"}]}
+	// Output:
+	// {
+	//   "text": "",
+	//   "blocks": [
+	//     {
+	//       "type": "text",
+	//       "text": "카카오워크 알림"
+	//     }
+	//   ]
+	// }
 }

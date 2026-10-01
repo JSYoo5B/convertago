@@ -18,7 +18,41 @@ func ExampleToMessage_buttons() {
 	message, err := googlechat.ToMessage(struct {
 		Row rowInput `googlechat:"buttonList"`
 	}{row})
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"cardsV2":[{"card":{"sections":[{"widgets":[{"buttonList":{"buttons":[{"text":"Open","onClick":{"openLink":{"url":"https://example.com"}}}]}}]}]}}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "card": {
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "buttonList": {
+	//                   "buttons": [
+	//                     {
+	//                       "text": "Open",
+	//                       "onClick": {
+	//                         "openLink": {
+	//                           "url": "https://example.com"
+	//                         }
+	//                       }
+	//                     }
+	//                   ]
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }

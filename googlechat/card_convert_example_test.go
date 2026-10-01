@@ -19,9 +19,57 @@ func ExampleToMessage_cards() {
 		Cards []wrapped `googlechat:"cardWithId"`
 	}{[]wrapped{{"first", card{"First", "one"}}, {"second", card{"Second", "two"}}}}
 	message, err := googlechat.ToMessage(source)
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"cardsV2":[{"cardId":"first","card":{"header":{"title":"First"},"sections":[{"widgets":[{"textParagraph":{"text":"one"}}]}]}},{"cardId":"second","card":{"header":{"title":"Second"},"sections":[{"widgets":[{"textParagraph":{"text":"two"}}]}]}}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "cardId": "first",
+	//       "card": {
+	//         "header": {
+	//           "title": "First"
+	//         },
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "textParagraph": {
+	//                   "text": "one"
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     },
+	//     {
+	//       "cardId": "second",
+	//       "card": {
+	//         "header": {
+	//           "title": "Second"
+	//         },
+	//         "sections": [
+	//           {
+	//             "widgets": [
+	//               {
+	//                 "textParagraph": {
+	//                   "text": "two"
+	//                 }
+	//               }
+	//             ]
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }
 
 func ExampleToMessage_sections() {
@@ -34,7 +82,44 @@ func ExampleToMessage_sections() {
 		Sections []section `googlechat:"section"`
 	}{[]section{{"Summary", "Ready", false}, {"Details", "Completed", true}}}
 	message, err := googlechat.ToMessage(source)
-	data, _ := json.Marshal(message)
-	fmt.Println(string(data), err)
-	// Output: {"cardsV2":[{"card":{"sections":[{"header":"Summary","widgets":[{"textParagraph":{"text":"Ready"}}]},{"header":"Details","widgets":[{"textParagraph":{"text":"Completed"}}],"collapsible":true}]}}]} <nil>
+	if err != nil {
+		panic(err)
+	}
+	data, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
+	// Output:
+	// {
+	//   "cardsV2": [
+	//     {
+	//       "card": {
+	//         "sections": [
+	//           {
+	//             "header": "Summary",
+	//             "widgets": [
+	//               {
+	//                 "textParagraph": {
+	//                   "text": "Ready"
+	//                 }
+	//               }
+	//             ]
+	//           },
+	//           {
+	//             "header": "Details",
+	//             "widgets": [
+	//               {
+	//                 "textParagraph": {
+	//                   "text": "Completed"
+	//                 }
+	//               }
+	//             ],
+	//             "collapsible": true
+	//           }
+	//         ]
+	//       }
+	//     }
+	//   ]
+	// }
 }
