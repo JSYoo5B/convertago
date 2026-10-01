@@ -11,10 +11,10 @@ type HeaderBlock struct {
 	// 말풍선 사이즈에 따라 말줄임 처리,
 	// 기본 Bold 로 처리,
 	// 줄바꿈은 미지원,
-	Text string `json:"text"`
+	Text string `json:"text" validate:"max=20,excludesall=\r\n"`
 	// Style 에 색상 설정, 기본값은 흰색.
 	// 설정 가능한 값: HeaderStyleWhite, HeaderStyleBlue, HeaderStyleRed, HeaderStyleYellow
-	Style HeaderStyle `json:"style"`
+	Style HeaderStyle `json:"style" validate:"omitempty,oneof=white blue red yellow"`
 }
 
 type HeaderStyle string

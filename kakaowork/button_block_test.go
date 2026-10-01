@@ -4,11 +4,27 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/JSYoo5B/convertago/kakaowork"
+	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"html"
+	"strings"
 	"testing"
 )
+
+func TestButtonBlock_Validate(t *testing.T) {
+	v := validator.New()
+	var absent *kakaowork.SubmitAction
+	block := kakaowork.ButtonBlock{Text: strings.Repeat("가", 20), Action: kakaowork.SubmitAction{Name: "accept"}}
+	require.NoError(t, v.Struct(block))
+	block.Text += "나"
+	require.Error(t, v.Struct(block))
+	block.Text = "수락"
+	block.Action = absent
+	require.Error(t, v.Struct(block))
+	block.Action = kakaowork.OpenSystemBrowserAction{Value: "ftp://example.com"}
+	require.Error(t, v.Struct(block))
+}
 
 func TestAmpersandEscapeIssue(t *testing.T) {
 	openExtAction := kakaowork.OpenExternalAppAction{

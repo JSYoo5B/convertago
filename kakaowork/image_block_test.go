@@ -27,4 +27,12 @@ func TestImageBlock_Validate(t *testing.T) {
 		err := v.Struct(imageBlock)
 		assert.Error(t, err)
 	})
+
+	t.Run("Non-HTTP scheme", func(t *testing.T) {
+		assert.Error(t, v.Struct(kakaowork.ImageBlock{Url: "ftp://example.com/image.png"}))
+	})
+
+	t.Run("Empty url", func(t *testing.T) {
+		assert.Error(t, v.Struct(kakaowork.ImageBlock{}))
+	})
 }
