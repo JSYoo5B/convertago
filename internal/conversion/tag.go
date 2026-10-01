@@ -21,16 +21,23 @@ type Tag struct {
 type Slot struct {
 	Repeated bool
 	Required bool
+	Children []string
+	Scalar   bool
+	Styles   []string
+	Formats  []string
 }
 
 // Role describes a native builder or a recognized, unavailable feature.
 type Role struct {
-	DefaultSlot  string
-	Slots        map[string]Slot
-	Styles       []string
-	FormatStyles map[string][]string
-	Formats      []string
-	Unavailable  bool
+	DefaultSlot      string
+	DefaultChildSlot string
+	EmptyAllowed     bool
+	NestedOnly       bool
+	Slots            map[string]Slot
+	Styles           []string
+	FormatStyles     map[string][]string
+	Formats          []string
+	Unavailable      bool
 }
 
 // Profile is owned and registered by the corresponding messenger package.
@@ -128,7 +135,14 @@ func CheckTag(profile Profile, tag Tag) (string, error) {
 	}
 	seen := make(map[string]bool)
 	styles := role.Styles
-	if allowed, exists := role.FormatStyles[tag.Format]; exists {
+	formats := role.Formats
+	if tag.Role != "part" && tag.Slot != "" && tag.Slot != role.DefaultSlot {
+		if slot, own := role.Slots[tag.Slot]; own {
+			styles = slot.Styles
+			formats = slot.Formats
+		}
+	}
+	if allowed, exists := role.FormatStyles[tag.Format]; exists && (tag.Slot == "" || tag.Slot == role.DefaultSlot) {
 		styles = allowed
 	}
 	for _, style := range tag.Style {
@@ -147,12 +161,18 @@ func CheckTag(profile Profile, tag Tag) (string, error) {
 		if !contains([]string{"plain", "html", "markdown", "mrkdwn"}, tag.Format) {
 			return "", fmt.Errorf("unknown format %q", tag.Format)
 		}
-		if tag.Role != "part" && !contains(role.Formats, tag.Format) {
+		if tag.Role != "part" && !contains(formats, tag.Format) {
 			unavailable = append(unavailable, "format "+tag.Format)
 		}
 	}
 	if tag.Role != "part" && !role.Unavailable && tag.Slot != "" {
-		if _, exists := role.Slots[tag.Slot]; !exists {
+		_, known := role.Slots[tag.Slot]
+		for _, parent := range profile.Roles {
+			if contains(parent.Slots[tag.Slot].Children, tag.Role) {
+				known = true
+			}
+		}
+		if !known {
 			return "", fmt.Errorf("unknown slot %q for %s", tag.Slot, tag.Role)
 		}
 	}

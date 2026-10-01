@@ -93,7 +93,7 @@ members concatenate in declaration order. Groups cannot mix builder roles.
 Group names belong to one source struct; nested structs and repeated elements
 have separate scopes. Include any spaces or newlines in the source values.
 
-A tagged parent struct selects a builder. Its children use `part` to supply that
+A tagged parent struct selects a builder. Its scalar children use `part` to supply that
 builder's inputs, allowing domain types to differ from the native message shape.
 The default slot is inherited when a child has no `slot`. Parent text style and
 format apply to its child contributions, with child styles added and an explicit
@@ -120,7 +120,10 @@ type Report struct {
 builder it supplies child parts to that builder. Flattening a scalar is an error.
 A slice or array repeats in element order. An ungrouped builder creates a node
 per element; a grouped field contributes its elements to its group's one node.
-Inside a builder, lists concatenate parts. Nil elements are absent.
+Inside a builder, scalar lists concatenate parts. Native child builders use a
+parent slot that accepts their role; an explicit `slot` selects among several
+accepted positions. Child lists repeat native elements in declaration order.
+Empty container structs can represent dividers. Nil elements are absent.
 
 Strings, booleans, integers, and floats have direct text representations.
 Nested fields that explicitly implement `encoding.TextMarshaler` or `fmt.Stringer`

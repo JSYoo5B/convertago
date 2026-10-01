@@ -14,5 +14,5 @@ func ValidateURL(platform, path, text string, httpsOnly bool) error {
 	if httpsOnly {
 		scheme = "HTTPS"
 	}
-	return Error(platform, path, "invalid_value", "image URL must be an absolute "+scheme+" URL")
+	return Error(platform, path, "invalid_value", "URL must be an absolute "+scheme+" URL")
 }

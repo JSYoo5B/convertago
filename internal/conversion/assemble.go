@@ -17,9 +17,40 @@ type Part struct {
 
 // Node represents an assembled platform builder before native rendering.
 type Node struct {
-	Role  string
-	Path  string
-	Parts []Part
+	Role    string
+	Path    string
+	Parts   []Part
+	Inputs  []Input
+	Slot    string
+	present bool
+	partial bool
+}
+
+// Input preserves the source order of scalar parts and native child builders.
+type Input struct {
+	Slot  string
+	Part  *Part
+	Child *Node
+}
+
+// Children returns the native builders assigned to a containing input slot.
+func (n Node) Children(slot string) []Node {
+	var children []Node
+	for _, input := range n.Inputs {
+		if input.Slot == slot && input.Child != nil {
+			children = append(children, *input.Child)
+		}
+	}
+	return children
+}
+
+func (n *Node) appendInputs(inputs []Input) {
+	n.Inputs = append(n.Inputs, inputs...)
+	for _, input := range inputs {
+		if input.Part != nil {
+			n.Parts = append(n.Parts, *input.Part)
+		}
+	}
 }
 
 func (n Node) Text(slot string) string {
@@ -33,8 +64,8 @@ func (n Node) Text(slot string) string {
 }
 
 func (n Node) Has(slot string) bool {
-	for _, part := range n.Parts {
-		if part.Slot == slot {
+	for _, input := range n.Inputs {
+		if input.Slot == slot {
 			return true
 		}
 	}
@@ -79,10 +110,13 @@ func (a assembler) fields(fields []Field, builder string, inherited Tag, path st
 		if err := validateContext(a.profile, field.Tag, builder); err != nil {
 			return nil, a.fail(fieldPath, "invalid_tag", err.Error())
 		}
-		if err := checkGroup(groups, field.Tag); err != nil {
+		if err := checkGroup(groups, field.Tag, builder, a.profile); err != nil {
 			return nil, a.fail(fieldPath, "group_conflict", err.Error())
 		}
 		if field.Value.shape != nil {
+			if err := validateNativeShape(a.profile, field.Tag, builder, field.Value.shape, fieldPath); err != nil {
+				return nil, err
+			}
 			next := builder
 			if field.Tag.Role != "part" && field.Tag.Role != "flatten" {
 				next = field.Tag.Role
@@ -100,15 +134,24 @@ func (a assembler) fields(fields []Field, builder string, inherited Tag, path st
 		if tag.Role == "" {
 			continue
 		}
-		if tag.Role == "part" {
+		partial := tag.Role == "part"
+		target := ""
+		if builder != "" && tag.Role != "flatten" {
+			target, _ = inputSlot(a.profile, tag, builder)
+		}
+		if partial {
 			tag.Role = builder
-			tag.Style = mergeStyles(inherited.Style, tag.Style)
 			if tag.Slot == "" {
 				tag.Slot = inherited.Slot
 			}
-			if tag.Format == "" {
-				tag.Format = inherited.Format
+			if tag.Slot == "" || tag.Slot == a.profile.Roles[builder].DefaultSlot {
+				tag.Style = mergeStyles(inherited.Style, tag.Style)
+				if tag.Format == "" {
+					tag.Format = inherited.Format
+				}
 			}
+		} else if builder != "" {
+			tag.Slot = ""
 		}
 		// Reserve the first declared member's position before checking omissions.
 		anchor := -1
@@ -118,7 +161,7 @@ func (a assembler) fields(fields []Field, builder string, inherited Tag, path st
 			if !exists {
 				anchor = len(nodes)
 				anchors[tag.Group] = anchor
-				nodes = append(nodes, Node{Role: tag.Role, Path: fieldPath})
+				nodes = append(nodes, Node{Role: tag.Role, Path: fieldPath, Slot: target, partial: partial})
 			}
 		}
 		unavailable, err := CheckTag(a.profile, tag)
@@ -150,40 +193,48 @@ func (a assembler) fields(fields []Field, builder string, inherited Tag, path st
 			continue
 		}
 		if anchor >= 0 {
-			parts, err := a.parts(field.Value, tag, fieldPath)
+			if !partial && nodes[anchor].Slot != target {
+				return nil, a.fail(fieldPath, "group_conflict", "group mixes containing input slots")
+			}
+			inputs, err := a.inputs(field.Value, tag, fieldPath)
 			if err != nil {
 				return nil, err
 			}
-			nodes[anchor].Parts = append(nodes[anchor].Parts, parts...)
+			nodes[anchor].appendInputs(inputs)
+			nodes[anchor].present = nodes[anchor].present || len(inputs) != 0 || field.Value.Kind != "list"
 			continue
 		}
-		if builder == "" && field.Value.Kind == "list" {
-			for i, item := range field.Value.Items {
-				itemPath := fmt.Sprintf("%s[%d]", fieldPath, i)
-				parts, err := a.parts(item, tag, itemPath)
-				if err != nil {
-					return nil, err
-				}
-				nodes = append(nodes, Node{Role: tag.Role, Path: itemPath, Parts: parts})
+		values := []Value{field.Value}
+		if !partial && field.Value.Kind == "list" {
+			values = field.Value.Items
+		}
+		for i, value := range values {
+			itemPath := fieldPath
+			if !partial && field.Value.Kind == "list" {
+				itemPath = fmt.Sprintf("%s[%d]", fieldPath, i)
 			}
-		} else {
-			parts, err := a.parts(field.Value, tag, fieldPath)
+			if value.Nil {
+				continue
+			}
+			inputs, err := a.inputs(value, tag, itemPath)
 			if err != nil {
 				return nil, err
 			}
-			nodes = append(nodes, Node{Role: tag.Role, Path: fieldPath, Parts: parts})
+			node := Node{Role: tag.Role, Path: itemPath, Slot: target, partial: partial, present: true}
+			node.appendInputs(inputs)
+			nodes = append(nodes, node)
 		}
 	}
 	result := nodes[:0]
 	for _, node := range nodes {
-		if len(node.Parts) != 0 {
+		if node.present {
 			result = append(result, node)
 		}
 	}
 	return result, nil
 }
 
-func (a assembler) parts(value Value, tag Tag, path string) ([]Part, error) {
+func (a assembler) inputs(value Value, tag Tag, path string) ([]Input, error) {
 	if value.Err != nil {
 		return nil, a.fail(path, "invalid_source", value.Err.Error())
 	}
@@ -201,31 +252,39 @@ func (a assembler) parts(value Value, tag Tag, path string) ([]Part, error) {
 		if slot == "" {
 			slot = a.profile.Roles[tag.Role].DefaultSlot
 		}
-		return []Part{{slot, value.Text, tag.Style, tag.Format, path}}, nil
+		if slot == "" {
+			return nil, a.fail(path, "invalid_source", tag.Role+" requires a tagged struct")
+		}
+		part := &Part{slot, value.Text, tag.Style, tag.Format, path}
+		return []Input{{Slot: slot, Part: part}}, nil
 	case "object":
 		nodes, err := a.fields(value.Fields, tag.Role, tag, path)
 		if err != nil {
 			return nil, err
 		}
-		var parts []Part
+		var inputs []Input
 		for _, node := range nodes {
-			parts = append(parts, node.Parts...)
+			if node.partial {
+				inputs = append(inputs, node.Inputs...)
+			} else {
+				child := node
+				inputs = append(inputs, Input{Slot: node.Slot, Child: &child})
+			}
 		}
-		// A present builder with no inputs is an error, rather than an omission.
-		if len(parts) == 0 {
+		if len(inputs) == 0 && !a.profile.Roles[tag.Role].EmptyAllowed {
 			return nil, a.fail(path, "missing_input", "builder has no inputs")
 		}
-		return parts, nil
+		return inputs, nil
 	case "list":
-		var parts []Part
+		var inputs []Input
 		for i, item := range value.Items {
-			child, err := a.parts(item, tag, fmt.Sprintf("%s[%d]", path, i))
+			child, err := a.inputs(item, tag, fmt.Sprintf("%s[%d]", path, i))
 			if err != nil {
 				return nil, err
 			}
-			parts = append(parts, child...)
+			inputs = append(inputs, child...)
 		}
-		return parts, nil
+		return inputs, nil
 	default:
 		return nil, a.fail(path, "invalid_source", "expected text, a tagged struct, or a list")
 	}
@@ -263,17 +322,35 @@ func (a assembler) flatten(value Value, builder string, inherited Tag, path stri
 func (a assembler) checkSlots(node Node) error {
 	role := a.profile.Roles[node.Role]
 	counts := make(map[string]int)
-	for _, part := range node.Parts {
-		if err := ValidateText(a.profile.Platform, part.Path, part.Text, 0, 0); err != nil {
-			return err
+	for _, input := range node.Inputs {
+		slot, exists := role.Slots[input.Slot]
+		path := node.Path
+		if input.Part != nil {
+			path = input.Part.Path
+		} else {
+			path = input.Child.Path
 		}
-		slot, exists := role.Slots[part.Slot]
 		if !exists {
-			return a.fail(part.Path, "invalid_tag", fmt.Sprintf("unknown slot %q for %s", part.Slot, node.Role))
+			return a.fail(path, "invalid_tag", fmt.Sprintf("unknown slot %q for %s", input.Slot, node.Role))
 		}
-		counts[part.Slot]++
-		if counts[part.Slot] > 1 && !slot.Repeated {
-			return a.fail(part.Path, "duplicate_input", "duplicate input for slot "+part.Slot)
+		if input.Part != nil {
+			if len(slot.Children) != 0 && !slot.Scalar {
+				return a.fail(path, "invalid_source", "slot "+input.Slot+" requires a child builder")
+			}
+			if err := ValidateText(a.profile.Platform, path, input.Part.Text, 0, 0); err != nil {
+				return err
+			}
+		} else {
+			if !contains(slot.Children, input.Child.Role) {
+				return a.fail(path, "invalid_tag", "invalid child for slot "+input.Slot)
+			}
+			if err := a.checkSlots(*input.Child); err != nil {
+				return err
+			}
+		}
+		counts[input.Slot]++
+		if counts[input.Slot] > 1 && !slot.Repeated {
+			return a.fail(path, "duplicate_input", "duplicate input for slot "+input.Slot)
 		}
 	}
 	var names []string

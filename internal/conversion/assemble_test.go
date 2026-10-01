@@ -211,3 +211,43 @@ func TestCachedPlansAreSafeForConcurrentConversion(t *testing.T) {
 	}
 	tasks.Wait()
 }
+
+func TestGroupedEmptyListsAreAbsent(t *testing.T) {
+	source := struct {
+		Empty []string  `test:"text;group=body"`
+		Nil   []*string `test:"text;group=other"`
+		Keep  string    `test:"header"`
+	}{Keep: "heading", Nil: []*string{nil}}
+	nodes, err := Prepare(source, "test", nil)
+	if err != nil || len(nodes) != 1 || nodes[0].Role != "header" {
+		t.Fatalf("nodes=%#v error=%v", nodes, err)
+	}
+}
+
+func TestOmitEmptyListPreservesZeroElements(t *testing.T) {
+	source := struct {
+		Numbers []int `test:"text;omitempty"`
+	}{[]int{0, 1}}
+	nodes, err := Prepare(source, "test", nil)
+	if err != nil || len(nodes) != 2 || nodes[0].Text("text") != "0" {
+		t.Fatalf("nodes=%#v error=%v", nodes, err)
+	}
+}
+
+func TestGroupedPartsCanSupplyDifferentScalarSlots(t *testing.T) {
+	source := struct {
+		Image struct {
+			URL string `test:"part;slot=url;group=photo"`
+			Alt string `test:"part;slot=alt;group=photo"`
+		} `test:"image"`
+	}{}
+	source.Image.URL = "https://example.com/image.png"
+	source.Image.Alt = "photo"
+	nodes, err := Prepare(source, "test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(nodes) != 1 || nodes[0].Text("url") != source.Image.URL || nodes[0].Text("alt") != "photo" {
+		t.Fatalf("nodes=%#v", nodes)
+	}
+}
