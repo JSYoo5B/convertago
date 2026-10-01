@@ -180,12 +180,47 @@ JSON examples are attached to each conversion function in its corresponding
 package and compare JSON, error diagnostics, and skip diagnostics for all three
 platforms against reflection.
 
+### Cross compilation
+
+The generator uses the target reported by `go env GOARCH` for integer widths,
+alignment, and `unsafe.Sizeof`, together with the files and dependency export
+data selected by `go list` for the same build environment. Target settings from
+environment variables or a `GOENV` configuration file are honored.
+
+Run the generator as a host executable when selecting a foreign target. Build
+or install it for the host first, then set the target only when invoking it in
+the source package. For example, from a convertago checkout:
+
+```sh
+go build -o /tmp/convertago ./cmd/convertago
+cd /path/to/source/package
+GOOS=linux GOARCH=386 CGO_ENABLED=0 /tmp/convertago \
+    -type Notice -output zz_convertago_linux_386.go
+GOOS=linux GOARCH=386 CGO_ENABLED=0 go build ./...
+```
+
+The initial `go build` must use host settings. A foreign target on `go run`
+builds a foreign executable, which ordinarily cannot run on the host. Use an
+installed host binary in `go:generate` directives when generation itself needs
+a foreign target.
+
+Host-generated accessors for a source layout shared by all targets can be used
+without regeneration when cross compiling. If field types or array lengths
+depend on the target, generate for each target and use Go's `*_GOOS_GOARCH.go`
+filename constraints, as in the example. Do not keep an unconditional generated
+file declaring the same methods alongside those target-specific files.
+
 ## Verification
 
 CI runs tests, the race detector, and `go vet` on Go 1.25 and the current stable
 release. It regenerates the checked-in benchmark accessors and rejects a diff.
 It also runs bounded fuzz checks and exercises each benchmark without timing
 thresholds.
+
+Generator integration tests compile consumer packages for Linux 386, Linux
+arm64, and Windows amd64 without executing the target binaries. They cover both
+portable host-generated accessors and target-specific layouts. A separate CI
+matrix builds all packages for those targets and Darwin arm64 with cgo disabled.
 
 `FuzzParse` checks canonical tag round trips. `FuzzGeneratedReflectionConversion`
 compares generated and reflected diagnostics and JSON for flat, nested, and
