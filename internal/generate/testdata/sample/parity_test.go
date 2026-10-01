@@ -20,7 +20,7 @@ func TestGeneratedAndReflectionAgree(t *testing.T) {
 		Title: "Notice", Between: "between", Name: "Jane", Image: &Picture{"https://example.com/a.png", "photo"},
 		Items: []Item{{"first ", "A"}, {"second ", "B"}}, Numbers: [2]int{0, 42}, Flags: []bool{false, true},
 		Fraction: 0.1, Pointer: &zero, Label: "label", Caption: Caption("caption"), Time: time.Unix(0, 0).UTC(),
-		Optional: "skip this unimplemented converter role",
+		Optional: "skip this unsupported header style",
 		Ignored:  map[string]string{"no tag": "ignore"},
 	}
 	for _, test := range []struct {
@@ -122,5 +122,54 @@ func compare(t *testing.T, generated, reflected any) {
 				}
 			})
 		}
+	}
+}
+
+type reflectionLayoutNotice LayoutNotice
+
+func TestGeneratedNestedLayoutsAgree(t *testing.T) {
+	zero := 0
+	base := LayoutNotice{
+		Header:  "Notice",
+		Body:    RichInput{"See ", LinkInput{"docs", "https://example.com"}, " now"},
+		Buttons: ButtonRow{[]ButtonInput{{"Confirm", ActionInput{"confirm", "yes"}}, {"Cancel", ActionInput{"cancel", "no"}}}},
+		Rich:    SlackRich{Before: "Before", List: SlackList{Style: "ordered", Border: &zero, Items: []string{"one", "two"}}, Quote: "Quote", After: "After"},
+		Cards: []GoogleWrappedCard{
+			{"first", GoogleCard{"First", []GoogleSection{{"Summary", GoogleColumns{[]GoogleColumn{{"left"}, {"right"}}}}}}},
+			{"second", GoogleCard{"Second", []GoogleSection{{"Details", GoogleColumns{[]GoogleColumn{{"detail"}}}}}}},
+		},
+	}
+	// Confirm the normal case succeeds, rather than comparing two failing paths.
+	if _, err := convertago.ToKakaoworkMessage(base); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := convertago.ToSlackMessage(base); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := convertago.ToGoogleChatMessage(base); err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		name   string
+		change func(*LayoutNotice)
+	}{
+		{"normal", func(*LayoutNotice) {}},
+		{"invalid link", func(n *LayoutNotice) { n.Body.Link.URL = "relative" }},
+		{"empty action row", func(n *LayoutNotice) { n.Buttons.Buttons = nil }},
+		{"too many Kakao buttons", func(n *LayoutNotice) { n.Buttons.Buttons = append(n.Buttons.Buttons, n.Buttons.Buttons...) }},
+		{"invalid list style", func(n *LayoutNotice) { n.Rich.List.Style = "unknown" }},
+		{"missing list border", func(n *LayoutNotice) { n.Rich.List.Border = nil }},
+		{"invalid column count", func(n *LayoutNotice) {
+			n.Cards[0].Card.Sections[0].Columns.Columns = append(n.Cards[0].Card.Sections[0].Columns.Columns, GoogleColumn{"third"})
+		}},
+		{"duplicate card ID", func(n *LayoutNotice) { n.Cards[1].ID = "first" }},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			notice := base
+			notice.Cards = append([]GoogleWrappedCard(nil), base.Cards...)
+			notice.Cards[0].Card.Sections = append([]GoogleSection(nil), base.Cards[0].Card.Sections...)
+			test.change(&notice)
+			compare(t, notice, reflectionLayoutNotice(notice))
+		})
 	}
 }

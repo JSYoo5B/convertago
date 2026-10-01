@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-//go:generate go run github.com/JSYoo5B/convertago/cmd/convertago -type Notice,VerboseNotice -output zz_convertago.gen.go
+//go:generate go run github.com/JSYoo5B/convertago/cmd/convertago -type Notice,VerboseNotice,LayoutNotice -output zz_convertago.gen.go
 
 type Picture struct {
 	URL string `kakaowork:"part;slot=url" slack:"part;slot=url" googlechat:"part;slot=url"`
@@ -55,3 +55,73 @@ type VerboseNotice struct {
 }
 
 func (VerboseNotice) String() string { return "root text methods do not replace tags" }
+
+type ActionInput struct {
+	Name  string `kakaowork:"part;slot=name" slack:"part;slot=action_id" googlechat:"part;slot=function"`
+	Value string `kakaowork:"part;slot=value" slack:"part;slot=value"`
+}
+
+type ButtonInput struct {
+	Label  string      `kakaowork:"part" slack:"part" googlechat:"part"`
+	Action ActionInput `kakaowork:"submit_action" slack:"flatten" googlechat:"action"`
+}
+
+type ButtonRow struct {
+	Buttons []ButtonInput `kakaowork:"button" slack:"button" googlechat:"button"`
+}
+
+type LinkInput struct {
+	Label string `kakaowork:"part" slack:"part;slot=text"`
+	URL   string `kakaowork:"part;slot=url" slack:"part;slot=url"`
+}
+
+type RichInput struct {
+	Before string    `kakaowork:"part" slack:"part"`
+	Link   LinkInput `kakaowork:"link" slack:"link"`
+	After  string    `kakaowork:"part;style=bold" slack:"part;style=bold"`
+}
+
+type SlackList struct {
+	Style  string   `slack:"part;slot=style"`
+	Border *int     `slack:"part;slot=border"`
+	Items  []string `slack:"rich_text_section"`
+}
+
+type SlackRich struct {
+	Before string    `slack:"part"`
+	List   SlackList `slack:"rich_text_list"`
+	Quote  string    `slack:"rich_text_quote"`
+	After  string    `slack:"part;style=underline"`
+}
+
+type GoogleColumn struct {
+	Text string `googlechat:"textParagraph"`
+}
+
+type GoogleColumns struct {
+	Columns []GoogleColumn `googlechat:"column"`
+}
+
+type GoogleSection struct {
+	Header  string        `googlechat:"part;slot=header"`
+	Columns GoogleColumns `googlechat:"columns"`
+}
+
+type GoogleCard struct {
+	Header   string          `googlechat:"header"`
+	Sections []GoogleSection `googlechat:"section"`
+}
+
+type GoogleWrappedCard struct {
+	ID   string     `googlechat:"part;slot=cardId"`
+	Card GoogleCard `googlechat:"card"`
+}
+
+type LayoutNotice struct {
+	Header  string              `kakaowork:"header" slack:"header"`
+	Body    RichInput           `kakaowork:"text" slack:"rich_text"`
+	Divider struct{}            `kakaowork:"divider" slack:"divider"`
+	Buttons ButtonRow           `kakaowork:"action" slack:"actions"`
+	Rich    SlackRich           `slack:"rich_text"`
+	Cards   []GoogleWrappedCard `googlechat:"cardWithId"`
+}

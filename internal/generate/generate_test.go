@@ -33,7 +33,7 @@ func samplePackage(t *testing.T) string {
 
 func TestGeneratedAccessorsCompileAndMatchReflection(t *testing.T) {
 	dir := samplePackage(t)
-	if err := Run(dir, []string{"Notice", "VerboseNotice"}, "zz_convertago.gen.go"); err != nil {
+	if err := Run(dir, []string{"Notice", "VerboseNotice", "LayoutNotice"}, "zz_convertago.gen.go"); err != nil {
 		t.Fatal(err)
 	}
 	path := filepath.Join(dir, "zz_convertago.gen.go")
@@ -44,7 +44,7 @@ func TestGeneratedAccessorsCompileAndMatchReflection(t *testing.T) {
 	if !strings.Contains(string(first), "value.Name") || strings.Contains(string(first), `"reflect"`) || strings.Contains(string(first), "reflect.Value") {
 		t.Fatal("known fields must use direct access")
 	}
-	if err := Run(dir, []string{"Notice", "VerboseNotice"}, "zz_convertago.gen.go"); err != nil {
+	if err := Run(dir, []string{"Notice", "VerboseNotice", "LayoutNotice"}, "zz_convertago.gen.go"); err != nil {
 		t.Fatal(err)
 	}
 	second, err := os.ReadFile(path)
@@ -109,5 +109,25 @@ func TestGeneratorPreservesHandwrittenFiles(t *testing.T) {
 	dir := samplePackage(t)
 	if err := Run(dir, []string{"Notice"}, "input.go"); err == nil || !strings.Contains(err.Error(), "non-generated") {
 		t.Fatalf("error = %v", err)
+	}
+}
+
+func TestGeneratorRejectsUnsupportedNativeNesting(t *testing.T) {
+	dir := samplePackage(t)
+	path := filepath.Join(dir, "input.go")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data = []byte(strings.Replace(string(data), "type GoogleColumn struct {\n\tText string `googlechat:\"textParagraph\"`", "type GoogleColumn struct {\n\tText string `googlechat:\"divider\"`", 1))
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		t.Fatal(err)
+	}
+	err = Run(dir, []string{"LayoutNotice"}, "zz_convertago.gen.go")
+	if err == nil || !strings.Contains(err.Error(), "column does not accept divider") || !strings.Contains(err.Error(), "$.Cards[].Card.Sections[].Columns.Columns[].Text") {
+		t.Fatalf("error=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "zz_convertago.gen.go")); !os.IsNotExist(err) {
+		t.Fatal("invalid nesting wrote output")
 	}
 }
