@@ -16,6 +16,7 @@ type ContextBlock struct {
 
 func (c ContextBlock) Type() string   { return "context" }
 func (c ContextBlock) String() string { return c.Content.String() }
+func (ContextBlock) bubbleBlock()     {}
 func (c ContextBlock) MarshalJSON() ([]byte, error) {
 	type Embed ContextBlock
 	return json.Marshal(&struct {

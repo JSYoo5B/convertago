@@ -16,6 +16,7 @@ type DescriptionBlock struct {
 
 func (d DescriptionBlock) Type() string   { return "description" }
 func (d DescriptionBlock) String() string { return d.Term + ": " + d.Content.String() }
+func (DescriptionBlock) bubbleBlock()     {}
 func (d DescriptionBlock) MarshalJSON() ([]byte, error) {
 	type Embed DescriptionBlock
 	return json.Marshal(&struct {

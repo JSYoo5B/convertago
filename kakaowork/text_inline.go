@@ -4,13 +4,13 @@ import "encoding/json"
 
 // Inline 은 텍스트에 다양한 추가 서식을 적용할 때 사용하는 TextBlock 포맷입니다.
 // 포맷은 InlineStyled, InlineLink, InlineMention 속성으로 구성됩니다.
+// TextBlock.Inlines 내 캐스팅을 위해 제공되며, kakaowork 패키지의 구현체만 직접 구현할 수 있습니다.
 //
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/textblock/#inlines
-//
-// TextBlock.Inlines 내 캐스팅을 위해 제공되는 interface 입니다.
 type Inline interface {
 	InlineType() string
 	BubbleBlock
+	inline()
 }
 
 // InlineStyled 는 TextBlock 에 Bold, Italic, Strike, Color 스타일을 지정하여 텍스트를 꾸미는 속성입니다.
@@ -44,6 +44,8 @@ const (
 func (i InlineStyled) InlineType() string { return "styled" }
 func (i InlineStyled) Type() string       { return "inline" }
 func (i InlineStyled) String() string     { return i.Text }
+func (InlineStyled) bubbleBlock()         {}
+func (InlineStyled) inline()              {}
 func (i InlineStyled) MarshalJSON() ([]byte, error) {
 	if _, exists := inlineColorConstants[i.Color]; !exists {
 		i.Color = InlineColorDefault
@@ -84,6 +86,8 @@ type InlineLink struct {
 func (i InlineLink) InlineType() string { return "link" }
 func (i InlineLink) Type() string       { return "inline" }
 func (i InlineLink) String() string     { return i.Text }
+func (InlineLink) bubbleBlock()         {}
+func (InlineLink) inline()              {}
 func (i InlineLink) MarshalJSON() ([]byte, error) {
 	type Embed InlineLink
 	return json.Marshal(&struct {
@@ -109,6 +113,8 @@ type InlineMention struct {
 func (i InlineMention) InlineType() string { return "mention" }
 func (i InlineMention) Type() string       { return "inline" }
 func (i InlineMention) String() string     { return i.Text }
+func (InlineMention) bubbleBlock()         {}
+func (InlineMention) inline()              {}
 func (i InlineMention) MarshalJSON() ([]byte, error) {
 	type Ref struct {
 		Type  string `json:"type"`

@@ -1,6 +1,7 @@
 package kakaowork
 
 // BubbleBlock 은 Message.Blocks 에 넣을 타입 캐스팅 인터페이스입니다.
+// kakaowork 패키지에서 제공하는 구현체만 직접 구현할 수 있습니다.
 // 해당 인터페이스를 구현하는 구조체는 설정 가능한 속성만 노출해야합니다.
 // 고정된 속성들은 MarshalJSON 에서 추가 처리되어야 합니다.
 type BubbleBlock interface {
@@ -11,6 +12,7 @@ type BubbleBlock interface {
 	// MarshalJSON 은 고정 속성값들을 숨기면서 원래 사양에 맞게 JSON 변환을 제공할 수 있어야 합니다.
 	// (대표적으로 "type" 속성)
 	MarshalJSON() ([]byte, error)
+	bubbleBlock()
 }
 
 type Message struct {
