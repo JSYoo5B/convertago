@@ -181,6 +181,9 @@ platforms against reflection.
 
 ## Benchmarks
 
+See [measured CPU and memory comparisons](benchmarks/README.md) for the recorded
+environment, results, and individual samples.
+
 Run the reflection cache and messenger benchmarks with allocation reporting:
 
 ```sh
@@ -210,10 +213,10 @@ run each case with the same fixed iteration count:
 go test -c -o /tmp/convertago-conversion.bench ./internal/conversion
 /usr/bin/time -p /tmp/convertago-conversion.bench -test.run '^$' \
     -test.bench '^BenchmarkSourcePlan/Nested/Cached$' \
-    -test.benchtime=1000000x -test.benchmem
+    -test.benchtime=2000000x -test.benchmem
 /usr/bin/time -p /tmp/convertago-conversion.bench -test.run '^$' \
     -test.bench '^BenchmarkSourcePlan/Nested/Uncached$' \
-    -test.benchtime=1000000x -test.benchmem
+    -test.benchtime=2000000x -test.benchmem
 ```
 
 Compare the sum of `user` and `sys` CPU seconds. These process totals include
