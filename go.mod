@@ -1,6 +1,6 @@
 module github.com/JSYoo5B/convertago
 
-go 1.20
+go 1.23.0
 
 require (
 	github.com/go-playground/validator/v10 v10.23.0
