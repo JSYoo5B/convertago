@@ -14,34 +14,17 @@ func ToMessage(input any, options ...conversion.Option) (Message, error) {
 		text := node.Text("text")
 		switch node.Role {
 		case "rich_text":
-			section := RichTextSection{}
-			for _, part := range node.Parts {
-				if err := conversion.ValidateText("slack", part.Path, part.Text, 0, 0); err != nil {
-					return Message{}, err
-				}
-				inline := TextInline{Text: part.Text}
-				if len(part.Style) != 0 {
-					style := &RichTextStyle{}
-					for _, flag := range part.Style {
-						switch flag {
-						case "bold":
-							style.Bold = true
-						case "italic":
-							style.Italic = true
-						case "strike":
-							style.Strike = true
-						case "code":
-							style.Code = true
-						case "underline":
-							style.Underline = true
-						}
-					}
-					inline.Style = style
-				}
-				section.Elements = append(section.Elements, inline)
+			block, err := convertRichText(node)
+			if err != nil {
+				return Message{}, err
 			}
-			message.Blocks = append(message.Blocks, RichTextBlock{Elements: []RichTextElement{section}})
+			message.Blocks = append(message.Blocks, block)
 		case "text":
+			for _, part := range node.Parts {
+				if len(part.Style) != 0 {
+					return Message{}, conversion.Error("slack", part.Path, "invalid_tag", "message text cannot carry rich text styles")
+				}
+			}
 			message.Text += text
 		default:
 			block, err := convertBlock(node)

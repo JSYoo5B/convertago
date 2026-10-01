@@ -146,7 +146,7 @@ func CheckTag(profile Profile, tag Tag) (string, error) {
 		styles = allowed
 	}
 	for _, style := range tag.Style {
-		if !contains([]string{"bold", "italic", "strike", "code", "underline"}, style) {
+		if !contains([]string{"bold", "italic", "strike", "code", "underline", "highlight", "client_highlight", "unlink"}, style) {
 			return "", fmt.Errorf("unknown style %q", style)
 		}
 		if seen[style] {
