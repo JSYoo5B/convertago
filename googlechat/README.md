@@ -4,8 +4,9 @@ Use the `googlechat` tag key with `convertago.ToGoogleChatMessage` to build
 native messages. This package contains the native models and their conversion
 implementation.
 
-See the [shared conversion guide](../README.md) for tag grammar, ordering,
-groups, diagnostics, and generated accessors.
+See the [tag conversion guide](../docs/tags.md) for grammar, ordering, groups,
+and diagnostics, and the [generation guide](../docs/generation.md) for generated
+accessors and cross compilation.
 
 ## Supported builders
 

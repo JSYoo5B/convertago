@@ -1,5 +1,8 @@
 # 리플렉션 캐시와 생성 접근자 벤치마크
 
+실행 명령과 CPU·메모리 측정 방법은 [벤치마크 실행 가이드](running.md)를 참고하세요.
+테스트 배치와 전체 검증 절차는 [개발 가이드](../docs/development.md)에 있습니다.
+
 Apple M3 Pro, darwin/arm64, Go 1.27.1, GOMAXPROCS=1. 2026-10-01에 통합 브랜치의 커밋 `6ac5540`을 측정했다. race 옵션 없이 각 항목을 3회 실행한 중앙값이다.
 
 CPU 시간은 `os.wait4`가 반환한 user·system 시간의 합이다. 프로세스 시작, 벤치마크 준비, GC 비용을 포함하며, 경과 시간인 `ns/op`와 별도로 측정했다. 생성과 컴파일은 측정 전에 완료했다.
@@ -128,4 +131,4 @@ go generate ./internal/benchmarksource
 python3 benchmarks/measure.py --output benchmarks/measurements.csv
 ```
 
-스타일 변경을 재현하려면 `6bf6b97`과 `3ed514b`에서 각각 위 도구를 실행하고 Generated 항목을 비교한다. 일반 Go 벤치마크 명령은 [루트 README](../README.md#benchmarks)를 참고한다. 전체 테스트, race, go vet, 재생성 검사, 두 fuzz 테스트를 포함한 [Go 1.25·stable CI](https://github.com/JSYoo5B/convertago/actions/runs/36846271480)가 통과했다. 성능 수치는 이 환경의 관측값이며 테스트 통과 조건으로 사용하지 않는다.
+스타일 변경을 재현하려면 `6bf6b97`과 `3ed514b`에서 각각 위 도구를 실행하고 Generated 항목을 비교한다. 일반 Go 벤치마크 명령은 [벤치마크 실행 가이드](running.md)를 참고한다. 전체 테스트, race, go vet, 재생성 검사, 두 fuzz 테스트를 포함한 [Go 1.25·stable CI](https://github.com/JSYoo5B/convertago/actions/runs/36846271480)가 통과했다. 성능 수치는 이 환경의 관측값이며 테스트 통과 조건으로 사용하지 않는다.

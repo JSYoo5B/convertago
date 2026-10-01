@@ -1,0 +1,70 @@
+# Generated accessors
+
+## Usage
+
+For known struct types, add a directive to their source package:
+
+```go
+//go:generate go run github.com/JSYoo5B/convertago/cmd/convertago -type Notice -output zz_convertago.gen.go
+```
+
+Run `go generate` and commit the generated file alongside the source. Multiple
+root types can be supplied as a comma-separated `-type` list. The generator uses
+the active Go package files, AST, compiled dependency export data, and `go/types`
+to resolve imports, aliases, field types, and text methods. It validates tags with
+the same platform profiles as reflection before writing the output. Regeneration
+excludes the previous output from type checking and refuses to replace handwritten
+files. Generation currently targets non-generic defined struct types in packages
+without cgo.
+
+## Runtime behavior
+
+Generated `ConvertagoFields` methods access known fields directly, check nil
+pointers, iterate lists, and emit parsed tag literals with shared style arrays.
+The ordinary `To…Message` functions select these methods automatically.
+Interface-valued fields use a cached reflection fallback for their actual runtime
+types. Without generated
+methods, the entire source uses cached reflection plans by type and platform.
+Both paths share ordering, grouping, assembly, validation, and diagnostics.
+
+## Generated-code contract
+
+`SourceField`, `SourceValue`, `SourceTag`, `SourceState`, `SourceObject`, and
+`SourceMarshaled` form the generated-code contract. Applications normally use
+tags, the conversion functions, and native message types instead of constructing
+these source representations themselves. Rerun generation after changing tags
+or field types. Tag style slices are shared, read-only metadata in both paths;
+copy a style slice before editing it.
+
+## Cross compilation
+
+The generator uses the target reported by `go env GOARCH` for integer widths,
+alignment, and `unsafe.Sizeof`, together with the files and dependency export
+data selected by `go list` for the same build environment. Target settings from
+environment variables or a `GOENV` configuration file are honored.
+
+Run the generator as a host executable when selecting a foreign target. Build
+or install it for the host first, then set the target only when invoking it in
+the source package. For example, from a convertago checkout:
+
+```sh
+go build -o /tmp/convertago ./cmd/convertago
+cd /path/to/source/package
+GOOS=linux GOARCH=386 CGO_ENABLED=0 /tmp/convertago \
+    -type Notice -output zz_convertago_linux_386.go
+GOOS=linux GOARCH=386 CGO_ENABLED=0 go build ./...
+```
+
+The initial `go build` must use host settings. A foreign target on `go run`
+builds a foreign executable, which ordinarily cannot run on the host. Use an
+installed host binary in `go:generate` directives when generation itself needs
+a foreign target.
+
+Host-generated accessors for a source layout shared by all targets can be used
+without regeneration when cross compiling. If field types or array lengths
+depend on the target, generate for each target and use Go's `*_GOOS_GOARCH.go`
+filename constraints, as in the example. Do not keep an unconditional generated
+file declaring the same methods alongside those target-specific files.
+
+See the [development guide](development.md) for regeneration checks, consumer
+tests, and the cross-build CI matrix.
