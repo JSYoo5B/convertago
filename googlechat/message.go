@@ -9,7 +9,7 @@ type Message struct {
 	// Text is the message's plain-text body, which can use Chat's text formatting.
 	Text string `json:"text,omitempty"`
 	// CardsV2 contains the cards displayed in the message.
-	CardsV2 []CardWithID `json:"cardsV2,omitempty"`
+	CardsV2 []CardWithID `json:"cardsV2,omitempty" validate:"dive"`
 	// FallbackText describes the cards when a client cannot display them.
 	FallbackText string `json:"fallbackText,omitempty"`
 }

@@ -7,7 +7,7 @@ import "strings"
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Carousel
 type Carousel struct {
 	// CarouselCards contains the cards displayed by the carousel.
-	CarouselCards []CarouselCard `json:"carouselCards"`
+	CarouselCards []CarouselCard `json:"carouselCards" validate:"min=1,dive"`
 }
 
 func (Carousel) WidgetType() string { return "carousel" }
@@ -34,9 +34,9 @@ func (c Carousel) String() string {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#CarouselCard
 type CarouselCard struct {
 	// Widgets contains the card's content in display order.
-	Widgets []NestedWidget `json:"widgets"`
+	Widgets []NestedWidget `json:"widgets" validate:"min=1,max=100,dive"`
 	// FooterWidgets contains content shown at the bottom of the card.
-	FooterWidgets []NestedWidget `json:"footerWidgets,omitempty"`
+	FooterWidgets []NestedWidget `json:"footerWidgets,omitempty" validate:"max=100,dive"`
 }
 
 // NestedWidgetContent is a paragraph, image, or button list accepted by a CarouselCard.
@@ -52,7 +52,7 @@ type NestedWidgetContent interface {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#NestedWidget
 type NestedWidget struct {
 	// Content contains a paragraph, image, or button list.
-	Content NestedWidgetContent `json:"-"`
+	Content NestedWidgetContent `json:"-" validate:"required"`
 }
 
 func (w NestedWidget) MarshalJSON() ([]byte, error) { return marshalWidget(w.Content, "") }
