@@ -1,8 +1,10 @@
 package kakaowork
 
 import (
-	"github.com/JSYoo5B/convertago/internal/conversion"
+	"slices"
 	"testing"
+
+	"github.com/JSYoo5B/convertago/internal/conversion"
 )
 
 func TestConvertLayouts(t *testing.T) {
@@ -35,33 +37,6 @@ func TestConvertLayouts(t *testing.T) {
 	}
 }
 
-func TestActionValidation(t *testing.T) {
-	type action struct {
-		Value      string `kakaowork:"part"`
-		Standalone bool   `kakaowork:"part;slot=standalone"`
-		Width      int    `kakaowork:"part;slot=width"`
-	}
-	source := struct {
-		Button struct {
-			Text   string `kakaowork:"part"`
-			Action action `kakaowork:"open_inapp_browser"`
-		} `kakaowork:"button"`
-	}{}
-	source.Button.Text = "open"
-	source.Button.Action = action{"https://example.com", false, 800}
-	if _, err := ToMessage(source); err == nil {
-		t.Fatal("dimensions must require standalone")
-	}
-	source.Button.Action.Standalone = true
-	if _, err := ToMessage(source); err != nil {
-		t.Fatal(err)
-	}
-	source.Button.Action.Width = -1
-	if _, err := ToMessage(source); err == nil {
-		t.Fatal("negative dimension accepted")
-	}
-}
-
 func TestTextInlineOrderAndLimit(t *testing.T) {
 	type mention struct {
 		Text string `kakaowork:"part"`
@@ -86,8 +61,12 @@ func TestTextInlineOrderAndLimit(t *testing.T) {
 		t.Fatalf("block=%#v", block)
 	}
 	source.Body.User.ID = 0
-	if _, err := ToMessage(source); err == nil {
-		t.Fatal("invalid mention accepted")
+	var codes []string
+	if _, err := ToMessage(source, conversion.WithDiagnostics(func(d conversion.Diagnostic) { codes = append(codes, d.Code) })); err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Contains(codes, ruleMentionUserID.ID) {
+		t.Fatalf("diagnostics=%v", codes)
 	}
 }
 
@@ -177,23 +156,5 @@ func TestKakaoworkStyledColorAndSectionAction(t *testing.T) {
 	source.Section.Text.Styled.Color = "unknown"
 	if _, err := ToMessage(source); err == nil {
 		t.Fatal("unknown inline color accepted")
-	}
-}
-
-func TestDescriptionTermLimit(t *testing.T) {
-	source := struct {
-		Description struct {
-			Term    string `kakaowork:"part;slot=term"`
-			Content string `kakaowork:"text"`
-		} `kakaowork:"description"`
-	}{}
-	source.Description.Content = "내용"
-	source.Description.Term = "가나다라마바사아자차"
-	if _, err := ToMessage(source); err != nil {
-		t.Fatal(err)
-	}
-	source.Description.Term += "카"
-	if _, err := ToMessage(source); err == nil {
-		t.Fatal("description term exceeds ten characters")
 	}
 }

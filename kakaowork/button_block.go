@@ -9,17 +9,18 @@ import (
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/buttonblock/
 type ButtonBlock struct {
 	// Text 에 버튼이 표현할 텍스트를 입력
-	Text string `json:"text" validate:"required,max=20"`
+	Text string `json:"text"`
 	// Style 은 버튼의 색상을 설정, 기본값은 회색
 	// - 기본, 회색: ButtonStyleDefault 혹은 ButtonStyleGray
 	// - 강조, 파랑: ButtonStylePrimary 혹은 ButtonStyleBlue
 	// - 위험, 빨강: ButtonStyleDanger 혹은 ButtonStyleRed
-	Style ButtonStyle `json:"style,omitempty" validate:"omitempty,oneof=default primary danger"`
+	Style ButtonStyle `json:"style,omitempty"`
 	// Action 에 버튼을 클릭했을 때 수행할 동작을 설정,
 	// 적용 가능한 ButtonAction: OpenSystemBrowserAction, OpenInAppBrowserAction, OpenExternalAppAction, SubmitAction, CallModalAction, ExclusiveAction 참고
-	Action ButtonAction `json:"action" validate:"required"`
+	Action ButtonAction `json:"action"`
 }
 
+// ButtonStyle 은 버튼의 색상입니다.
 type ButtonStyle string
 
 const (
@@ -38,7 +39,7 @@ func (b ButtonBlock) Type() string   { return "button" }
 func (b ButtonBlock) String() string { return b.Text + ": " + b.Action.String() }
 func (ButtonBlock) bubbleBlock()     {}
 func (b ButtonBlock) MarshalJSON() ([]byte, error) {
-	if _, exists := buttonStyleConstants[b.Style]; !exists {
+	if b.Style == "" {
 		b.Style = ButtonStyleDefault
 	}
 
@@ -52,7 +53,7 @@ func (b ButtonBlock) MarshalJSON() ([]byte, error) {
 	})
 }
 
-var buttonStyleConstants = map[ButtonStyle]bool{
+var buttonStyles = map[ButtonStyle]bool{
 	ButtonStyle(""): true,
 	ButtonStyleGray: true,
 	ButtonStyleBlue: true,

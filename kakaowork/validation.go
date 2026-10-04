@@ -1,94 +1,37 @@
 package kakaowork
 
 import (
-	"fmt"
-	"net/url"
-	"unicode/utf8"
-
+	"github.com/JSYoo5B/convertago/internal/conversion"
 	"github.com/JSYoo5B/convertago/internal/validation"
 	"github.com/go-playground/validator/v10"
 )
 
-// RegisterValidation 은 필드 태그만으로 표현할 수 없는 카카오워크 구조체의 검증을 v 에 등록합니다.
-// 헤더 위치, 인라인 텍스트의 전체 길이, 링크 스킴과 버튼 액션의 조합을 검사합니다.
-// v 를 사용하기 전에 등록하고, v.Struct 로 메시지나 개별 구조체를 검사합니다.
+// Validate 는 직접 구성한 메시지에 변환과 같은 규칙을 적용합니다.
+// Fatal 위반은 오류로 반환하고, Warning 과 Advisory 위반은 WithDiagnostics 로 전달합니다.
+// WithWarningAsError 를 지정하면 Warning 위반도 오류로 반환합니다. 진단 경로는 전송되는 JSON 의 경로입니다.
+func Validate(message Message, options ...conversion.Option) error {
+	return conversion.Validate("kakaowork", message.check, options)
+}
+
+// RegisterValidation 은 go-playground validator 에서 카카오워크 구조체를 검사하도록 v 에 등록합니다.
+// validator 오류에는 심각도가 없으므로 Fatal 규칙만 보고합니다. 전체 규칙은 Validate 로 검사합니다.
 func RegisterValidation(v *validator.Validate) {
-	v.RegisterStructValidation(validateMessage, Message{})
-	v.RegisterStructValidation(validateTextBlock, TextBlock{})
-	v.RegisterStructValidation(validateInlineLink, InlineLink{})
-	v.RegisterStructValidation(validateExternalAction, OpenExternalAppAction{})
-	v.RegisterStructValidation(validateExclusiveAction, ExclusiveAction{})
-}
-
-func validateMessage(sl validator.StructLevel) {
-	message := sl.Current().Interface().(Message)
-	for i, block := range message.Blocks {
-		field := fmt.Sprintf("Blocks[%d]", i)
-		switch validation.Value(block).(type) {
-		case HeaderBlock:
-			if i != 0 {
-				sl.ReportError(block, field, field, "header_position", "")
-			}
-		case TextBlock, ImageBlock, ButtonBlock, ActionBlock, DividerBlock, DescriptionBlock, SectionBlock, ContextBlock:
-		case nil:
-			// The slice's required tag reports nil blocks.
-		default:
-			sl.ReportError(block, field, field, "block_type", "")
-		}
-	}
-}
-
-func validateTextBlock(sl validator.StructLevel) {
-	block := sl.Current().Interface().(TextBlock)
-	total := 0
-	for _, inline := range block.Inlines {
-		switch value := validation.Value(inline).(type) {
-		case InlineStyled:
-			total += utf8.RuneCountInString(value.Text)
-		case InlineLink:
-			total += utf8.RuneCountInString(value.Text)
-		case InlineMention:
-			total += utf8.RuneCountInString(value.Text)
-		}
-	}
-	if total > 500 {
-		sl.ReportError(block.Inlines, "Inlines", "Inlines", "max", "500")
-	}
-}
-
-func validateInlineLink(sl validator.StructLevel) {
-	link := sl.Current().Interface().(InlineLink)
-	if !validation.AbsoluteURI(link.Url, "http", "https", "mailto", "tel") {
-		sl.ReportError(link.Url, "Url", "Url", "link_uri", "")
-	}
-}
-
-func validateExternalAction(sl validator.StructLevel) {
-	action := sl.Current().Interface().(OpenExternalAppAction)
-	if validation.AbsoluteURI(action.Value) {
-		return
-	}
-	values, err := url.ParseQuery(action.Value)
-	valid := err == nil && len(values) != 0
-	for key, destinations := range values {
-		valid = valid && (key == "ios" || key == "aos") && len(destinations) == 1 && validation.AbsoluteURI(destinations[0])
-	}
-	if !valid {
-		sl.ReportError(action.Value, "Value", "Value", "app_uri", "")
-	}
-}
-
-func validateExclusiveAction(sl validator.StructLevel) {
-	action := sl.Current().Interface().(ExclusiveAction)
-	for _, field := range []struct {
-		name   string
-		action ButtonAction
-	}{
-		{"Default", action.Default}, {"Pc", action.Pc}, {"Mobile", action.Mobile},
-		{"Windows", action.Windows}, {"MacOs", action.MacOs}, {"Android", action.Android}, {"Ios", action.Ios},
-	} {
-		if _, nested := validation.Value(field.action).(ExclusiveAction); nested {
-			sl.ReportError(field.action, field.name, field.name, "action_type", "")
-		}
-	}
+	validation.Register(v, Message.check)
+	validation.Register(v, HeaderBlock.check)
+	validation.Register(v, TextBlock.check)
+	validation.Register(v, InlineStyled.check)
+	validation.Register(v, InlineLink.check)
+	validation.Register(v, InlineMention.check)
+	validation.Register(v, ImageBlock.check)
+	validation.Register(v, ButtonBlock.check)
+	validation.Register(v, ActionBlock.check)
+	validation.Register(v, DescriptionBlock.check)
+	validation.Register(v, SectionBlock.check)
+	validation.Register(v, ContextBlock.check)
+	validation.Register(v, OpenSystemBrowserAction.check)
+	validation.Register(v, OpenInAppBrowserAction.check)
+	validation.Register(v, OpenExternalAppAction.check)
+	validation.Register(v, SubmitAction.check)
+	validation.Register(v, CallModalAction.check)
+	validation.Register(v, ExclusiveAction.check)
 }

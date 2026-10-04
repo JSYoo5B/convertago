@@ -10,9 +10,9 @@ type SectionBlock struct {
 	// Content 에 텍스트를 표현하는 TextBlock 설정
 	Content TextBlock `json:"content"`
 	// Accessory 에 이미지를 표현하는 ImageBlock 설정 (선택)
-	Accessory *ImageBlock `json:"accessory,omitempty" validate:"omitempty"`
-	// ButtonAction 에 클릭 시 수행될 ButtonAction 설정 (선택)
-	Action ButtonAction `json:"action,omitempty" validate:"omitempty"`
+	Accessory *ImageBlock `json:"accessory,omitempty"`
+	// Action 에 클릭 시 수행될 ButtonAction 설정 (선택)
+	Action ButtonAction `json:"action,omitempty"`
 }
 
 func (s SectionBlock) Type() string   { return "section" }

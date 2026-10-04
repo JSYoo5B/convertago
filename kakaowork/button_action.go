@@ -20,7 +20,7 @@ type OpenSystemBrowserAction struct {
 	// (주로 API 호출 시 사용)
 	Name string `json:"name,omitempty"`
 	// Value 는 시스템 브라우저에서 연결할 URL 을 설정
-	Value string `json:"value" validate:"required,http_url"`
+	Value string `json:"value"`
 }
 
 func (o OpenSystemBrowserAction) ActionType() string { return "open_system_browser" }
@@ -47,13 +47,13 @@ type OpenInAppBrowserAction struct {
 	// (주로 API 호출 시 사용)
 	Name string `json:"name,omitempty"`
 	// Value 는 카카오워크 내부 팝업에서 연결할 URL 을 설정
-	Value string `json:"value" validate:"required,http_url"`
+	Value string `json:"value"`
 	// Standalone 은 PC 인앱 브라우저를 별도 창으로 띄우려 할 때 true 로 설정
 	Standalone bool `json:"standalone,omitempty"`
 	// Width 는 Standalone 사용 시 가로 사이즈를 설정 (기본 사이즈: 980)
-	Width int `json:"width,omitempty" validate:"omitempty,min=1,excluded_if=Standalone false"`
+	Width int `json:"width,omitempty"`
 	// Height 는 Standalone 사용 시 세로 사이즈를 설정 (기본 사이즈: 720)
-	Height int `json:"height,omitempty" validate:"omitempty,min=1,excluded_if=Standalone false"`
+	Height int `json:"height,omitempty"`
 }
 
 func (o OpenInAppBrowserAction) ActionType() string { return "open_inapp_browser" }
@@ -62,10 +62,6 @@ func (o OpenInAppBrowserAction) String() string     { return o.Value }
 func (OpenInAppBrowserAction) bubbleBlock()         {}
 func (OpenInAppBrowserAction) buttonAction()        {}
 func (o OpenInAppBrowserAction) MarshalJSON() ([]byte, error) {
-	if !o.Standalone {
-		o.Width, o.Height = 0, 0
-	}
-
 	type Embed OpenInAppBrowserAction
 	return json.Marshal(&struct {
 		Type string `json:"type"`
@@ -84,7 +80,7 @@ type OpenExternalAppAction struct {
 	// (주로 API 호출 시 사용)
 	Name string `json:"name,omitempty"`
 	// Value 는 사용자의 디바이스에 연결할 Custom App Scheme 을 입력
-	Value string `json:"value" validate:"required"`
+	Value string `json:"value"`
 }
 
 func (o OpenExternalAppAction) ActionType() string { return "open_external_app" }
@@ -110,7 +106,7 @@ func (o OpenExternalAppAction) MarshalJSON() ([]byte, error) {
 type SubmitAction struct {
 	// Name 은 어떤 ButtonBlock 을 클릭했는지 구분하기 위해 사용,
 	// (SubmitAction 은 해당 항목 필수 설정)
-	Name string `json:"name" validate:"required"`
+	Name string `json:"name"`
 	// Value 는 사용자가 전송하게 될 값을 입력
 	Value string `json:"value"`
 }
@@ -158,26 +154,26 @@ func (c CallModalAction) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// ExclusiveAction 은 특정 플랙폼 또는 특정 OS 별로 다른 ButtonAction 을 설정할 수 있습니다.
+// ExclusiveAction 은 특정 플랫폼 또는 특정 OS 별로 다른 ButtonAction 을 설정할 수 있습니다.
 // 설정은 특정 OS, 특정 플랫폼, Default 순으로 적용됩니다.
 //
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/buttonblock/#exclusive-action
 type ExclusiveAction struct {
 	// Default 는 고객의 OS, 플랫폼에 설정된 값이 없을 때 기본 실행할 동작을 설정,
 	// (다른 항목 설정여부와 관계 없이 해당 항목 필수 설정)
-	Default ButtonAction `json:"default" validate:"required"`
+	Default ButtonAction `json:"default"`
 	// Pc 는 PC 환경에서 MacOs, Windows 등 OS 값 설정이 없는 경우 실행할 동작을 설정
-	Pc ButtonAction `json:"pc,omitempty" validate:"omitempty"`
+	Pc ButtonAction `json:"pc,omitempty"`
 	// Mobile 은 모바일 환경에서 Android, Ios 등 OS 값 설정이 없는 경우 실행할 동작을 설정
-	Mobile ButtonAction `json:"mobile,omitempty" validate:"omitempty"`
+	Mobile ButtonAction `json:"mobile,omitempty"`
 	// Windows 에서 수행할 동작을 설정
-	Windows ButtonAction `json:"windows,omitempty" validate:"omitempty"`
+	Windows ButtonAction `json:"windows,omitempty"`
 	// MacOs 에서 수행할 동작을 설정
-	MacOs ButtonAction `json:"macos,omitempty" validate:"omitempty"`
+	MacOs ButtonAction `json:"macos,omitempty"`
 	// Android 에서 수행할 동작을 설정
-	Android ButtonAction `json:"android,omitempty" validate:"omitempty"`
+	Android ButtonAction `json:"android,omitempty"`
 	// Ios 에서 수행할 동작을 설정
-	Ios ButtonAction `json:"ios,omitempty" validate:"omitempty"`
+	Ios ButtonAction `json:"ios,omitempty"`
 }
 
 func (e ExclusiveAction) ActionType() string { return "exclusive" }

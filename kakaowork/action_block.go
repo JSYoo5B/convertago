@@ -11,7 +11,7 @@ import (
 // Reference: https://docs.kakaoi.ai/kakao_work/blockkit/actionblock/
 type ActionBlock struct {
 	// Elements 는 한 행에 배치할 ButtonBlock 의 목록입니다.
-	Elements []ButtonBlock `json:"elements" validate:"required,min=2,max=3,dive"`
+	Elements []ButtonBlock `json:"elements" validate:"dive"`
 }
 
 func (b ActionBlock) Type() string { return "action" }

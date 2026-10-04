@@ -88,6 +88,7 @@ func ExampleOpenExternalAppAction_MarshalJSON() {
 	// Output: {
 	//   "type": "button",
 	//   "text": "카카오 지도에서 보기",
+	//   "style": "default",
 	//   "action": {
 	//     "type": "open_external_app",
 	//     "value": "ios=kakaomap%3A%2F%2Flook%3Fp%3D37.537229%2C127.005515"
@@ -114,6 +115,7 @@ func ExampleSubmitAction_MarshalJSON() {
 	// Output: {
 	//   "type": "button",
 	//   "text": "일정 수락",
+	//   "style": "default",
 	//   "action": {
 	//     "type": "submit_action",
 	//     "name": "accept",
@@ -140,6 +142,7 @@ func ExampleCallModalAction_MarshalJSON() {
 	// Output: {
 	//   "type": "button",
 	//   "text": "결재창 띄우기",
+	//   "style": "default",
 	//   "action": {
 	//     "type": "call_modal",
 	//     "value": "number=20200401-PR-0024"

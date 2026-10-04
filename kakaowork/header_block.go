@@ -11,12 +11,13 @@ type HeaderBlock struct {
 	// 말풍선 사이즈에 따라 말줄임 처리,
 	// 기본 Bold 로 처리,
 	// 줄바꿈은 미지원,
-	Text string `json:"text" validate:"max=20,excludesall=\r\n"`
+	Text string `json:"text"`
 	// Style 에 색상 설정, 기본값은 흰색.
 	// 설정 가능한 값: HeaderStyleWhite, HeaderStyleBlue, HeaderStyleRed, HeaderStyleYellow
-	Style HeaderStyle `json:"style" validate:"omitempty,oneof=white blue red yellow"`
+	Style HeaderStyle `json:"style"`
 }
 
+// HeaderStyle 은 헤더의 배경 색상입니다.
 type HeaderStyle string
 
 const (
@@ -30,7 +31,7 @@ func (h HeaderBlock) Type() string   { return "header" }
 func (h HeaderBlock) String() string { return h.Text }
 func (HeaderBlock) bubbleBlock()     {}
 func (h HeaderBlock) MarshalJSON() ([]byte, error) {
-	if _, exists := headerStyleConstants[h.Style]; !exists {
+	if h.Style == "" {
 		h.Style = HeaderStyleWhite
 	}
 
@@ -44,7 +45,7 @@ func (h HeaderBlock) MarshalJSON() ([]byte, error) {
 	})
 }
 
-var headerStyleConstants = map[HeaderStyle]bool{
+var headerStyles = map[HeaderStyle]bool{
 	HeaderStyle(""):   true,
 	HeaderStyleWhite:  true,
 	HeaderStyleBlue:   true,

@@ -14,8 +14,8 @@ func ExampleTextBlock_MarshalJSON() {
 			&kakaowork.InlineStyled{Text: "텍스트", Bold: true, Color: kakaowork.InlineColorRed},
 			&kakaowork.InlineStyled{Text: " 블록이 변경되었습니다. 자세한 설명은 "},
 			&kakaowork.InlineLink{Text: "기술 문서", Url: "https://blog.kakaowork.com/43"},
-			&kakaowork.InlineStyled{Text: "를 참고하시기 바랍니다. 담당자는"},
-			&kakaowork.InlineMention{Text: "@ryan", UserId: 0},
+			&kakaowork.InlineStyled{Text: "를 참고하시기 바랍니다. 담당자는 "},
+			&kakaowork.InlineMention{Text: "@ryan", UserId: 1},
 			&kakaowork.InlineStyled{Text: " 입니다."},
 		},
 	}
@@ -52,14 +52,14 @@ func ExampleTextBlock_MarshalJSON() {
 	//     },
 	//     {
 	//       "type": "styled",
-	//       "text": "를 참고하시기 바랍니다. 담당자는"
+	//       "text": "를 참고하시기 바랍니다. 담당자는 "
 	//     },
 	//     {
 	//       "type": "mention",
 	//       "text": "@ryan",
 	//       "ref": {
 	//         "type": "kw",
-	//         "value": 0
+	//         "value": 1
 	//       }
 	//     },
 	//     {

@@ -14,10 +14,10 @@ type TextBlock struct {
 	// 전체 텍스트를 \n을 포함하여 기술,
 	// Inlines 서식을 적용할 텍스트까지 포함하여 작성 필요,
 	// Inlines 와 정합성이 맞지 않을 경우, Inlines 의 String()를 우선으로 적용함
-	Text string `json:"text" validate:"max=500"`
+	Text string `json:"text"`
 	// Inlines 에 다양한 추가 서식을 적용하여 텍스트 및 스타일 설정 가능.
 	// 적용 가능한 서식: InlineStyled, InlineLink, InlineMention 참고
-	Inlines []Inline `json:"inlines,omitempty" validate:"dive,required"`
+	Inlines []Inline `json:"inlines,omitempty" validate:"dive"`
 }
 
 func (t TextBlock) Type() string { return "text" }
