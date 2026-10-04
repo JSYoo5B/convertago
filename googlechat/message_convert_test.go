@@ -64,7 +64,7 @@ func TestOptionalMarkdownUnderline(t *testing.T) {
 	if err != nil || len(message.CardsV2) != 0 || len(diagnostics) != 1 {
 		t.Fatalf("message = %#v, diagnostics = %#v, error = %v", message, diagnostics, err)
 	}
-	if _, err := ToMessage(source, conversion.WithStrict()); err == nil {
-		t.Fatal("strict must reject the unsupported formatting")
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
+		t.Fatal("WithWarningAsError must reject the unsupported formatting")
 	}
 }

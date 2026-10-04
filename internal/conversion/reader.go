@@ -41,6 +41,22 @@ func (r *Reader) Text(slot string, min, max int) string {
 	}
 	return text
 }
+
+// String returns a slot's text without applying native rules.
+func (r *Reader) String(slot string) string { return r.Node.Text(slot) }
+
+// ParseInt parses a slot as an integer without applying native rules.
+func (r *Reader) ParseInt(slot string) int {
+	if !r.Node.Has(slot) {
+		return 0
+	}
+	value, err := strconv.Atoi(r.Node.Text(slot))
+	if err != nil {
+		r.invalid(slot, slot+" requires an integer")
+	}
+	return value
+}
+
 func (r *Reader) Bool(slot string) bool {
 	if !r.Node.Has(slot) {
 		return false

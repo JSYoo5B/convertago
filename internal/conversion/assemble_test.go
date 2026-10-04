@@ -125,7 +125,7 @@ func TestInputErrorsHaveSourcePaths(t *testing.T) {
 	}
 }
 
-func TestOptionalAndStrict(t *testing.T) {
+func TestOptionalWarningAsError(t *testing.T) {
 	source := struct {
 		Skip string `test:"button;optional"`
 		Keep string `test:"text"`
@@ -135,8 +135,8 @@ func TestOptionalAndStrict(t *testing.T) {
 	if err != nil || len(nodes) != 1 || len(diagnostics) != 1 || diagnostics[0].Path != "$.Skip" {
 		t.Fatalf("nodes = %#v, diagnostics = %#v, error = %v", nodes, diagnostics, err)
 	}
-	if _, err := Prepare(source, "test", []Option{WithStrict()}); err == nil {
-		t.Fatal("strict must reject optional unsupported features")
+	if _, err := Prepare(source, "test", []Option{WithWarningAsError()}); err == nil {
+		t.Fatal("WithWarningAsError must reject optional unsupported features")
 	}
 	source2 := struct {
 		Skip string `test:"text;style=underline;optional"`
@@ -146,7 +146,7 @@ func TestOptionalAndStrict(t *testing.T) {
 	}
 }
 
-func TestStrictPreservesIntentionalOmissions(t *testing.T) {
+func TestWarningAsErrorPreservesIntentionalOmissions(t *testing.T) {
 	source := struct {
 		Missing *string `test:"button;optional"`
 		Empty   string  `test:"button;optional;omitempty"`
@@ -154,7 +154,7 @@ func TestStrictPreservesIntentionalOmissions(t *testing.T) {
 		NoTag   string
 	}{}
 	var diagnostics []Diagnostic
-	nodes, err := Prepare(source, "test", []Option{WithStrict(), WithDiagnostics(func(d Diagnostic) { diagnostics = append(diagnostics, d) })})
+	nodes, err := Prepare(source, "test", []Option{WithWarningAsError(), WithDiagnostics(func(d Diagnostic) { diagnostics = append(diagnostics, d) })})
 	if err != nil || len(nodes) != 0 || len(diagnostics) != 0 {
 		t.Fatalf("nodes = %#v, diagnostics = %#v, error = %v", nodes, diagnostics, err)
 	}

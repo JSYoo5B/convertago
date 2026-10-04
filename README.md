@@ -51,7 +51,7 @@ and an error. The sending application handles message delivery.
 Fields contribute in declaration order. `group` joins fields into one native
 node; include any spaces or newlines in the source values. An absent tag, an
 empty tag, or `-` excludes a field for that platform. See the
-[tag conversion guide](docs/tags.md) for nesting, slots, omission, and strict-mode
+[tag conversion guide](docs/tags.md) for nesting, slots, omission, and severity
 diagnostics.
 
 ## Messenger support

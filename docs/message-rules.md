@@ -98,4 +98,4 @@ Each package README lists its defaults with the reason for each one.
 A recognized tag feature that the selected builder cannot express, such as a
 style on a header without inline styles, is not a message rule. It remains an
 error unless the tag is `optional`, as described in the
-[tag conversion guide](tags.md#diagnostics-and-strict-mode).
+[tag conversion guide](tags.md#diagnostics-and-severities).

@@ -11,7 +11,7 @@
 | `kakaowork/`, `slack/`, `googlechat/` | Native models, platform conversion and validation, package tests, and function-specific examples. |
 | `internal/conversion/` | Shared tag reading and assembly, with unit tests and reflection-cache benchmarks. |
 | `internal/generate/` | Code generation, consumer compilation tests, and cross-compilation tests. |
-| `internal/validation/` | Shared validation rules and their unit tests. |
+| `internal/validation/` | Rule severities, rule checks and traversal, the go-playground validator adapter, and shared URI checks. |
 | `internal/integration/` | Tests spanning messenger packages: shared validator configuration and generated/reflection fuzz parity. |
 | `internal/benchmarksource/` | Shared source fixtures and their checked-in generated accessors. |
 | `benchmarks/` | Message and source-reader benchmarks, the measurement runner, and recorded results. |

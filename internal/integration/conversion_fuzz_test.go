@@ -55,8 +55,8 @@ func FuzzGeneratedReflectionConversion(f *testing.F) {
 			{&nested, (*reflectionNestedMessage)(&nested)},
 			{&dynamic, (*reflectionDynamicMessage)(&dynamic)},
 		} {
-			got, gotErr := convert(inputs.generated, convertago.WithStrict())
-			want, wantErr := convert(inputs.reflected, convertago.WithStrict())
+			got, gotErr := convert(inputs.generated, convertago.WithWarningAsError())
+			want, wantErr := convert(inputs.reflected, convertago.WithWarningAsError())
 			if !reflect.DeepEqual(gotErr, wantErr) {
 				t.Fatalf("diagnostics differ: generated=%v reflected=%v", gotErr, wantErr)
 			}

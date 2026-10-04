@@ -19,7 +19,7 @@ options, and malformed tags are errors even when the field is empty or optional.
 | `style=bold,italic` | Style this field's text contributions. Available styles depend on the builder. |
 | `format=plain` | Explicitly select a text syntax accepted by the builder. |
 | `omitempty` | Omit an empty source value. |
-| `optional` | Skip a recognized unavailable feature with a diagnostic in normal mode. |
+| `optional` | Report a recognized unavailable feature as a Warning and skip it. |
 
 ## Messenger support
 
@@ -100,25 +100,35 @@ absent; non-nil pointers and interfaces preserve their presence even when they
 contain a zero value. A present builder with no inputs is an error unless its role supports an empty
 object, such as a divider. A missing required slot after omissions is an error.
 
-## Diagnostics and strict mode
+## Diagnostics and severities
 
 The currently modeled native roles are available. Recognized styles and formats
 that a selected builder cannot express are unavailable. For example,
 `header;style=bold;optional` can skip a header whose native object has no inline
 style support. Unknown roles or invalid nesting remain errors.
 
-An active unavailable feature errors by default. With `optional` it is skipped
-in normal mode, and `WithDiagnostics` receives its platform, source path, code,
-and message. `WithStrict` rejects the active feature even when optional.
-Intentional exclusions, nil values, and `omitempty` still work in strict mode.
-Typos, type mismatches, missing required inputs, and native validation failures
-always error. Errors are `convertago.Diagnostic` values and can be inspected with
-`errors.As`. Paths start at `$`, such as `$.Items[1].Name`; static list schema
-errors use `[]` when there is no specific element.
+Every diagnostic has a severity, as defined in the
+[message rules](message-rules.md#severities). Fatal diagnostics are errors.
+Warning diagnostics go to `WithDiagnostics`, and `WithWarningAsError` turns them into
+errors. Advisory diagnostics always go to `WithDiagnostics`. A diagnostic carries
+its platform, path, code, message, and severity.
+
+An active unavailable feature is a Fatal error by default. With `optional` it is
+a Warning, so it is skipped by default and rejected with `WithWarningAsError`.
+Intentional exclusions, nil values, and `omitempty` are never diagnosed.
+Typos, type mismatches, and missing required inputs are always Fatal.
+
+Converters check the native message with the same rules as the package's native
+validation. A rule violation's code is the rule ID, such as `header.text.length`,
+and each package README lists its rules and their severities.
+
+Errors are `convertago.Diagnostic` values and can be inspected with `errors.As`.
+Paths start at `$`, such as `$.Items[1].Name`; static list schema errors use `[]`
+when there is no specific element.
 
 ```go
 message, err := convertago.ToSlackMessage(notice,
-    convertago.WithStrict(),
+    convertago.WithWarningAsError(),
     convertago.WithDiagnostics(func(d convertago.Diagnostic) {
         log.Print(d)
     }),

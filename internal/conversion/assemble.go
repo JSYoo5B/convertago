@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/JSYoo5B/convertago/internal/validation"
 )
 
 // Part is one source contribution to a platform-specific input slot.
@@ -175,12 +177,12 @@ func (a assembler) fields(fields []Field, builder string, inherited Tag, path st
 			continue
 		}
 		if unavailable != "" {
-			diagnostic := Diagnostic{a.profile.Platform, fieldPath, "unsupported_feature", unavailable + " is unavailable in this converter"}
-			if !tag.Optional || a.options.Strict {
-				return nil, diagnostic
+			diagnostic := Diagnostic{a.profile.Platform, fieldPath, "unsupported_feature", unavailable + " is unavailable in this converter", validation.Fatal}
+			if tag.Optional {
+				diagnostic.Severity = validation.Warning
 			}
-			if a.options.Diagnostic != nil {
-				a.options.Diagnostic(diagnostic)
+			if err := a.options.Handle(diagnostic); err != nil {
+				return nil, err
 			}
 			continue
 		}

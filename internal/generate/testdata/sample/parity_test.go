@@ -103,14 +103,14 @@ func compare(t *testing.T, generated, reflected any) {
 		{"googlechat", func(v any, o ...convertago.Option) (any, error) { return convertago.ToGoogleChatMessage(v, o...) }},
 	}
 	for _, converter := range converters {
-		for _, strict := range []bool{false, true} {
-			t.Run(fmt.Sprintf("%s/strict=%t", converter.name, strict), func(t *testing.T) {
+		for _, warningAsError := range []bool{false, true} {
+			t.Run(fmt.Sprintf("%s/warningAsError=%t", converter.name, warningAsError), func(t *testing.T) {
 				var gotDiagnostics, wantDiagnostics []convertago.Diagnostic
 				gotOptions := []convertago.Option{convertago.WithDiagnostics(func(d convertago.Diagnostic) { gotDiagnostics = append(gotDiagnostics, d) })}
 				wantOptions := []convertago.Option{convertago.WithDiagnostics(func(d convertago.Diagnostic) { wantDiagnostics = append(wantDiagnostics, d) })}
-				if strict {
-					gotOptions = append(gotOptions, convertago.WithStrict())
-					wantOptions = append(wantOptions, convertago.WithStrict())
+				if warningAsError {
+					gotOptions = append(gotOptions, convertago.WithWarningAsError())
+					wantOptions = append(wantOptions, convertago.WithWarningAsError())
 				}
 				got, gotErr := converter.fn(generated, gotOptions...)
 				want, wantErr := converter.fn(reflected, wantOptions...)
