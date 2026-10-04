@@ -16,13 +16,11 @@
 | `internal/benchmarksource/` | Shared source fixtures and their checked-in generated accessors. |
 | `benchmarks/` | Message and source-reader benchmarks, the measurement runner, and recorded results. |
 | `cmd/convertago/` | Generator command-line entry point. |
-| `docs/` | Common tag rules, code generation, and development guidance. |
+| `docs/` | Message rules, documentation policy, platform guide, tag rules, code generation, and development guidance. |
 
 Keep public declarations in their existing packages to preserve application
-imports and generated-code compatibility. Keep each executable example beside
-the API it documents so godoc associates it with that declaration.
-Use `json.MarshalIndent(value, "", "  ")` and multiline `Output` comments in
-JSON examples so the native message structure is visible in godoc.
+imports and generated-code compatibility. Write examples and other documentation
+as described in the [documentation policy](documentation-policy.md).
 
 Unit tests that exercise a package's implementation stay in that package.
 Checks that combine messenger packages belong in `internal/integration`.

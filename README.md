@@ -83,6 +83,9 @@ source types, regeneration, and cross compilation.
 
 | Guide | Contents |
 | --- | --- |
+| [Message rules](docs/message-rules.md) | Rule sources, severities, evidence, and UX defaults. |
+| [Documentation policy](docs/documentation-policy.md) | Documentation language and required README, godoc, and example contents. |
+| [Adding a platform](docs/adding-a-platform.md) | Native model conventions, required tests, and steps for a new messenger. |
 | [Tag conversion](docs/tags.md) | Grammar, builders, ordering, groups, nesting, omissions, and diagnostics. |
 | [Code generation](docs/generation.md) | Generator usage, generated-code contract, and target-specific layouts. |
 | [Development](docs/development.md) | Repository layout, test placement, CI, fuzzing, and cross-build checks. |
