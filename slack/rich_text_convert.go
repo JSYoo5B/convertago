@@ -2,37 +2,41 @@ package slack
 
 import "github.com/JSYoo5B/convertago/internal/conversion"
 
-func convertRichText(node conversion.Node) (RichTextBlock, error) {
+func (c converter) richText(node conversion.Node) (RichTextBlock, error) {
 	r := conversion.Reader{Platform: "slack", Node: node}
-	result := RichTextBlock{BlockID: r.Text("block_id", 1, 255)}
+	result := RichTextBlock{BlockID: r.String("block_id")}
 	section := RichTextSection{}
-	flush := func() {
-		if len(section.Elements) != 0 {
-			result.Elements = append(result.Elements, section)
-			section = RichTextSection{}
+	flush := func() error {
+		if len(section.Elements) == 0 {
+			return nil
 		}
+		checkedSection, err := checked(c, node, section, nil)
+		result.Elements = append(result.Elements, checkedSection)
+		section = RichTextSection{}
+		return err
 	}
 	for _, input := range node.Inputs {
 		if input.Slot == "text" {
-			inline, err := convertRichInline(input)
+			inline, err := c.richInline(input)
 			if err != nil {
 				return RichTextBlock{}, err
 			}
 			section.Elements = append(section.Elements, inline)
 		} else if input.Slot == "elements" {
-			flush()
-			element, err := convertRichElement(*input.Child)
+			if err := flush(); err != nil {
+				return RichTextBlock{}, err
+			}
+			element, err := c.richElement(*input.Child)
 			if err != nil {
 				return RichTextBlock{}, err
 			}
 			result.Elements = append(result.Elements, element)
 		}
 	}
-	flush()
-	if len(result.Elements) == 0 {
-		r.Fail("missing_input", "rich_text requires content")
+	if err := flush(); err != nil {
+		return RichTextBlock{}, err
 	}
-	return result, r.Err
+	return checked(c, node, result, nil)
 }
 
 func richStyle(flags []string) *RichTextStyle {
@@ -63,9 +67,11 @@ func richStyle(flags []string) *RichTextStyle {
 	return result
 }
 
-func convertRichInline(input conversion.Input) (RichTextInline, error) {
+func (c converter) richInline(input conversion.Input) (RichTextInline, error) {
 	if input.Part != nil {
-		return TextInline{Text: input.Part.Text, Style: richStyle(input.Part.Style)}, nil
+		var result RichTextInline = TextInline{Text: input.Part.Text, Style: richStyle(input.Part.Style)}
+		path := input.Part.Path
+		return result, c.CheckAt(func(string) string { return path }, result.check)
 	}
 	node := *input.Child
 	r := conversion.Reader{Platform: "slack", Node: node}
@@ -77,30 +83,30 @@ func convertRichInline(input conversion.Input) (RichTextInline, error) {
 	var result RichTextInline
 	switch node.Role {
 	case "text":
-		result = TextInline{Text: r.Text("text", 0, 0), Style: style}
+		result = TextInline{Text: r.String("text"), Style: style}
 	case "link":
-		result = LinkInline{URL: r.URI("url"), Text: r.Text("text", 0, 0), Unsafe: r.Bool("unsafe"), FromLLM: r.Bool("from_llm"), IsSlackURL: r.Bool("is_slack_url"), Truncated: r.Bool("truncated"), Style: style}
+		result = LinkInline{URL: r.String("url"), Text: r.String("text"), Unsafe: r.Bool("unsafe"), FromLLM: r.Bool("from_llm"), IsSlackURL: r.Bool("is_slack_url"), Truncated: r.Bool("truncated"), Style: style}
 	case "user":
-		result = UserInline{UserID: r.Text("user_id", 1, 0), FromLLM: r.Bool("from_llm"), Style: style}
+		result = UserInline{UserID: r.String("user_id"), FromLLM: r.Bool("from_llm"), Style: style}
 	case "emoji":
-		result = EmojiInline{Name: r.Text("name", 1, 0), Unicode: r.Text("unicode", 0, 0)}
+		result = EmojiInline{Name: r.String("name"), Unicode: r.String("unicode")}
 	default:
-		r.Fail("invalid_tag", "unsupported rich text inline")
+		return nil, conversion.Error("slack", node.Path, "invalid_tag", "unsupported rich text inline")
 	}
-	return result, r.Err
+	return checked(c, node, result, r.Err)
 }
 
-func convertRichElement(node conversion.Node) (RichTextElement, error) {
+func (c converter) richElement(node conversion.Node) (RichTextElement, error) {
 	r := conversion.Reader{Platform: "slack", Node: node}
 	var border *int
 	if node.Has("border") {
-		value := r.Int("border", 0, 1)
+		value := r.ParseInt("border")
 		border = &value
 	}
 	var inlines []RichTextInline
 	for _, input := range node.Inputs {
 		if input.Slot == "text" {
-			inline, err := convertRichInline(input)
+			inline, err := c.richInline(input)
 			if err != nil {
 				return nil, err
 			}
@@ -114,18 +120,15 @@ func convertRichElement(node conversion.Node) (RichTextElement, error) {
 	case "rich_text_quote":
 		result = RichTextQuote{Elements: inlines, Border: border}
 	case "rich_text_preformatted":
-		value := RichTextPreformatted{Border: border, Language: r.Text("language", 1, 0)}
+		value := RichTextPreformatted{Border: border, Language: r.String("language")}
 		for _, inline := range inlines {
 			value.Elements = append(value.Elements, inline.(PreformattedInline))
 		}
 		result = value
 	case "rich_text_list":
-		value := RichTextList{Style: RichTextListStyle(r.Enum("style", "bullet", "ordered")), Indent: r.Int("indent", 0, 0), Offset: r.Int("offset", 0, 0), Border: border}
-		if value.Style != "ordered" && node.Has("offset") {
-			r.Fail("conflicting_input", "offset requires an ordered list")
-		}
-		for _, child := range r.Count("elements", 1, 0) {
-			section, err := convertRichElement(child)
+		value := RichTextList{Style: RichTextListStyle(r.String("style")), Indent: r.ParseInt("indent"), Offset: r.ParseInt("offset"), Border: border}
+		for _, child := range node.Children("elements") {
+			section, err := c.richElement(child)
 			if err != nil {
 				return nil, err
 			}
@@ -133,7 +136,7 @@ func convertRichElement(node conversion.Node) (RichTextElement, error) {
 		}
 		result = value
 	default:
-		r.Fail("invalid_tag", "unsupported rich text element")
+		return nil, conversion.Error("slack", node.Path, "invalid_tag", "unsupported rich text element")
 	}
-	return result, r.Err
+	return checked(c, node, result, r.Err)
 }

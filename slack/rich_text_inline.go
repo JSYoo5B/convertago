@@ -1,6 +1,10 @@
 package slack
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/JSYoo5B/convertago/internal/validation"
+)
 
 // RichTextInline is an inline component of a rich text section or quotation.
 //
@@ -10,6 +14,7 @@ type RichTextInline interface {
 	String() string
 	MarshalJSON() ([]byte, error)
 	richTextInline()
+	check(*validation.Check)
 }
 
 // RichTextStyle applies optional formatting flags to rich text.
@@ -42,7 +47,7 @@ type TextInline struct {
 	// Text is the content displayed to the user.
 	Text string `json:"text"`
 	// Style applies optional formatting to the text.
-	Style *RichTextStyle `json:"style,omitempty" validate:"omitempty"`
+	Style *RichTextStyle `json:"style,omitempty"`
 }
 
 func (e TextInline) Type() string      { return "text" }
@@ -62,7 +67,7 @@ func (e TextInline) MarshalJSON() ([]byte, error) {
 // Reference: https://docs.slack.dev/reference/block-kit/block-elements/link-element/
 type LinkInline struct {
 	// URL is the link's destination.
-	URL string `json:"url" validate:"required,url"`
+	URL string `json:"url"`
 	// Text replaces the displayed URL when supplied.
 	Text string `json:"text,omitempty"`
 	// Unsafe identifies a potentially unsafe link.
@@ -74,7 +79,7 @@ type LinkInline struct {
 	// Truncated indicates that the displayed link has been shortened.
 	Truncated bool `json:"truncated,omitempty"`
 	// Style applies formatting other than Code.
-	Style *RichTextStyle `json:"style,omitempty" validate:"omitempty"`
+	Style *RichTextStyle `json:"style,omitempty"`
 }
 
 func (e LinkInline) Type() string { return "link" }
@@ -99,9 +104,9 @@ func (e LinkInline) MarshalJSON() ([]byte, error) {
 // Reference: https://docs.slack.dev/reference/block-kit/block-elements/user-element/
 type UserInline struct {
 	// UserID identifies the user being mentioned.
-	UserID string `json:"user_id" validate:"required"`
+	UserID string `json:"user_id"`
 	// Style applies formatting other than Code.
-	Style *RichTextStyle `json:"style,omitempty" validate:"omitempty"`
+	Style *RichTextStyle `json:"style,omitempty"`
 	// FromLLM indicates that an LLM generated the mention.
 	FromLLM bool `json:"from_llm,omitempty"`
 }
@@ -122,7 +127,7 @@ func (e UserInline) MarshalJSON() ([]byte, error) {
 // Reference: https://docs.slack.dev/reference/block-kit/block-elements/emoji-element/
 type EmojiInline struct {
 	// Name identifies the emoji, including an optional skin-tone suffix.
-	Name string `json:"name" validate:"required"`
+	Name string `json:"name"`
 	// Unicode is the emoji's Unicode code point when applicable.
 	Unicode string `json:"unicode,omitempty"`
 }

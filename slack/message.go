@@ -1,6 +1,8 @@
 // Package slack provides Block Kit objects for composing Slack messages.
 package slack
 
+import "github.com/JSYoo5B/convertago/internal/validation"
+
 // Block is a layout block in a Slack message.
 // Type returns the JSON discriminator, and String returns a textual representation.
 //
@@ -10,6 +12,7 @@ type Block interface {
 	String() string
 	MarshalJSON() ([]byte, error)
 	block()
+	check(*validation.Check)
 }
 
 // Message contains text and Block Kit content for a Slack message.
@@ -19,5 +22,5 @@ type Message struct {
 	// Text is the notification and accessibility fallback when Blocks is supplied.
 	Text string `json:"text,omitempty"`
 	// Blocks contains up to 50 layout blocks in display order.
-	Blocks []Block `json:"blocks,omitempty" validate:"max=50,dive,required"`
+	Blocks []Block `json:"blocks,omitempty" validate:"dive"`
 }

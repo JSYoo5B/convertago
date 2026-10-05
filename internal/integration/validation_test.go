@@ -47,8 +47,8 @@ func TestSharedValidatorConfiguration(t *testing.T) {
 			err := v.Struct(value)
 			require.ErrorAs(t, err, new(validator.ValidationErrors))
 			failures := err.(validator.ValidationErrors)
-			require.Equal(t, "messages.Slack.Blocks[0].Text.Text", failures[0].Namespace())
-			require.Equal(t, "150", failures[0].Param())
+			require.Equal(t, "messages.Slack.Blocks[0].text", failures[0].Namespace())
+			require.Equal(t, "header.text.length", failures[0].Tag())
 		})
 	}
 }

@@ -11,12 +11,19 @@ import (
 type Checker struct {
 	Platform string
 	Options  Options
+	// Slots maps native field names to differently named input slots, such as "alt_text" to "alt".
+	Slots map[string]string
 }
 
 // Check runs the rules of a native value built from node.
 // Children are not visited, because each child is checked when it is built.
 func (c Checker) Check(node Node, check func(*validation.Check)) error {
-	return c.CheckAt(node.FieldPath, check)
+	return c.CheckAt(func(field string) string {
+		if slot, ok := c.Slots[field]; ok {
+			field = slot
+		}
+		return node.FieldPath(field)
+	}, check)
 }
 
 // CheckAt runs the rules of a native value, resolving each field to a source path.

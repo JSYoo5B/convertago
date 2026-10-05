@@ -1,6 +1,10 @@
 package slack
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/JSYoo5B/convertago/internal/validation"
+)
 
 // TextObject contains plain text or Slack mrkdwn for a block or element.
 //
@@ -10,6 +14,7 @@ type TextObject interface {
 	String() string
 	MarshalJSON() ([]byte, error)
 	textObject()
+	check(*validation.Check)
 }
 
 // PlainTextObject contains unformatted text.
@@ -17,7 +22,7 @@ type TextObject interface {
 // Reference: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
 type PlainTextObject struct {
 	// Text contains 1 to 3000 characters, subject to the containing object's limit.
-	Text string `json:"text" validate:"required,max=3000"`
+	Text string `json:"text"`
 	// Emoji controls conversion of emoji to colon notation. Nil uses Slack's default.
 	Emoji *bool `json:"emoji,omitempty"`
 }
@@ -39,7 +44,7 @@ func (t PlainTextObject) MarshalJSON() ([]byte, error) {
 // Reference: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
 type MrkdwnTextObject struct {
 	// Text contains 1 to 3000 characters, subject to the containing object's limit.
-	Text string `json:"text" validate:"required,max=3000"`
+	Text string `json:"text"`
 	// Verbatim disables automatic links and mentions while retaining mrkdwn parsing.
 	Verbatim bool `json:"verbatim,omitempty"`
 }

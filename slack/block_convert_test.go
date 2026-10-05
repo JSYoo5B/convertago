@@ -3,6 +3,8 @@ package slack
 import (
 	"strings"
 	"testing"
+
+	"github.com/JSYoo5B/convertago/internal/conversion"
 )
 
 func TestSectionFieldsAndAccessory(t *testing.T) {
@@ -71,7 +73,7 @@ func TestMarkdownCumulativeLimit(t *testing.T) {
 		t.Fatal(err)
 	}
 	source.Text[1] += "x"
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("accepted more than 12000 total characters")
 	}
 }

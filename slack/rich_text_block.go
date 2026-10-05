@@ -1,6 +1,8 @@
 package slack
 
 import (
+	"github.com/JSYoo5B/convertago/internal/validation"
+
 	"encoding/json"
 	"strings"
 )
@@ -13,6 +15,7 @@ type RichTextElement interface {
 	String() string
 	MarshalJSON() ([]byte, error)
 	richTextElement()
+	check(*validation.Check)
 }
 
 // RichTextBlock represents formatted content from Slack's message composer.
@@ -21,9 +24,9 @@ type RichTextElement interface {
 // Reference: https://docs.slack.dev/reference/block-kit/blocks/rich-text-block/
 type RichTextBlock struct {
 	// Elements contains rich text sections, lists, preformatted regions, or quotes.
-	Elements []RichTextElement `json:"elements" validate:"min=1,dive,required"`
+	Elements []RichTextElement `json:"elements" validate:"dive"`
 	// BlockID identifies the block, up to 255 characters. Replace it when updating a message.
-	BlockID string `json:"block_id,omitempty" validate:"max=255"`
+	BlockID string `json:"block_id,omitempty"`
 }
 
 func (b RichTextBlock) Type() string { return "rich_text" }
@@ -50,7 +53,7 @@ func (b RichTextBlock) MarshalJSON() ([]byte, error) {
 // Reference: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-section-element/
 type RichTextSection struct {
 	// Elements contains inline text, links, emoji, or mentions.
-	Elements []RichTextInline `json:"elements" validate:"min=1,dive,required"`
+	Elements []RichTextInline `json:"elements" validate:"dive"`
 }
 
 func (e RichTextSection) Type() string   { return "rich_text_section" }
@@ -69,15 +72,15 @@ func (e RichTextSection) MarshalJSON() ([]byte, error) {
 // Reference: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-list-element/
 type RichTextList struct {
 	// Style selects bullets or an ordered list.
-	Style RichTextListStyle `json:"style" validate:"required,oneof=bullet ordered"`
+	Style RichTextListStyle `json:"style"`
 	// Elements contains the sections displayed as list items.
-	Elements []RichTextSection `json:"elements" validate:"min=1,dive"`
+	Elements []RichTextSection `json:"elements" validate:"dive"`
 	// Indent sets the sub-list indentation level.
-	Indent int `json:"indent,omitempty" validate:"min=0"`
+	Indent int `json:"indent,omitempty"`
 	// Offset shifts the first number of an ordered list; 4 starts at 5.
-	Offset int `json:"offset,omitempty" validate:"min=0,excluded_unless=Style ordered"`
+	Offset int `json:"offset,omitempty"`
 	// Border enables or disables the border. Nil leaves it unspecified.
-	Border *int `json:"border,omitempty" validate:"omitempty,min=0,max=1"`
+	Border *int `json:"border,omitempty"`
 }
 
 // RichTextListStyle selects the list marker format.
@@ -110,9 +113,9 @@ func (e RichTextList) MarshalJSON() ([]byte, error) {
 // Reference: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-preformatted-element/
 type RichTextPreformatted struct {
 	// Elements contains text or link elements.
-	Elements []PreformattedInline `json:"elements" validate:"min=1,dive,required"`
+	Elements []PreformattedInline `json:"elements" validate:"dive"`
 	// Border enables or disables the border. Nil leaves it unspecified.
-	Border *int `json:"border,omitempty" validate:"omitempty,min=0,max=1"`
+	Border *int `json:"border,omitempty"`
 	// Language selects a language for code syntax highlighting.
 	Language string `json:"language,omitempty"`
 }
@@ -149,9 +152,9 @@ func (e RichTextPreformatted) MarshalJSON() ([]byte, error) {
 // Reference: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-quote-element/
 type RichTextQuote struct {
 	// Elements contains the quotation's inline content.
-	Elements []RichTextInline `json:"elements" validate:"min=1,dive,required"`
+	Elements []RichTextInline `json:"elements" validate:"dive"`
 	// Border enables or disables the border. Nil leaves it unspecified.
-	Border *int `json:"border,omitempty" validate:"omitempty,min=0,max=1"`
+	Border *int `json:"border,omitempty"`
 }
 
 func (e RichTextQuote) Type() string   { return "rich_text_quote" }

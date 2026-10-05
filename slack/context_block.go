@@ -1,6 +1,8 @@
 package slack
 
 import (
+	"github.com/JSYoo5B/convertago/internal/validation"
+
 	"encoding/json"
 	"strings"
 )
@@ -13,6 +15,7 @@ type ContextElement interface {
 	String() string
 	MarshalJSON() ([]byte, error)
 	contextElement()
+	check(*validation.Check)
 }
 
 // ContextBlock displays contextual information with text and images.
@@ -20,9 +23,9 @@ type ContextElement interface {
 // Reference: https://docs.slack.dev/reference/block-kit/blocks/context-block/
 type ContextBlock struct {
 	// Elements contains up to 10 text objects or image elements in display order.
-	Elements []ContextElement `json:"elements" validate:"min=1,max=10,dive,required"`
+	Elements []ContextElement `json:"elements" validate:"dive"`
 	// BlockID identifies the block, up to 255 characters. Replace it when updating a message.
-	BlockID string `json:"block_id,omitempty" validate:"max=255"`
+	BlockID string `json:"block_id,omitempty"`
 }
 
 func (b ContextBlock) Type() string { return "context" }

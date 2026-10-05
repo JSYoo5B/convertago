@@ -7,11 +7,11 @@ import "encoding/json"
 // Reference: https://docs.slack.dev/reference/block-kit/block-elements/image-element/
 type ImageElement struct {
 	// ImageURL is a public image URL, up to 3000 characters. Supply this or SlackFile.
-	ImageURL string `json:"image_url,omitempty" validate:"required_without=SlackFile,excluded_with=SlackFile,omitempty,http_url,max=3000"`
+	ImageURL string `json:"image_url,omitempty"`
 	// SlackFile identifies a Slack-hosted image instead of ImageURL.
-	SlackFile *SlackFileObject `json:"slack_file,omitempty" validate:"required_without=ImageURL,excluded_with=ImageURL,omitempty"`
+	SlackFile *SlackFileObject `json:"slack_file,omitempty"`
 	// AltText describes the image without markup for accessibility.
-	AltText string `json:"alt_text" validate:"required,max=2000"`
+	AltText string `json:"alt_text"`
 }
 
 func (e ImageElement) Type() string   { return "image" }

@@ -1,125 +1,43 @@
 package slack
 
 import (
-	"fmt"
-	"strconv"
-	"unicode/utf8"
-
+	"github.com/JSYoo5B/convertago/internal/conversion"
 	"github.com/JSYoo5B/convertago/internal/validation"
 	"github.com/go-playground/validator/v10"
 )
 
-// RegisterValidation adds container-specific text limits and message constraints to v.
-// Call it before using v, then validate messages or individual models with v.Struct.
-// Field tags apply the limits that do not depend on a containing model.
+// Validate applies the conversion rules to a manually constructed message.
+// Fatal violations are returned as errors; Warning and Advisory violations go to WithDiagnostics.
+// WithWarningAsError also returns Warning violations as errors. Diagnostic paths follow the sent JSON.
+func Validate(message Message, options ...conversion.Option) error {
+	return conversion.Validate("slack", message.check, options)
+}
+
+// RegisterValidation lets a go-playground validator check Slack models with v.Struct.
+// Validator errors carry no severity, so it reports only Fatal rules; use Validate for every rule.
 func RegisterValidation(v *validator.Validate) {
-	v.RegisterStructValidation(validateHeader, HeaderBlock{})
-	v.RegisterStructValidation(validateSection, SectionBlock{})
-	v.RegisterStructValidation(validateImage, ImageBlock{})
-	v.RegisterStructValidation(validateButton, ButtonElement{})
-	v.RegisterStructValidation(validateConfirmation, ConfirmationDialogObject{})
-	v.RegisterStructValidation(validateVideo, VideoBlock{})
-	v.RegisterStructValidation(validateMessage, Message{})
-	v.RegisterStructValidation(validateLink, LinkInline{})
-	v.RegisterStructValidation(validateUser, UserInline{})
-}
-
-func validateText(sl validator.StructLevel, field string, text string, maximum int) {
-	if utf8.RuneCountInString(text) > maximum {
-		sl.ReportError(text, field, field, "max", strconv.Itoa(maximum))
-	}
-}
-
-func validateHeader(sl validator.StructLevel) {
-	header := sl.Current().Interface().(HeaderBlock)
-	validateText(sl, "Text.Text", header.Text.Text, 150)
-}
-
-func validateSection(sl validator.StructLevel) {
-	section := sl.Current().Interface().(SectionBlock)
-	if validation.Value(section.Text) == nil && len(section.Fields) == 0 {
-		sl.ReportError(section.Text, "Text", "Text", "required_without", "Fields")
-	}
-	for i, field := range section.Fields {
-		switch text := validation.Value(field).(type) {
-		case PlainTextObject:
-			validateText(sl, fmt.Sprintf("Fields[%d].Text", i), text.Text, 2000)
-		case MrkdwnTextObject:
-			validateText(sl, fmt.Sprintf("Fields[%d].Text", i), text.Text, 2000)
-		}
-	}
-}
-
-func validateImage(sl validator.StructLevel) {
-	image := sl.Current().Interface().(ImageBlock)
-	if image.Title != nil {
-		validateText(sl, "Title.Text", image.Title.Text, 2000)
-	}
-}
-
-func validateButton(sl validator.StructLevel) {
-	button := sl.Current().Interface().(ButtonElement)
-	validateText(sl, "Text.Text", button.Text.Text, 75)
-	if button.URL != "" && !validation.AbsoluteURI(button.URL) {
-		sl.ReportError(button.URL, "URL", "URL", "absolute_uri", "")
-	}
-}
-
-func validateConfirmation(sl validator.StructLevel) {
-	dialog := sl.Current().Interface().(ConfirmationDialogObject)
-	validateText(sl, "Title.Text", dialog.Title.Text, 100)
-	validateText(sl, "Confirm.Text", dialog.Confirm.Text, 30)
-	validateText(sl, "Deny.Text", dialog.Deny.Text, 30)
-	switch text := validation.Value(dialog.Text).(type) {
-	case PlainTextObject:
-		validateText(sl, "Text.Text", text.Text, 300)
-	case MrkdwnTextObject:
-		validateText(sl, "Text.Text", text.Text, 300)
-	}
-}
-
-func validateVideo(sl validator.StructLevel) {
-	video := sl.Current().Interface().(VideoBlock)
-	validateText(sl, "Title.Text", video.Title.Text, 199)
-	if video.Description != nil {
-		validateText(sl, "Description.Text", video.Description.Text, 199)
-	}
-	for _, field := range []struct {
-		name string
-		url  string
-	}{{"VideoURL", video.VideoURL}, {"TitleURL", video.TitleURL}} {
-		if field.url != "" && !validation.AbsoluteURI(field.url, "https") {
-			sl.ReportError(field.url, field.name, field.name, "https_url", "")
-		}
-	}
-}
-
-func validateMessage(sl validator.StructLevel) {
-	message := sl.Current().Interface().(Message)
-	total := 0
-	for _, block := range message.Blocks {
-		if markdown, ok := validation.Value(block).(MarkdownBlock); ok {
-			total += utf8.RuneCountInString(markdown.Text)
-		}
-	}
-	if total > 12000 {
-		sl.ReportError(message.Blocks, "Blocks", "Blocks", "markdown_max", "12000")
-	}
-}
-
-func validateLink(sl validator.StructLevel) {
-	link := sl.Current().Interface().(LinkInline)
-	if !validation.AbsoluteURI(link.URL) {
-		sl.ReportError(link.URL, "URL", "URL", "absolute_uri", "")
-	}
-	if link.Style != nil && link.Style.Code {
-		sl.ReportError(link.Style.Code, "Style.Code", "Style.Code", "excluded", "")
-	}
-}
-
-func validateUser(sl validator.StructLevel) {
-	user := sl.Current().Interface().(UserInline)
-	if user.Style != nil && user.Style.Code {
-		sl.ReportError(user.Style.Code, "Style.Code", "Style.Code", "excluded", "")
-	}
+	validation.Register(v, Message.check)
+	validation.Register(v, PlainTextObject.check)
+	validation.Register(v, MrkdwnTextObject.check)
+	validation.Register(v, HeaderBlock.check)
+	validation.Register(v, SectionBlock.check)
+	validation.Register(v, ImageBlock.check)
+	validation.Register(v, ImageElement.check)
+	validation.Register(v, SlackFileObject.check)
+	validation.Register(v, ActionsBlock.check)
+	validation.Register(v, ContextBlock.check)
+	validation.Register(v, DividerBlock.check)
+	validation.Register(v, MarkdownBlock.check)
+	validation.Register(v, ButtonElement.check)
+	validation.Register(v, ConfirmationDialogObject.check)
+	validation.Register(v, VideoBlock.check)
+	validation.Register(v, RichTextBlock.check)
+	validation.Register(v, RichTextSection.check)
+	validation.Register(v, RichTextList.check)
+	validation.Register(v, RichTextPreformatted.check)
+	validation.Register(v, RichTextQuote.check)
+	validation.Register(v, TextInline.check)
+	validation.Register(v, LinkInline.check)
+	validation.Register(v, UserInline.check)
+	validation.Register(v, EmojiInline.check)
 }

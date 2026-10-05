@@ -7,7 +7,7 @@ import "encoding/json"
 // Reference: https://docs.slack.dev/reference/block-kit/blocks/divider-block/
 type DividerBlock struct {
 	// BlockID identifies the block, up to 255 characters. Replace it when updating a message.
-	BlockID string `json:"block_id,omitempty" validate:"max=255"`
+	BlockID string `json:"block_id,omitempty"`
 }
 
 func (b DividerBlock) Type() string { return "divider" }

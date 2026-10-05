@@ -10,13 +10,13 @@ import (
 // Reference: https://docs.slack.dev/reference/block-kit/blocks/section-block/
 type SectionBlock struct {
 	// Text contains 1 to 3000 characters. It can be omitted when Fields is supplied.
-	Text TextObject `json:"text,omitempty" validate:"required_without=Fields,omitempty"`
+	Text TextObject `json:"text,omitempty"`
 	// BlockID identifies this block. Use a new ID for each message update, up to 255 characters.
-	BlockID string `json:"block_id,omitempty" validate:"max=255"`
+	BlockID string `json:"block_id,omitempty"`
 	// Fields contains up to 10 text objects, each up to 2000 characters, in two columns.
-	Fields []TextObject `json:"fields,omitempty" validate:"max=10,dive,required"`
+	Fields []TextObject `json:"fields,omitempty" validate:"dive"`
 	// Accessory is an element compatible with sections, such as a button or image.
-	Accessory Element `json:"accessory,omitempty" validate:"omitempty"`
+	Accessory Element `json:"accessory,omitempty"`
 	// Expand displays the full text without requiring the reader to expand it.
 	Expand bool `json:"expand,omitempty"`
 }

@@ -1,6 +1,8 @@
 package slack
 
 import (
+	"github.com/JSYoo5B/convertago/internal/validation"
+
 	"encoding/json"
 	"strings"
 )
@@ -13,6 +15,7 @@ type Element interface {
 	String() string
 	MarshalJSON() ([]byte, error)
 	element()
+	check(*validation.Check)
 }
 
 // ActionsBlock groups interactive elements such as buttons and menus.
@@ -20,9 +23,9 @@ type Element interface {
 // Reference: https://docs.slack.dev/reference/block-kit/blocks/actions-block/
 type ActionsBlock struct {
 	// Elements contains up to 25 interactive elements. ImageElement belongs in a section or context.
-	Elements []ActionElement `json:"elements" validate:"min=1,max=25,dive,required"`
+	Elements []ActionElement `json:"elements" validate:"dive"`
 	// BlockID identifies the block, up to 255 characters. Replace it when updating a message.
-	BlockID string `json:"block_id,omitempty" validate:"max=255"`
+	BlockID string `json:"block_id,omitempty"`
 }
 
 // ActionElement is an interactive element that can be placed in an ActionsBlock.
