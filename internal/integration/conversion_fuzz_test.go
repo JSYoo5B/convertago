@@ -3,6 +3,7 @@ package integration_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -50,6 +51,17 @@ func FuzzGeneratedReflectionConversion(f *testing.F) {
 				return convertago.ToGoogleChatMessage(input, options...)
 			},
 		}[platform%3]
+		validate := func(message any) error {
+			switch message := message.(type) {
+			case kakaowork.Message:
+				return kakaowork.Validate(message, convertago.WithWarningAsError())
+			case slack.Message:
+				return slack.Validate(message, convertago.WithWarningAsError())
+			case googlechat.Message:
+				return googlechat.Validate(message, convertago.WithWarningAsError())
+			}
+			return fmt.Errorf("unexpected message %T", message)
+		}
 		for _, inputs := range []struct{ generated, reflected any }{
 			{&flat, (*reflectionFlatMessage)(&flat)},
 			{&nested, (*reflectionNestedMessage)(&nested)},
@@ -71,8 +83,11 @@ func FuzzGeneratedReflectionConversion(f *testing.F) {
 			if err != nil || !bytes.Equal(gotJSON, wantJSON) {
 				t.Fatalf("JSON differs: generated=%s reflected=%s (%v)", gotJSON, wantJSON, err)
 			}
-			if err := v.Struct(got); err != nil {
+			if err := validate(got); err != nil {
 				t.Fatalf("successful conversion failed native validation: %v", err)
+			}
+			if err := v.Struct(got); err != nil {
+				t.Fatalf("successful conversion failed validator rules: %v", err)
 			}
 		}
 	})

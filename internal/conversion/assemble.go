@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/JSYoo5B/convertago/internal/validation"
 )
@@ -339,8 +340,8 @@ func (a assembler) checkSlots(node Node) error {
 			if len(slot.Children) != 0 && !slot.Scalar {
 				return a.fail(path, "invalid_source", "slot "+input.Slot+" requires a child builder")
 			}
-			if err := ValidateText(a.profile.Platform, path, input.Part.Text, 0, 0); err != nil {
-				return err
+			if !utf8.ValidString(input.Part.Text) {
+				return a.fail(path, "invalid_value", "text must be valid UTF-8")
 			}
 		} else {
 			if !contains(slot.Children, input.Child.Role) {
