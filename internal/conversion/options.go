@@ -28,7 +28,7 @@ type Option func(*Options)
 // Options holds the configuration shared by all converters.
 type Options struct {
 	WarningAsError bool
-	Diagnostic func(Diagnostic)
+	Diagnostic     func(Diagnostic)
 }
 
 // WithWarningAsError turns Warning diagnostics into errors.
