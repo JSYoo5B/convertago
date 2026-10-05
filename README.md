@@ -45,7 +45,7 @@ func main() {
 ```
 
 `ToKakaoworkMessage`, `ToSlackMessage`, and `ToGoogleChatMessage` accept a struct
-or a non-nil pointer to a struct. They return the corresponding native message
+or a non-nil pointer to one. They return the corresponding native message
 and an error. The sending application handles message delivery.
 
 Fields contribute in declaration order. `group` joins fields into one native

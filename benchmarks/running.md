@@ -73,7 +73,8 @@ cases in the same way.
 ## Measurement runner
 
 The optional Python 3.9+ runner builds the test binaries once, measures process
-CPU and peak RSS on macOS or Linux, and records three runs of every case:
+CPU and peak RSS on macOS or Linux, and records three runs of every case.
+`--count` changes the number of runs:
 
 ```sh
 python3 benchmarks/measure.py --output benchmarks/measurements.csv

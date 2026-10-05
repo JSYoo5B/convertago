@@ -15,8 +15,10 @@
 | `internal/integration/` | Tests spanning messenger packages: shared validator configuration and generated/reflection fuzz parity. |
 | `internal/benchmarksource/` | Shared source fixtures and their checked-in generated accessors. |
 | `benchmarks/` | Message and source-reader benchmarks, the measurement runner, and recorded results. |
+| `internal/generate/testdata/sample/` | Generator consumer fixture and its generated/reflection parity test. |
 | `cmd/convertago/` | Generator command-line entry point. |
 | `docs/` | Message rules, documentation policy, platform guide, tag rules, code generation, and development guidance. |
+| `.github/workflows/` | CI for tests, race detection, vet, regeneration, fuzzing, benchmarks, and cross builds. |
 
 Keep public declarations in their existing packages to preserve application
 imports and generated-code compatibility. Write examples and other documentation
@@ -31,15 +33,19 @@ in `testdata`.
 
 ## Local checks
 
-From the repository root, run:
+From the repository root, run the same checks as CI:
 
 ```sh
-go test -mod=readonly -count=1 ./...
-go test -mod=readonly -race -count=1 ./...
+export GOFLAGS=-mod=readonly
+go test -count=1 ./...
+go test -race -count=1 ./...
 go vet ./...
 go generate ./internal/benchmarksource
-git diff --exit-code -- internal/benchmarksource/zz_convertago.gen.go
+git diff --exit-code
 ```
+
+The final command checks the whole tree, as CI does, so run it on a clean
+working tree.
 
 `go test ./...` includes the public API examples, platform unit tests, integration
 fuzz seeds, benchmark parity checks, and generator consumer tests. Bounded fuzz
@@ -55,9 +61,11 @@ release. It regenerates the checked-in benchmark accessors and rejects a diff.
 It also runs bounded fuzz checks and exercises each benchmark without timing
 thresholds.
 
-Generator integration tests compile consumer packages for Linux 386, Linux
-arm64, and Windows amd64 without executing the target binaries. They cover both
-portable host-generated accessors and target-specific layouts. A separate CI
+Generator integration tests compile consumer packages without executing the
+target binaries. Host-generated accessors for a portable layout compile for
+Linux 386, Linux arm64, and Windows amd64. Target-specific layouts are generated
+and compiled for Linux 386 and Windows amd64, and another test reads the target
+from a `GOENV` file. A separate CI
 matrix builds all packages for those targets and Darwin arm64 with cgo disabled.
 
 ## Fuzzing

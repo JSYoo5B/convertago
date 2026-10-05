@@ -10,7 +10,8 @@ Each platform uses its own tag key. The grammar is
 `role;option=value;flag`, with exact, case-sensitive names and no aliases.
 Absent tags, empty tags, and `-` exclude a field for that platform. Tags on
 unexported fields are errors. Unknown roles, options, styles, formats, duplicate
-options, and malformed tags are errors even when the field is empty or optional.
+options, duplicate styles, and malformed tags are errors even when the field is
+empty or optional. Value options require a nonempty value, and flags reject one.
 
 | Option | Meaning |
 | --- | --- |
@@ -20,6 +21,18 @@ options, and malformed tags are errors even when the field is empty or optional.
 | `format=plain` | Explicitly select a text syntax accepted by the builder. |
 | `omitempty` | Omit an empty source value. |
 | `optional` | Report a recognized unavailable feature as a Warning and skip it. |
+
+The recognized styles are `bold`, `italic`, `strike`, `code`, `underline`,
+`highlight`, `client_highlight`, and `unlink`. The recognized formats are `plain`,
+`html`, `markdown`, and `mrkdwn`. Each builder accepts a subset, listed in its
+package README.
+
+Two roles are shared by every platform:
+
+| Role | Meaning |
+| --- | --- |
+| `part` | Supply a scalar input to the containing builder. A top-level `part` is an error. |
+| `flatten` | Emit a tagged object's children into the surrounding output. It accepts only `omitempty` and `optional`. |
 
 ## Messenger support
 
@@ -41,13 +54,15 @@ A compatible default child slot is used when the profile specifies one.
 Otherwise a uniquely compatible slot is inferred, and multiple matches require
 an explicit `slot`.
 
-The converters validate modeled native constraints and conflicting inputs.
+Converters check the native values they build with the package's
+[message rules](message-rules.md).
 
 ## Order, groups, and nesting
 
 Fields contribute in declaration order. A group occupies the position of its
 first **declared** member, even when that member is nil or omitted. Its remaining
-members concatenate in declaration order. Groups cannot mix builder roles.
+members concatenate in declaration order. Groups cannot mix builder roles, and
+inside a builder they cannot mix containing input slots.
 Group names belong to one source struct; nested structs and repeated elements
 have separate scopes. Include any spaces or newlines in the source values.
 
@@ -83,14 +98,23 @@ parent slot that accepts their role; an explicit `slot` selects among several
 accepted positions. Child lists repeat native elements in declaration order.
 Empty container structs can represent dividers. Nil elements are absent.
 `omitempty` on a list omits an empty list and retains zero-valued elements in
-a nonempty list. Styles and formats on metadata slots are rejected unless that
-slot explicitly supports them.
+a nonempty list. Styles and formats on metadata slots are unavailable features
+unless that slot explicitly supports them, as described in
+[diagnostics](#diagnostics-and-severities).
 
 Strings, booleans, integers, and floats have direct text representations.
-Nested fields that explicitly implement `encoding.TextMarshaler` or `fmt.Stringer`
-use those methods, preferring `MarshalText`. A root struct always reads its tags.
-Other structs require tagged children; arbitrary structs and maps are not
-implicitly formatted as text. Cyclic source traversals return an error.
+Nested fields whose type implements `encoding.TextMarshaler` or `fmt.Stringer`
+use those methods, preferring `MarshalText`. The field's own type must implement
+the method: a value field whose method has a pointer receiver is read as a
+struct, so use a pointer field in that case. A `MarshalText` error is an
+`invalid_source` error. A root struct always reads its tags. Other structs
+require tagged children; arbitrary structs and maps are not implicitly formatted
+as text. Maps, channels, functions, and complex numbers are unsupported source
+types even with `omitempty`. Cyclic source traversals return an error.
+
+Embedded structs do not promote their fields. Tag an embedded field with
+`flatten` to read its tagged fields as if they were declared in the outer struct;
+an untagged embedded field is ignored like any other untagged field.
 
 Zero and false remain present unless `omitempty` is set. Empty scalar strings,
 zero numbers, false, and zero-length lists are empty. A tagged object is empty
@@ -120,11 +144,26 @@ Typos, type mismatches, and missing required inputs are always Fatal.
 
 Converters check the native message with the same rules as the package's native
 validation. A rule violation's code is the rule ID, such as `header.text.length`,
-and each package README lists its rules and their severities.
+and each package README lists its rules and their severities. Tag and source
+problems are Fatal and use these codes:
+
+| Code | Meaning |
+| --- | --- |
+| `invalid_tag` | Malformed tag, unknown name, tag on an unexported field, or role used in an invalid position. |
+| `invalid_source` | Unsupported source type, non-struct or cyclic source, or a failing text method. |
+| `invalid_value` | A source value that a slot cannot parse, such as a non-integer. |
+| `group_conflict` | Group members that mix roles or containing slots. |
+| `missing_input` | A required slot without inputs after omissions. |
+| `duplicate_input` | Several contributions to a slot that accepts one. |
+| `conflicting_input` | Inputs that cannot be combined in one slot. |
+| `conflicting_format` | Text formats that cannot be mixed in one slot. |
+| `invalid_position` | A builder in a position its container does not allow. |
+| `unsupported_feature` | An unavailable feature; a Warning when the tag is `optional`. |
 
 Errors are `convertago.Diagnostic` values and can be inspected with `errors.As`.
 Paths start at `$`, such as `$.Items[1].Name`; static list schema errors use `[]`
-when there is no specific element.
+when there is no specific element. `Diagnostic.Error` formats a diagnostic as
+`convertago: <platform> <path>: <message> [<severity> <code>]`.
 
 ```go
 message, err := convertago.ToSlackMessage(notice,
