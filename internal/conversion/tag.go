@@ -48,12 +48,14 @@ type Profile struct {
 
 var profiles sync.Map
 
+// Register adds a messenger profile. Each platform registers once.
 func Register(profile Profile) {
 	if _, loaded := profiles.LoadOrStore(profile.Platform, profile); loaded {
 		panic("convertago: duplicate platform " + profile.Platform)
 	}
 }
 
+// Lookup returns the registered profile of a platform.
 func Lookup(platform string) (Profile, error) {
 	profile, ok := profiles.Load(platform)
 	if !ok {

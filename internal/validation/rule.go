@@ -18,6 +18,7 @@ const (
 	Advisory
 )
 
+// String returns the lowercase severity name used in diagnostics.
 func (s Severity) String() string {
 	switch s {
 	case Fatal:

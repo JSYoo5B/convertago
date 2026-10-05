@@ -16,6 +16,8 @@ type Field struct {
 	Value Value
 }
 
+// Value is a source value read by reflection or generated accessors.
+// Kind is "scalar", "object", "list", or "dynamic".
 type Value struct {
 	Kind   string
 	Text   string
@@ -40,6 +42,7 @@ type Shape struct {
 	Err    error
 }
 
+// ShapeField describes one tagged field of a source shape.
 type ShapeField struct {
 	Name  string
 	Tag   Tag
@@ -79,6 +82,7 @@ var rawPlans sync.Map
 var textMarshalerType = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
 var stringerType = reflect.TypeOf((*fmt.Stringer)(nil)).Elem()
 
+// Fields reads the tagged fields of a source struct, preferring generated accessors.
 func Fields(input any, platform string) ([]Field, error) {
 	profile, err := Lookup(platform)
 	if err != nil {
@@ -283,6 +287,7 @@ func baseKind(shape *Shape) string {
 	return shape.Kind
 }
 
+// Object builds a tagged object value, which is empty when all its fields are empty.
 func Object(fields []Field) Value {
 	value := Value{Kind: "object", Empty: true, Fields: fields}
 	for _, field := range fields {
@@ -293,6 +298,7 @@ func Object(fields []Field) Value {
 	return value
 }
 
+// Marshaled reads a scalar value from MarshalText, retaining its error.
 func Marshaled(input encoding.TextMarshaler) Value {
 	text, err := input.MarshalText()
 	return Value{Kind: "scalar", Text: string(text), Empty: len(text) == 0, Err: err}
@@ -303,6 +309,7 @@ func Dynamic(input any, platform string) Value {
 	return (&State{}).Dynamic(input, platform)
 }
 
+// Dynamic reads an interface-valued field by reflection within this traversal.
 func (state *State) Dynamic(input any, platform string) Value {
 	profile, err := Lookup(platform)
 	if err != nil {

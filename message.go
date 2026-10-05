@@ -19,7 +19,8 @@ func ToSlackMessage(input any, options ...Option) (slack.Message, error) {
 }
 
 // ToGoogleChatMessage converts a struct using its googlechat tags.
-// It supplies a card and a section for the collected widgets.
+// It uses generated field accessors when available and cached reflection otherwise.
+// Top-level widgets without an explicit card form an implicit card and section.
 func ToGoogleChatMessage(input any, options ...Option) (googlechat.Message, error) {
 	return googlechat.ToMessage(input, options...)
 }

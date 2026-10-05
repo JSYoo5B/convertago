@@ -56,6 +56,7 @@ func (n *Node) appendInputs(inputs []Input) {
 	}
 }
 
+// Text concatenates the scalar parts supplied to a slot.
 func (n Node) Text(slot string) string {
 	var text strings.Builder
 	for _, part := range n.Parts {
@@ -66,6 +67,7 @@ func (n Node) Text(slot string) string {
 	return text.String()
 }
 
+// Has reports whether any part or child was supplied to a slot.
 func (n Node) Has(slot string) bool {
 	for _, input := range n.Inputs {
 		if input.Slot == slot {
@@ -75,6 +77,7 @@ func (n Node) Has(slot string) bool {
 	return false
 }
 
+// Prepare reads a source and assembles its top-level builder nodes in declaration order.
 func Prepare(input any, platform string, options []Option) ([]Node, error) {
 	fields, err := Fields(input, platform)
 	if err != nil {

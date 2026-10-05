@@ -18,6 +18,7 @@ type Diagnostic struct {
 	Severity Severity
 }
 
+// Error formats the diagnostic with its platform, path, message, severity, and code.
 func (d Diagnostic) Error() string {
 	return fmt.Sprintf("convertago: %s %s: %s [%s %s]", d.Platform, d.Path, d.Message, d.Severity, d.Code)
 }
@@ -39,6 +40,7 @@ func WithDiagnostics(fn func(Diagnostic)) Option {
 	return func(o *Options) { o.Diagnostic = fn }
 }
 
+// Configure applies options in order, ignoring nil options.
 func Configure(options []Option) Options {
 	var result Options
 	for _, option := range options {
