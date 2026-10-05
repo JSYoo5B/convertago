@@ -13,7 +13,7 @@ func TestColumnAndCarouselWidgetRestrictions(t *testing.T) {
 			} `googlechat:"column"`
 		} `googlechat:"columns"`
 	}{}
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("column accepted divider")
 	}
 	source2 := struct {
@@ -23,7 +23,7 @@ func TestColumnAndCarouselWidgetRestrictions(t *testing.T) {
 			} `googlechat:"carouselCard"`
 		} `googlechat:"carousel"`
 	}{}
-	if _, err := ToMessage(source2); err == nil {
+	if _, err := ToMessage(source2, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("carousel accepted decoratedText")
 	}
 	source3 := struct {
@@ -38,7 +38,7 @@ func TestColumnAndCarouselWidgetRestrictions(t *testing.T) {
 	}{}
 	source3.Columns.Column.Text.Text = "text"
 	source3.Columns.Column.Text.Alignment = "CENTER"
-	if _, err := ToMessage(source3); err == nil {
+	if _, err := ToMessage(source3, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("nested widget silently dropped alignment")
 	}
 }
@@ -57,7 +57,7 @@ func TestGoogleColumnCount(t *testing.T) {
 		t.Fatal(err)
 	}
 	source.Columns.Columns = append(source.Columns.Columns, column{"three"})
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("accepted three columns")
 	}
 }
@@ -84,11 +84,11 @@ func TestGoogleCustomCropValidation(t *testing.T) {
 		t.Fatal(err)
 	}
 	source.Grid.Item.Image.Crop.Ratio = 0
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("nonpositive custom aspect ratio accepted")
 	}
 	source.Grid.Item.Image.Crop = crop{"CIRCLE", 1}
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("aspect ratio for circle accepted")
 	}
 }
@@ -130,7 +130,7 @@ func TestGridBorderColorAndClick(t *testing.T) {
 		t.Fatalf("grid=%#v", native)
 	}
 	source.Grid.Border.Type = "NO_BORDER"
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("stroke color for no border accepted")
 	}
 }

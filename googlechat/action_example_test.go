@@ -7,7 +7,7 @@ import (
 	"github.com/JSYoo5B/convertago/googlechat"
 )
 
-func ExampleOnClick_MarshalJSON() {
+func ExampleOnClick() {
 	value := googlechat.OnClick{
 		OpenLink: &googlechat.OpenLink{URL: "https://example.com/report"},
 	}

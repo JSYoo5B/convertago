@@ -56,6 +56,7 @@ func violationDiagnostic(platform, path string, v validation.Violation) Diagnost
 // FieldPath resolves a native field such as "text" or "elements[1]" to the source
 // path of the matching input slot, falling back to the node path.
 func (n Node) FieldPath(field string) string {
+	field, _, _ = strings.Cut(field, ".")
 	name, index := field, 0
 	if open := strings.IndexByte(field, '['); open >= 0 && strings.HasSuffix(field, "]") {
 		parsed, err := strconv.Atoi(field[open+1 : len(field)-1])

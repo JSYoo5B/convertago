@@ -7,9 +7,9 @@ type TextParagraph struct {
 	// Text is the paragraph's content.
 	Text string `json:"text"`
 	// MaxLines hides excess lines behind an expansion control. Zero displays all lines.
-	MaxLines int `json:"maxLines,omitempty" validate:"min=0"`
+	MaxLines int `json:"maxLines,omitempty"`
 	// TextSyntax selects HTML or Markdown. Omission uses HTML.
-	TextSyntax TextSyntax `json:"textSyntax,omitempty" validate:"omitempty,oneof=HTML MARKDOWN"`
+	TextSyntax TextSyntax `json:"textSyntax,omitempty"`
 }
 
 func (TextParagraph) WidgetType() string   { return "textParagraph" }

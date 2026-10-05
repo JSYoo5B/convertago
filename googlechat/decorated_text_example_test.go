@@ -7,7 +7,7 @@ import (
 	"github.com/JSYoo5B/convertago/googlechat"
 )
 
-func ExampleDecoratedText_MarshalJSON() {
+func ExampleDecoratedText() {
 	widget := googlechat.Widget{Content: googlechat.DecoratedText{
 		StartIcon: &googlechat.Icon{KnownIcon: "EMAIL"},
 		TopLabel:  "Report recipient",

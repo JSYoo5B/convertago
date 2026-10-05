@@ -1,6 +1,8 @@
 package googlechat
 
 import (
+	"github.com/JSYoo5B/convertago/internal/conversion"
+
 	"math"
 	"testing"
 )
@@ -33,7 +35,7 @@ func TestGoogleActionParameters(t *testing.T) {
 		t.Fatal("parameter lost")
 	}
 	source.Buttons.Button.Action.Parameters = append(source.Buttons.Button.Action.Parameters, param{"id", "99"})
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("duplicate parameter key accepted")
 	}
 }
@@ -58,7 +60,7 @@ func TestGoogleColorAndIconValidation(t *testing.T) {
 	}
 	for _, value := range []float64{1.1, -0.1, math.NaN(), math.Inf(1)} {
 		source.Buttons.Button.Color.Red = value
-		if _, err := ToMessage(source); err == nil {
+		if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 			t.Fatalf("accepted %v color", value)
 		}
 	}
@@ -77,7 +79,7 @@ func TestOnClickAndTrailingControlConflicts(t *testing.T) {
 	}{}
 	source.Image.URL = "https://example.com/image.png"
 	source.Image.Click = click{"action", "https://example.com"}
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("ambiguous onClick accepted")
 	}
 	type icon struct {
@@ -96,7 +98,7 @@ func TestOnClickAndTrailingControlConflicts(t *testing.T) {
 	decorated.Text.Text = "text"
 	decorated.Text.End.Name = "STAR"
 	decorated.Text.Switch.Name = "selected"
-	if _, err := ToMessage(decorated); err == nil {
+	if _, err := ToMessage(decorated, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("multiple trailing controls accepted")
 	}
 }
@@ -129,11 +131,11 @@ func TestMaterialIconValues(t *testing.T) {
 		t.Fatalf("native=%#v", native)
 	}
 	source.Text.Icon.Material.Weight = 250
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("unsupported material weight accepted")
 	}
 	source.Text.Icon.Material = material{"check", 400, 10}
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("unsupported material grade accepted")
 	}
 }

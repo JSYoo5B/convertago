@@ -7,7 +7,7 @@ import (
 	"github.com/JSYoo5B/convertago/googlechat"
 )
 
-func ExampleIcon_MarshalJSON() {
+func ExampleIcon() {
 	icon := googlechat.Icon{
 		MaterialIcon: &googlechat.MaterialIcon{Name: "check_circle", Fill: true, Weight: 500},
 		AltText:      "Passed",

@@ -1,6 +1,10 @@
 package googlechat
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/JSYoo5B/convertago/internal/conversion"
+)
 
 func TestGoogleExplicitCardIDs(t *testing.T) {
 	type card struct {
@@ -17,11 +21,11 @@ func TestGoogleExplicitCardIDs(t *testing.T) {
 		t.Fatal(err)
 	}
 	source.Cards[1].ID = "one"
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("duplicate cardId accepted")
 	}
 	source.Cards[1].ID = ""
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("missing cardId in multiple cards accepted")
 	}
 }
@@ -37,7 +41,7 @@ func TestGoogleCardWidgetCountAcrossSections(t *testing.T) {
 		t.Fatal(err)
 	}
 	source.Sections[1].Text = append(source.Sections[1].Text, "extra")
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("over 100 widgets across sections accepted")
 	}
 }
@@ -52,7 +56,7 @@ func TestCollapsePropertiesRequireCollapsible(t *testing.T) {
 	}{}
 	source.Section.Text = "one"
 	source.Section.Count = 1
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("collapse count without collapsible accepted")
 	}
 	source.Section.Collapsible = true
@@ -60,7 +64,7 @@ func TestCollapsePropertiesRequireCollapsible(t *testing.T) {
 		t.Fatal(err)
 	}
 	source.Section.Count = 2
-	if _, err := ToMessage(source); err == nil {
+	if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 		t.Fatal("collapse count exceeds widgets")
 	}
 }

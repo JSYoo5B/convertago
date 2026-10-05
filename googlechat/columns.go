@@ -8,7 +8,7 @@ import "strings"
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Columns
 type Columns struct {
 	// ColumnItems contains up to two columns.
-	ColumnItems []Column `json:"columnItems" validate:"min=1,max=2,dive"`
+	ColumnItems []Column `json:"columnItems" validate:"dive"`
 }
 
 func (Columns) WidgetType() string { return "columns" }
@@ -30,13 +30,13 @@ func (c Columns) String() string {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Column
 type Column struct {
 	// HorizontalSizeStyle controls how much available width the column occupies.
-	HorizontalSizeStyle HorizontalSizeStyle `json:"horizontalSizeStyle,omitempty" validate:"omitempty,oneof=FILL_AVAILABLE_SPACE FILL_MINIMUM_SPACE"`
+	HorizontalSizeStyle HorizontalSizeStyle `json:"horizontalSizeStyle,omitempty"`
 	// HorizontalAlignment positions the column's widgets horizontally.
-	HorizontalAlignment HorizontalAlignment `json:"horizontalAlignment,omitempty" validate:"omitempty,oneof=START CENTER END"`
+	HorizontalAlignment HorizontalAlignment `json:"horizontalAlignment,omitempty"`
 	// VerticalAlignment positions the widgets vertically. Omission centers them.
-	VerticalAlignment ColumnVerticalAlignment `json:"verticalAlignment,omitempty" validate:"omitempty,oneof=CENTER TOP BOTTOM"`
+	VerticalAlignment ColumnVerticalAlignment `json:"verticalAlignment,omitempty"`
 	// Widgets contains the supported column widgets in display order.
-	Widgets []ColumnWidget `json:"widgets" validate:"min=1,max=100,dive"`
+	Widgets []ColumnWidget `json:"widgets" validate:"dive"`
 }
 
 // ColumnWidgetContent is content supported within a column.
@@ -53,7 +53,7 @@ type ColumnWidgetContent interface {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Widgets
 type ColumnWidget struct {
 	// Content contains a paragraph, image, decorated text, button list, or chip list.
-	Content ColumnWidgetContent `json:"-" validate:"required"`
+	Content ColumnWidgetContent `json:"-"`
 }
 
 func (w ColumnWidget) MarshalJSON() ([]byte, error) { return marshalWidget(w.Content, "") }

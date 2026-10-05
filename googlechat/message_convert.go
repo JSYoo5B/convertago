@@ -1,32 +1,39 @@
 package googlechat
 
 import (
-	"encoding/json"
+	"fmt"
 	"html"
 	"strings"
 
 	"github.com/JSYoo5B/convertago/internal/conversion"
+	"github.com/JSYoo5B/convertago/internal/validation"
 )
 
 // ToMessage builds a Message from googlechat tags in source declaration order.
-// Native elements are validated against their containing widget.
 // Top-level widgets form an implicit card; card and section builders select explicit layouts.
+// Each native value is checked with the same rules as Validate.
 func ToMessage(input any, options ...conversion.Option) (Message, error) {
 	nodes, err := conversion.Prepare(input, "googlechat", options)
 	if err != nil {
 		return Message{}, err
 	}
+	c := converter{conversion.Checker{Platform: "googlechat", Options: conversion.Configure(options)}}
 	message := Message{}
+	var cardPaths []string
 	var implicit []conversion.Node
 	flush := func() error {
 		if len(implicit) == 0 {
 			return nil
 		}
-		card, err := convertCardNodes(implicit, "$")
+		card, err := c.cardNodes(implicit)
+		if err == nil {
+			card, err = checkedAt(c, implicit[0].Path, card)
+		}
 		if err != nil {
 			return err
 		}
 		message.CardsV2 = append(message.CardsV2, CardWithID{Card: card})
+		cardPaths = append(cardPaths, implicit[0].Path)
 		implicit = nil
 		return nil
 	}
@@ -46,12 +53,13 @@ func ToMessage(input any, options ...conversion.Option) (Message, error) {
 				wrapped.CardID = node.Text("cardId")
 				cardNode = node.Children("card")[0]
 			}
-			card, err := convertCard(cardNode)
+			card, err := c.card(cardNode)
 			if err != nil {
 				return Message{}, err
 			}
 			wrapped.Card = card
 			message.CardsV2 = append(message.CardsV2, wrapped)
+			cardPaths = append(cardPaths, node.Path)
 		default:
 			implicit = append(implicit, node)
 		}
@@ -59,31 +67,48 @@ func ToMessage(input any, options ...conversion.Option) (Message, error) {
 	if err := flush(); err != nil {
 		return Message{}, err
 	}
-	ids := map[string]bool{}
-	for _, card := range message.CardsV2 {
-		if len(message.CardsV2) > 1 && card.CardID == "" {
-			return Message{}, conversion.Error("googlechat", "$", "missing_input", "multiple cards require distinct cardId values")
+	resolve := func(field string) string {
+		var index int
+		if _, err := fmt.Sscanf(field, "cardsV2[%d]", &index); err == nil && index < len(cardPaths) {
+			return cardPaths[index]
 		}
-		if card.CardID != "" {
-			if ids[card.CardID] {
-				return Message{}, conversion.Error("googlechat", "$", "duplicate_input", "duplicate cardId")
-			}
-			ids[card.CardID] = true
-		}
+		return "$"
 	}
-	if len(message.CardsV2) != 0 {
-		data, err := json.Marshal(message.CardsV2)
-		if err != nil {
-			return Message{}, err
-		}
-		if len(data) > 32*1024 {
-			return Message{}, conversion.Error("googlechat", "$", "limit_exceeded", "cards exceed 32 KB of JSON")
-		}
+	if err := c.CheckAt(resolve, message.check); err != nil {
+		return Message{}, err
 	}
 	return message, nil
 }
 
-func convertParagraph(node conversion.Node) (TextParagraph, error) {
+type converter struct {
+	conversion.Checker
+}
+
+type checkable interface{ check(*validation.Check) }
+
+// checked runs the rules of a value built from node, mapping native fields to slots.
+func checked[T checkable](c converter, node conversion.Node, value T, err error, slots ...string) (T, error) {
+	if err != nil {
+		return value, err
+	}
+	resolve := func(field string) string {
+		for i := 0; i+1 < len(slots); i += 2 {
+			if field == slots[i] {
+				field = slots[i+1]
+			}
+		}
+		return node.FieldPath(field)
+	}
+	return value, c.CheckAt(resolve, value.check)
+}
+
+// checkedAt runs the rules of a value assembled from several nodes at one source path.
+func checkedAt[T checkable](c converter, path string, value T) (T, error) {
+	return value, c.CheckAt(func(string) string { return path }, value.check)
+}
+
+// paragraphText renders the text slot of node as HTML or Markdown.
+func paragraphText(node conversion.Node) (string, bool, error) {
 	markdown := false
 	for _, part := range node.Parts {
 		if part.Slot == "text" {
@@ -97,10 +122,7 @@ func convertParagraph(node conversion.Node) (TextParagraph, error) {
 			continue
 		}
 		if (part.Format == "markdown") != markdown {
-			return TextParagraph{}, conversion.Error("googlechat", part.Path, "conflicting_format", "paragraph cannot mix Markdown with HTML or plain text")
-		}
-		if err := conversion.ValidateText("googlechat", part.Path, part.Text, 0, 0); err != nil {
-			return TextParagraph{}, err
+			return "", false, conversion.Error("googlechat", part.Path, "conflicting_format", "paragraph cannot mix Markdown with HTML or plain text")
 		}
 		content := part.Text
 		if !markdown && part.Format != "html" {
@@ -121,12 +143,20 @@ func convertParagraph(node conversion.Node) (TextParagraph, error) {
 		}
 		text.WriteString(content)
 	}
-	reader := conversion.Reader{Platform: "googlechat", Node: node}
-	paragraph := TextParagraph{Text: text.String(), MaxLines: reader.Int("maxLines", 0, 0)}
+	return text.String(), markdown, nil
+}
+
+func (c converter) paragraph(node conversion.Node) (TextParagraph, error) {
+	text, markdown, err := paragraphText(node)
+	if err != nil {
+		return TextParagraph{}, err
+	}
+	r := conversion.Reader{Platform: "googlechat", Node: node}
+	paragraph := TextParagraph{Text: text, MaxLines: r.ParseInt("maxLines")}
 	if markdown {
 		paragraph.TextSyntax = TextSyntaxMarkdown
 	}
-	return paragraph, reader.Err
+	return checked(c, node, paragraph, r.Err)
 }
 
 func hasStyle(styles []string, target string) bool {

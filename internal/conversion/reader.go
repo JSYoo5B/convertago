@@ -57,6 +57,18 @@ func (r *Reader) ParseInt(slot string) int {
 	return value
 }
 
+// ParseFloat parses a slot as a number without applying native rules.
+func (r *Reader) ParseFloat(slot string) float64 {
+	if !r.Node.Has(slot) {
+		return 0
+	}
+	value, err := strconv.ParseFloat(r.Node.Text(slot), 64)
+	if err != nil {
+		r.invalid(slot, slot+" requires a number")
+	}
+	return value
+}
+
 func (r *Reader) Bool(slot string) bool {
 	if !r.Node.Has(slot) {
 		return false

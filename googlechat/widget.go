@@ -1,6 +1,8 @@
 package googlechat
 
 import (
+	"github.com/JSYoo5B/convertago/internal/validation"
+
 	"encoding/json"
 	"fmt"
 )
@@ -13,6 +15,7 @@ type WidgetContent interface {
 	WidgetType() string
 	String() string
 	widgetContent()
+	check(*validation.Check)
 }
 
 // Widget displays one content object with optional horizontal alignment.
@@ -21,9 +24,9 @@ type WidgetContent interface {
 // Reference: https://developers.google.com/workspace/chat/api/reference/rest/v1/cards#Widget
 type Widget struct {
 	// Content contains exactly one supported widget content object.
-	Content WidgetContent `json:"-" validate:"required"`
+	Content WidgetContent `json:"-"`
 	// HorizontalAlignment positions the widget at the start, center, or end.
-	HorizontalAlignment HorizontalAlignment `json:"-" validate:"omitempty,oneof=START CENTER END"`
+	HorizontalAlignment HorizontalAlignment `json:"-"`
 }
 
 func (w Widget) Type() string {

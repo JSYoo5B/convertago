@@ -49,7 +49,7 @@ func TestToMessageValidatesGoogleChatConstraints(t *testing.T) {
 			B string `googlechat:"textParagraph;group=x;format=markdown"`
 		}{"literal", "**bold**"},
 	} {
-		if _, err := ToMessage(source); err == nil {
+		if _, err := ToMessage(source, conversion.WithWarningAsError()); err == nil {
 			t.Fatalf("expected an error for %#v", source)
 		}
 	}
