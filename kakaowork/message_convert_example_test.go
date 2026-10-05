@@ -9,8 +9,9 @@ import (
 
 func ExampleToMessage() {
 	source := struct {
-		Text string `kakaowork:"text"`
-	}{"카카오워크 알림"}
+		Preview string `kakaowork:"preview"`
+		Text    string `kakaowork:"text"`
+	}{"새 알림", "카카오워크 알림"}
 	message, err := kakaowork.ToMessage(source)
 	if err != nil {
 		panic(err)
@@ -22,7 +23,7 @@ func ExampleToMessage() {
 	fmt.Println(string(data))
 	// Output:
 	// {
-	//   "text": "",
+	//   "text": "새 알림",
 	//   "blocks": [
 	//     {
 	//       "type": "text",
