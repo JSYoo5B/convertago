@@ -75,6 +75,38 @@ A `collapseControl` requires buttons in `expandButton` and `collapseButton`,
 and accepts `horizontalAlignment`; collapse properties apply only with `collapsible`.
 Enum properties use the exact uppercase values from the native types.
 
+### Fixed tag values
+
+These slots can be fixed in the tag instead of supplied by a field. Write
+`name=value` for an enum slot and a bare `name` to set a boolean slot to true;
+`name=false` also works. A field that supplies the same slot overrides the tag.
+See the [tag conversion guide](../docs/tags.md#fixed-slot-values) for the grammar
+and resolution order. Enum values are the exact uppercase values of the native
+types.
+
+| Role | Enum slots | Boolean slots |
+| --- | --- | --- |
+| Top-level widgets | `horizontalAlignment` | None |
+| `header` | `imageType` | None |
+| `card` | `sectionDividerStyle` | None |
+| `section` | None | `collapsible` |
+| `collapseControl` | `horizontalAlignment` | None |
+| `decoratedText` | `startIconVerticalAlignment` | `wrapText` |
+| `switchControl` | `controlType` | `selected` |
+| `button` | `type` | `disabled` |
+| `icon` | `imageType` | None |
+| `materialIcon` | None | `fill` |
+| `action` | `loadIndicator`, `interaction` | `persistValues`, `allWidgetsAreRequired` |
+| `overflowMenuItem` | None | `disabled` |
+| `column` | `horizontalSizeStyle`, `horizontalAlignment`, `verticalAlignment` | None |
+| `gridItem` | `layout` | None |
+| `imageCropStyle` | `type` | None |
+| `borderStyle` | `type` | None |
+| `chipList` | `layout` | None |
+| `chip` | None | `disabled` |
+
+For example, `googlechat:"button;type=FILLED_TONAL;disabled"` fixes both slots.
+
 Strings are literal by default. Google Chat paragraphs and decorated text escape
 plain text into HTML and convert newlines into `<br>`. Explicit `html` preserves
 markup; paragraphs also accept `markdown`. HTML can include escaped plain

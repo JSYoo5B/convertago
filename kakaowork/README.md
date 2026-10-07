@@ -33,6 +33,33 @@
 `text`와 `styled`는 `bold`, `italic`, `strike` 스타일과 `format=plain`을 받습니다.
 버튼 액션과 인라인 역할은 해당 요소를 받을 수 있는 상위 빌더 안에서만 사용합니다.
 
+### 태그 고정값
+
+아래 슬롯은 필드 대신 태그에 값을 적어 고정할 수 있습니다. enum 슬롯은
+`이름=값`으로, bool 슬롯은 이름만 적어 `true`로 고정하며 `이름=false`도 쓸 수 있습니다.
+같은 슬롯을 필드로도 넘기면 필드 값이 우선하고, 문법과 해석 순서는
+[태그 변환 가이드](../docs/tags.md#fixed-slot-values)에 있습니다.
+
+| 역할 | enum 슬롯 | bool 슬롯 |
+| --- | --- | --- |
+| `header` | `style` (`white`, `blue`, `red`, `yellow`) | 없음 |
+| `styled` | `color` (`default`, `red`, `blue`, `grey`) | `bold`, `italic`, `strike` |
+| `button` | `style` (`default`, `primary`, `danger`) | 없음 |
+| `description` | 없음 | `accent` |
+| `open_inapp_browser` | 없음 | `standalone` |
+
+```go
+type Notice struct {
+	Title string `kakaowork:"header;style=blue"`
+	Alert struct {
+		Word string `kakaowork:"part"`
+	} `kakaowork:"styled;color=red;bold"`
+}
+```
+
+`header;style=blue`의 `style`은 값이 텍스트 서식 어휘가 아니므로 헤더 배경으로 해석합니다.
+`text;style=bold`처럼 텍스트 서식 어휘만 적으면 기존과 같이 텍스트 서식입니다.
+
 ## 버튼 액션
 
 중첩 버튼 액션은 `open_system_browser`, `open_inapp_browser`,

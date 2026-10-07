@@ -47,12 +47,13 @@ func (value Notice) ConvertagoFields(platform string) ([]convertago.SourceField,
 
 The conversion functions select it when the source, or the value a source pointer
 refers to, implements this method. `SourceField`, `SourceValue`, `SourceTag`,
-`SourceState`, `SourceObject`, and `SourceMarshaled` form the generated-code
-contract. Applications normally use
-tags, the conversion functions, and native message types instead of constructing
-these source representations themselves. Rerun generation after changing tags
-or field types. Tag style slices are shared, read-only metadata in both paths;
-copy a style slice before editing it.
+`SourceFixed`, `SourceState`, `SourceObject`, and `SourceMarshaled` form the
+generated-code contract. Applications normally use tags, the conversion
+functions, and native message types instead of constructing these source
+representations themselves. Rerun generation after changing tags or field types,
+and after upgrading convertago when the contract changes. Tag style and fixed
+value slices are shared, read-only metadata in both paths; copy them before
+editing.
 
 ## Cross compilation
 

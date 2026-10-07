@@ -21,11 +21,48 @@ empty or optional. Value options require a nonempty value, and flags reject one.
 | `format=plain` | Explicitly select a text syntax accepted by the builder. |
 | `omitempty` | Omit an empty source value. |
 | `optional` | Report a recognized unavailable feature as a Warning and skip it. |
+| `name=value` | Fix an enum slot of the role, such as `color=red`. |
+| `name` | Fix a boolean slot of the role to true, such as `bold`. Write `name=false` for false. |
 
 The recognized styles are `bold`, `italic`, `strike`, `code`, `underline`,
 `highlight`, `client_highlight`, and `unlink`. The recognized formats are `plain`,
 `html`, `markdown`, and `mrkdwn`. Each builder accepts a subset, listed in its
 package README.
+
+### Fixed slot values
+
+Enum and boolean slots that the platform reference defines can be fixed in the
+tag instead of supplied by a field. Each package README marks these slots.
+
+```go
+type Alert struct {
+    Word string `kakaowork:"part"`
+}
+
+type Notice struct {
+    Title string `kakaowork:"header;style=blue"`
+    Alert Alert  `kakaowork:"styled;color=red;bold;italic"`
+}
+```
+
+Options resolve in this order:
+
+1. `group`, `slot`, `format`, `omitempty`, and `optional` keep their meaning. No
+   slot uses these names.
+2. `style` is a text style list when every item is a text style. Otherwise it
+   fixes the role's `style` slot. Slot values never coincide with text styles.
+3. `name=value` fixes the named enum or boolean slot of the role.
+4. A bare `name` fixes the named boolean slot to true. Several flags can follow
+   each other, as in `bold;italic;strike`.
+5. Any other name is an unknown option.
+
+A fixed value acts as the slot's default. When a field supplies the same slot,
+its value replaces the fixed value, so a `part;slot=style;omitempty` field
+overrides the tag only when it is not empty. Fixed values satisfy required slots,
+and all members of a group must fix the same values. A fixed value outside the
+reference's set is a Fatal error with the slot's rule ID, such as
+`header.style.value`, reported at the tagged field before any value is read.
+`part` and `flatten` do not accept fixed values.
 
 Two roles are shared by every platform:
 
@@ -149,7 +186,7 @@ problems are Fatal and use these codes:
 
 | Code | Meaning |
 | --- | --- |
-| `invalid_tag` | Malformed tag, unknown name, tag on an unexported field, or role used in an invalid position. |
+| `invalid_tag` | Malformed tag, unknown name, tag on an unexported field, role used in an invalid position, or an invalid boolean fixed value. |
 | `invalid_source` | Unsupported source type, non-struct or cyclic source, or a failing text method. |
 | `invalid_value` | A source value that a slot cannot parse, such as a non-integer. |
 | `group_conflict` | Group members that mix roles or containing slots. |

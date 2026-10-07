@@ -45,6 +45,29 @@ require `title`, `text` (default), `confirm`, and `deny`, and accept `style`. Pl
 object children can supply labels; only the dialog's `text` supports mrkdwn.
 Button and confirmation styles are `primary` or `danger` when supplied.
 
+### Fixed tag values
+
+These slots can be fixed in the tag instead of supplied by a field. Write
+`name=value` for an enum slot and a bare `name` to set a boolean slot to true;
+`name=false` also works. A field that supplies the same slot overrides the tag.
+See the [tag conversion guide](../docs/tags.md#fixed-slot-values) for the grammar
+and resolution order.
+
+| Role | Enum slots | Boolean slots |
+| --- | --- | --- |
+| `header` | `level` (`1` to `4`) | None |
+| `section` | None | `expand` |
+| `button` | `style` (`primary`, `danger`) | None |
+| `confirm` | `style` (`primary`, `danger`) | None |
+| `rich_text_list` | `style` (`bullet`, `ordered`) | None |
+| `plain_text` | None | `emoji` |
+| `mrkdwn` | None | `verbatim` |
+| `link` | None | `unsafe`, `from_llm`, `is_slack_url`, `truncated` |
+| `user` | None | `from_llm` |
+
+For example, `slack:"rich_text_list;style=ordered"` fixes the list style, while
+`slack:"rich_text;style=bold"` remains a text style.
+
 Rich text regions are `rich_text_section`, `rich_text_list`,
 `rich_text_preformatted`, and `rich_text_quote`. Lists require a `style` of
 `bullet` or `ordered` and repeated sections in `elements`, and accept `indent`,
