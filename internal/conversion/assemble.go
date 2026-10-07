@@ -359,7 +359,7 @@ func (a assembler) checkSlots(node Node) error {
 	counts := make(map[string]int)
 	for _, input := range node.Inputs {
 		slot, exists := role.Slots[input.Slot]
-		path := node.Path
+		var path string
 		if input.Part != nil {
 			path = input.Part.Path
 		} else {
