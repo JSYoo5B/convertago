@@ -77,5 +77,8 @@ func (n Node) FieldPath(field string) string {
 		}
 		return input.Child.Path
 	}
+	if fixed, ok := n.fixed(name); ok {
+		return fixed.Path
+	}
 	return n.Path
 }

@@ -17,6 +17,10 @@ type Item struct {
 	Name   string `kakaowork:"text;group=line;style=italic" slack:"rich_text;group=line;style=italic" googlechat:"textParagraph;group=line;style=italic"`
 }
 
+type Alert struct {
+	Word string `kakaowork:"styled;color=red;bold;italic" slack:"text;style=bold" googlechat:"part"`
+}
+
 type Label string
 
 func (label Label) MarshalText() ([]byte, error) {
@@ -45,6 +49,8 @@ type Notice struct {
 	Caption  fmt.Stringer `kakaowork:"text" slack:"rich_text" googlechat:"textParagraph"`
 	Time     time.Time    `kakaowork:"text;omitempty" slack:"rich_text;omitempty" googlechat:"textParagraph;omitempty"`
 	Optional string       `kakaowork:"header;style=bold;optional" slack:"header;style=bold;optional" googlechat:"header;style=bold;optional"`
+	Alert    Alert        `kakaowork:"text" slack:"rich_text" googlechat:"textParagraph;horizontalAlignment=CENTER"`
+	Wide     string       `kakaowork:"text;omitempty" slack:"section;expand;omitempty" googlechat:"decoratedText;wrapText;omitempty"`
 	Dynamic  any          `kakaowork:"flatten" slack:"flatten" googlechat:"flatten"`
 	Next     *Notice      `kakaowork:"flatten" slack:"flatten" googlechat:"flatten"`
 	Ignored  map[string]string

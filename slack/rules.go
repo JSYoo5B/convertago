@@ -166,7 +166,7 @@ func (t MrkdwnTextObject) check(c *validation.Check) {
 
 func (b HeaderBlock) check(c *validation.Check) {
 	textLength(c, b.Text, 150, ruleHeaderTextLength, "text")
-	c.When(b.Level != 0 && (b.Level < 1 || b.Level > 4), ruleHeaderLevelValue, "level")
+	c.When(b.Level != 0 && !headerLevels[b.Level], ruleHeaderLevelValue, "level")
 	blockID(c, b.BlockID)
 	c.Child("text", b.Text.check)
 }
@@ -345,7 +345,7 @@ func (e RichTextSection) check(c *validation.Check) {
 }
 
 func (e RichTextList) check(c *validation.Check) {
-	c.When(e.Style != RichTextListStyleBullet && e.Style != RichTextListStyleOrdered, ruleListStyleValue, "style")
+	c.When(!listStyles[e.Style], ruleListStyleValue, "style")
 	c.When(len(e.Elements) == 0, ruleRichSectionRequired, "elements")
 	c.When(e.Offset != 0 && e.Style != RichTextListStyleOrdered, ruleListOffsetOrdered, "offset")
 	c.When(e.Indent < 0, ruleListNumberValue, "indent")
@@ -386,4 +386,8 @@ func (e EmojiInline) check(c *validation.Check) {
 	c.When(e.Name == "", ruleEmojiNameRequired, "name")
 }
 
-var buttonStyles = map[ButtonStyle]bool{"": true, ButtonStylePrimary: true, ButtonStyleDanger: true}
+var (
+	buttonStyles = map[ButtonStyle]bool{"": true, ButtonStylePrimary: true, ButtonStyleDanger: true}
+	listStyles   = map[RichTextListStyle]bool{RichTextListStyleBullet: true, RichTextListStyleOrdered: true}
+	headerLevels = map[int]bool{1: true, 2: true, 3: true, 4: true}
+)

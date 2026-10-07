@@ -1,6 +1,21 @@
 package googlechat
 
-import "github.com/JSYoo5B/convertago/internal/conversion"
+import (
+	"github.com/JSYoo5B/convertago/internal/conversion"
+	"github.com/JSYoo5B/convertago/internal/validation"
+)
+
+// enum lets a tag fix an enum slot to the values its rule accepts.
+func enum[T ~string](values []T, rule validation.Rule) conversion.Slot {
+	slot := conversion.Slot{Rule: rule.ID}
+	for _, value := range values {
+		slot.Values = append(slot.Values, string(value))
+	}
+	return slot
+}
+
+// flag lets a tag fix a boolean slot.
+var flag = conversion.Slot{Bool: true}
 
 func init() {
 	text := conversion.Slot{Repeated: true, Required: true}
@@ -9,32 +24,32 @@ func init() {
 	}
 	click := []string{"onClick", "action", "openLink", "overflowMenu"}
 	roles := map[string]conversion.Role{
-		"header":           {DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text, "subtitle": {Repeated: true}, "url": {}, "alt": {}, "imageType": {}}, Formats: []string{"plain"}},
+		"header":           {DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text, "subtitle": {Repeated: true}, "url": {}, "alt": {}, "imageType": enum(imageTypes, ruleImageTypeValue)}, Formats: []string{"plain"}},
 		"textParagraph":    {DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text, "maxLines": {}}, Styles: []string{"bold", "italic", "strike", "code", "underline"}, Formats: []string{"plain", "html", "markdown"}, FormatStyles: map[string][]string{"markdown": {"bold", "italic", "strike", "code"}}},
 		"image":            {DefaultSlot: "url", Slots: map[string]conversion.Slot{"url": {Required: true}, "alt": {}, "onClick": child(click, false, false)}},
 		"fallbackText":     {DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text}, Formats: []string{"plain"}},
 		"text":             {DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text}, Formats: []string{"plain"}},
 		"divider":          {EmptyAllowed: true},
 		"buttonList":       {DefaultChildSlot: "buttons", Slots: map[string]conversion.Slot{"buttons": child([]string{"button"}, true, true)}},
-		"button":           {NestedOnly: true, DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": {Repeated: true}, "icon": child([]string{"icon"}, false, false), "color": child([]string{"color"}, false, false), "onClick": child(click, true, false), "disabled": {}, "altText": {}, "type": {}}},
+		"button":           {NestedOnly: true, DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": {Repeated: true}, "icon": child([]string{"icon"}, false, false), "color": child([]string{"color"}, false, false), "onClick": child(click, true, false), "disabled": flag, "altText": {}, "type": enum(buttonTypes, ruleButtonTypeValue)}},
 		"color":            {NestedOnly: true, EmptyAllowed: true, Slots: map[string]conversion.Slot{"red": {}, "green": {}, "blue": {}}},
 		"onClick":          {NestedOnly: true, Slots: map[string]conversion.Slot{"action": child([]string{"action"}, false, false), "openLink": child([]string{"openLink"}, false, false), "overflowMenu": child([]string{"overflowMenu"}, false, false)}},
 		"openLink":         {NestedOnly: true, DefaultSlot: "url", Slots: map[string]conversion.Slot{"url": {Required: true}}},
-		"action":           {NestedOnly: true, DefaultSlot: "function", Slots: map[string]conversion.Slot{"function": {Required: true}, "parameters": child([]string{"actionParameter"}, false, true), "loadIndicator": {}, "persistValues": {}, "interaction": {}, "requiredWidgets": {Repeated: true}, "allWidgetsAreRequired": {}}},
+		"action":           {NestedOnly: true, DefaultSlot: "function", Slots: map[string]conversion.Slot{"function": {Required: true}, "parameters": child([]string{"actionParameter"}, false, true), "loadIndicator": enum(loadIndicators, ruleActionLoad), "persistValues": flag, "interaction": enum(interactions, ruleActionInteraction), "requiredWidgets": {Repeated: true}, "allWidgetsAreRequired": flag}},
 		"actionParameter":  {NestedOnly: true, Slots: map[string]conversion.Slot{"key": {Required: true}, "value": {Required: true}}},
 		"overflowMenu":     {NestedOnly: true, DefaultChildSlot: "items", Slots: map[string]conversion.Slot{"items": child([]string{"overflowMenuItem"}, true, true)}},
-		"overflowMenuItem": {NestedOnly: true, DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text, "startIcon": child([]string{"icon"}, false, false), "onClick": child([]string{"onClick", "action", "openLink"}, true, false), "disabled": {}}},
-		"icon":             {NestedOnly: true, Slots: map[string]conversion.Slot{"knownIcon": {}, "iconUrl": {}, "materialIcon": child([]string{"materialIcon"}, false, false), "altText": {}, "imageType": {}}},
-		"materialIcon":     {NestedOnly: true, DefaultSlot: "name", Slots: map[string]conversion.Slot{"name": {Required: true}, "fill": {}, "weight": {}, "grade": {}}},
-		"switchControl":    {NestedOnly: true, DefaultSlot: "name", Slots: map[string]conversion.Slot{"name": {Required: true}, "value": {}, "selected": {}, "onChangeAction": child([]string{"action"}, false, false), "controlType": {}}},
-		"decoratedText":    {DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text, "startIcon": child([]string{"icon"}, false, false), "startIconVerticalAlignment": {}, "topLabel": {Repeated: true}, "topLabelText": child([]string{"textParagraph"}, false, false), "contentText": child([]string{"textParagraph"}, false, false), "wrapText": {}, "bottomLabel": {Repeated: true}, "bottomLabelText": child([]string{"textParagraph"}, false, false), "onClick": child(click, false, false), "button": child([]string{"button"}, false, false), "switchControl": child([]string{"switchControl"}, false, false), "endIcon": child([]string{"icon"}, false, false)}, Styles: []string{"bold", "italic", "strike", "code", "underline"}, Formats: []string{"plain", "html"}},
+		"overflowMenuItem": {NestedOnly: true, DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text, "startIcon": child([]string{"icon"}, false, false), "onClick": child([]string{"onClick", "action", "openLink"}, true, false), "disabled": flag}},
+		"icon":             {NestedOnly: true, Slots: map[string]conversion.Slot{"knownIcon": {}, "iconUrl": {}, "materialIcon": child([]string{"materialIcon"}, false, false), "altText": {}, "imageType": enum(imageTypes, ruleImageTypeValue)}},
+		"materialIcon":     {NestedOnly: true, DefaultSlot: "name", Slots: map[string]conversion.Slot{"name": {Required: true}, "fill": flag, "weight": {}, "grade": {}}},
+		"switchControl":    {NestedOnly: true, DefaultSlot: "name", Slots: map[string]conversion.Slot{"name": {Required: true}, "value": {}, "selected": flag, "onChangeAction": child([]string{"action"}, false, false), "controlType": enum(switchControlTypes, ruleSwitchType)}},
+		"decoratedText":    {DefaultSlot: "text", Slots: map[string]conversion.Slot{"text": text, "startIcon": child([]string{"icon"}, false, false), "startIconVerticalAlignment": enum(verticalAlignments, ruleVerticalAlign), "topLabel": {Repeated: true}, "topLabelText": child([]string{"textParagraph"}, false, false), "contentText": child([]string{"textParagraph"}, false, false), "wrapText": flag, "bottomLabel": {Repeated: true}, "bottomLabelText": child([]string{"textParagraph"}, false, false), "onClick": child(click, false, false), "button": child([]string{"button"}, false, false), "switchControl": child([]string{"switchControl"}, false, false), "endIcon": child([]string{"icon"}, false, false)}, Styles: []string{"bold", "italic", "strike", "code", "underline"}, Formats: []string{"plain", "html"}},
 	}
 	for _, name := range []string{"textParagraph", "image", "divider", "buttonList", "decoratedText"} {
 		role := roles[name]
 		if role.Slots == nil {
 			role.Slots = map[string]conversion.Slot{}
 		}
-		role.Slots["horizontalAlignment"] = conversion.Slot{}
+		role.Slots["horizontalAlignment"] = enum(horizontalAlignments, ruleHorizontalAlign)
 		roles[name] = role
 	}
 	addLayoutRoles(roles)

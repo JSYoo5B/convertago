@@ -20,10 +20,12 @@ type Part struct {
 
 // Node represents an assembled platform builder before native rendering.
 type Node struct {
-	Role    string
-	Path    string
-	Parts   []Part
-	Inputs  []Input
+	Role   string
+	Path   string
+	Parts  []Part
+	Inputs []Input
+	// Fixed holds tag values for slots; an input to the same slot replaces its value.
+	Fixed   []Part
 	Slot    string
 	present bool
 	partial bool
@@ -56,25 +58,52 @@ func (n *Node) appendInputs(inputs []Input) {
 	}
 }
 
-// Text concatenates the scalar parts supplied to a slot.
+// Text concatenates the scalar parts supplied to a slot, or returns its fixed tag value.
 func (n Node) Text(slot string) string {
 	var text strings.Builder
+	supplied := false
 	for _, part := range n.Parts {
 		if part.Slot == slot {
 			text.WriteString(part.Text)
+			supplied = true
 		}
+	}
+	if fixed, ok := n.fixed(slot); ok && !supplied {
+		return fixed.Text
 	}
 	return text.String()
 }
 
-// Has reports whether any part or child was supplied to a slot.
+// Has reports whether any part, child, or fixed tag value was supplied to a slot.
 func (n Node) Has(slot string) bool {
 	for _, input := range n.Inputs {
 		if input.Slot == slot {
 			return true
 		}
 	}
-	return false
+	_, ok := n.fixed(slot)
+	return ok
+}
+
+func (n Node) fixed(slot string) (Part, bool) {
+	for _, part := range n.Fixed {
+		if part.Slot == slot {
+			return part, true
+		}
+	}
+	return Part{}, false
+}
+
+// fixedParts records a tag's fixed values as parts at the tag's path.
+func fixedParts(tag Tag, path string) []Part {
+	if len(tag.Fixed) == 0 {
+		return nil
+	}
+	parts := make([]Part, len(tag.Fixed))
+	for i, fixed := range tag.Fixed {
+		parts[i] = Part{Slot: fixed.Slot, Text: fixed.Value, Path: path}
+	}
+	return parts
 }
 
 // Prepare reads a source and assembles its top-level builder nodes in declaration order.
@@ -114,7 +143,7 @@ func (a assembler) fields(fields []Field, builder string, inherited Tag, path st
 	for _, field := range fields {
 		fieldPath := path + "." + field.Name
 		if err := validateContext(a.profile, field.Tag, builder); err != nil {
-			return nil, a.fail(fieldPath, "invalid_tag", err.Error())
+			return nil, a.fail(fieldPath, TagErrorCode(err), err.Error())
 		}
 		if err := checkGroup(groups, field.Tag, builder, a.profile); err != nil {
 			return nil, a.fail(fieldPath, "group_conflict", err.Error())
@@ -167,12 +196,12 @@ func (a assembler) fields(fields []Field, builder string, inherited Tag, path st
 			if !exists {
 				anchor = len(nodes)
 				anchors[tag.Group] = anchor
-				nodes = append(nodes, Node{Role: tag.Role, Path: fieldPath, Slot: target, partial: partial})
+				nodes = append(nodes, Node{Role: tag.Role, Path: fieldPath, Fixed: fixedParts(tag, fieldPath), Slot: target, partial: partial})
 			}
 		}
 		unavailable, err := CheckTag(a.profile, tag)
 		if err != nil {
-			return nil, a.fail(fieldPath, "invalid_tag", err.Error())
+			return nil, a.fail(fieldPath, TagErrorCode(err), err.Error())
 		}
 		if field.Value.Err != nil {
 			return nil, a.fail(fieldPath, "invalid_source", field.Value.Err.Error())
@@ -226,7 +255,7 @@ func (a assembler) fields(fields []Field, builder string, inherited Tag, path st
 			if err != nil {
 				return nil, err
 			}
-			node := Node{Role: tag.Role, Path: itemPath, Slot: target, partial: partial, present: true}
+			node := Node{Role: tag.Role, Path: itemPath, Fixed: fixedParts(tag, itemPath), Slot: target, partial: partial, present: true}
 			node.appendInputs(inputs)
 			nodes = append(nodes, node)
 		}
@@ -365,7 +394,7 @@ func (a assembler) checkSlots(node Node) error {
 	}
 	sort.Strings(names)
 	for _, name := range names {
-		if role.Slots[name].Required && counts[name] == 0 {
+		if _, fixed := node.fixed(name); role.Slots[name].Required && counts[name] == 0 && !fixed {
 			return a.fail(node.Path, "missing_input", "required slot "+name+" is missing")
 		}
 	}

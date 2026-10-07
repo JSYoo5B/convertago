@@ -35,10 +35,10 @@ func validateShape(profile Profile, shape *Shape, builder, path string, active m
 	for _, field := range shape.Fields {
 		fieldPath := path + "." + field.Name
 		if field.Err != nil {
-			return Error(profile.Platform, fieldPath, "invalid_tag", field.Err.Error())
+			return Error(profile.Platform, fieldPath, TagErrorCode(field.Err), field.Err.Error())
 		}
 		if err := validateContext(profile, field.Tag, builder); err != nil {
-			return Error(profile.Platform, fieldPath, "invalid_tag", err.Error())
+			return Error(profile.Platform, fieldPath, TagErrorCode(err), err.Error())
 		}
 		if err := checkGroup(groups, field.Tag, builder, profile); err != nil {
 			return Error(profile.Platform, fieldPath, "group_conflict", err.Error())
@@ -139,12 +139,15 @@ func checkGroup(groups map[string]string, tag Tag, builder string, profile Profi
 		return nil
 	}
 	signature := tag.Role
+	for _, fixed := range tag.Fixed {
+		signature += ";" + fixed.Slot + "=" + fixed.Value
+	}
 	if builder != "" && tag.Role != "part" {
 		slot, _ := inputSlot(profile, tag, builder)
 		signature += ":" + slot
 	}
 	if role, exists := groups[tag.Group]; exists && role != signature {
-		return fmt.Errorf("group %q mixes %s and %s", tag.Group, role, tag.Role)
+		return fmt.Errorf("group %q mixes %s and %s; members must share their role and fixed values", tag.Group, role, signature)
 	}
 	groups[tag.Group] = signature
 	return nil

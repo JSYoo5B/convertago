@@ -12,6 +12,7 @@ func FuzzParse(f *testing.F) {
 		"text;group=body;slot=text;style=bold,italic;format=plain;omitempty;optional",
 		"header;style=bold;optional", "button;optional", "text;group=a=b",
 		"typo;optional", "text;style=bold,bold", "text;slot=url", "text;",
+		"button;;", "button;level=2;wide", "text;style=bold;tone=calm",
 	} {
 		f.Add(raw)
 	}
@@ -28,6 +29,9 @@ func FuzzParse(f *testing.F) {
 			if option.value != "" {
 				canonical += ";" + option.key + "=" + option.value
 			}
+		}
+		for _, fixed := range tag.Fixed {
+			canonical += ";" + fixed.Slot + "=" + fixed.Value
 		}
 		if tag.OmitEmpty {
 			canonical += ";omitempty"

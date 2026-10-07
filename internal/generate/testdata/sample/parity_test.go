@@ -25,7 +25,8 @@ func TestGeneratedAndReflectionAgree(t *testing.T) {
 		Items: []Item{{"first ", "A"}, {"second ", "B"}}, Numbers: [2]int{0, 42}, Flags: []bool{false, true},
 		Fraction: 0.1, Pointer: &zero, Label: "label", Caption: Caption("caption"), Time: time.Unix(0, 0).UTC(),
 		Optional: "skip this unsupported header style",
-		Ignored:  map[string]string{"no tag": "ignore"},
+		Alert:    Alert{"urgent"}, Wide: "wide",
+		Ignored: map[string]string{"no tag": "ignore"},
 	}
 	for _, test := range []struct {
 		name   string
@@ -33,6 +34,7 @@ func TestGeneratedAndReflectionAgree(t *testing.T) {
 	}{
 		{"normal", func(*Notice) {}},
 		{"nil pointers", func(n *Notice) { n.Image, n.Pointer = nil, nil }},
+		{"without fixed fields", func(n *Notice) { n.Wide = "" }},
 		{"omitted optional feature", func(n *Notice) { n.Optional = "" }},
 		{"invalid URL", func(n *Notice) { n.Image = &Picture{"relative", "photo"} }},
 		{"missing alt", func(n *Notice) { n.Image = &Picture{"https://example.com/a.png", ""} }},

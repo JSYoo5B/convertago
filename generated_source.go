@@ -13,8 +13,11 @@ type SourceField = conversion.Field
 type SourceValue = conversion.Value
 
 // SourceTag is parsed tag metadata emitted by the generator.
-// Its Style slice may reference shared, read-only metadata; copy it before editing.
+// Its Style and Fixed slices may reference shared, read-only metadata; copy them before editing.
 type SourceTag = conversion.Tag
+
+// SourceFixed is a slot value fixed by a tag, emitted by the generator.
+type SourceFixed = conversion.Fixed
 
 // SourceState tracks traversal for generated accessors and dynamic fields.
 // Its zero value is ready to use for one conversion.

@@ -114,6 +114,25 @@ var rules = []validation.Rule{
 	ruleCarouselCards, ruleCarouselWidgets, ruleChipListChips, ruleChipListLayout, ruleChipContent,
 }
 
+// Enum values shared by the rule checks and the tag profile.
+var (
+	horizontalAlignments     = []HorizontalAlignment{HorizontalAlignmentStart, HorizontalAlignmentCenter, HorizontalAlignmentEnd}
+	verticalAlignments       = []VerticalAlignment{VerticalAlignmentTop, VerticalAlignmentMiddle, VerticalAlignmentBottom}
+	imageTypes               = []ImageType{ImageTypeSquare, ImageTypeCircle}
+	dividerStyles            = []DividerStyle{DividerStyleSolid, DividerStyleNone}
+	textSyntaxes             = []TextSyntax{TextSyntaxHTML, TextSyntaxMarkdown}
+	switchControlTypes       = []SwitchControlType{SwitchControlTypeSwitch, SwitchControlTypeCheckBox}
+	buttonTypes              = []ButtonType{ButtonTypeOutlined, ButtonTypeFilled, ButtonTypeFilledTonal, ButtonTypeBorderless}
+	loadIndicators           = []LoadIndicator{LoadIndicatorSpinner, LoadIndicatorNone}
+	interactions             = []Interaction{InteractionOpenDialog}
+	horizontalSizeStyles     = []HorizontalSizeStyle{HorizontalSizeStyleFillAvailableSpace, HorizontalSizeStyleFillMinimumSpace}
+	columnVerticalAlignments = []ColumnVerticalAlignment{ColumnVerticalAlignmentCenter, ColumnVerticalAlignmentTop, ColumnVerticalAlignmentBottom}
+	gridItemLayouts          = []GridItemLayout{GridItemLayoutTextBelow, GridItemLayoutTextAbove}
+	imageCropTypes           = []ImageCropType{ImageCropTypeSquare, ImageCropTypeCircle, ImageCropTypeRectangleCustom, ImageCropTypeRectangle4By3}
+	borderTypes              = []BorderType{BorderTypeNone, BorderTypeStroke}
+	chipListLayouts          = []ChipListLayout{ChipListLayoutWrapped, ChipListLayoutHorizontalScrollable}
+)
+
 func oneOf[T comparable](value T, allowed ...T) bool {
 	var zero T
 	if value == zero {
@@ -130,11 +149,11 @@ func oneOf[T comparable](value T, allowed ...T) bool {
 func https(text string) bool { return validation.AbsoluteURI(text, "https") }
 
 func alignment(c *validation.Check, value HorizontalAlignment, field string) {
-	c.When(!oneOf(value, HorizontalAlignmentStart, HorizontalAlignmentCenter, HorizontalAlignmentEnd), ruleHorizontalAlign, field)
+	c.When(!oneOf(value, horizontalAlignments...), ruleHorizontalAlign, field)
 }
 
 func imageType(c *validation.Check, value ImageType, field string) {
-	c.When(!oneOf(value, ImageTypeSquare, ImageTypeCircle), ruleImageTypeValue, field)
+	c.When(!oneOf(value, imageTypes...), ruleImageTypeValue, field)
 }
 
 // content checks a widget wrapper's content beneath its JSON property.
@@ -167,7 +186,7 @@ func (m Message) check(c *validation.Check) {
 
 func (card Card) check(c *validation.Check) {
 	c.When(card.Header == nil && len(card.Sections) == 0, ruleCardContent, "")
-	c.When(!oneOf(card.SectionDividerStyle, DividerStyleSolid, DividerStyleNone), ruleCardDividerStyle, "sectionDividerStyle")
+	c.When(!oneOf(card.SectionDividerStyle, dividerStyles...), ruleCardDividerStyle, "sectionDividerStyle")
 	total := 0
 	for _, section := range card.Sections {
 		for _, widget := range section.Widgets {
@@ -239,7 +258,7 @@ func (w Widget) check(c *validation.Check) {
 
 func (t TextParagraph) check(c *validation.Check) {
 	c.When(t.MaxLines < 0, ruleParagraphMaxLines, "maxLines")
-	c.When(!oneOf(t.TextSyntax, TextSyntaxHTML, TextSyntaxMarkdown), ruleParagraphSyntax, "textSyntax")
+	c.When(!oneOf(t.TextSyntax, textSyntaxes...), ruleParagraphSyntax, "textSyntax")
 }
 
 func (i Image) check(c *validation.Check) {
@@ -260,7 +279,7 @@ func (t DecoratedText) check(c *validation.Check) {
 		}
 	}
 	c.When(controls > 1, ruleDecoratedControl, "")
-	c.When(!oneOf(t.StartIconVerticalAlignment, VerticalAlignmentTop, VerticalAlignmentMiddle, VerticalAlignmentBottom), ruleVerticalAlign, "startIconVerticalAlignment")
+	c.When(!oneOf(t.StartIconVerticalAlignment, verticalAlignments...), ruleVerticalAlign, "startIconVerticalAlignment")
 	if t.StartIcon != nil {
 		c.Child("startIcon", t.StartIcon.check)
 	}
@@ -288,7 +307,7 @@ func (t DecoratedText) check(c *validation.Check) {
 
 func (s SwitchControl) check(c *validation.Check) {
 	c.When(s.Name == "", ruleSwitchName, "name")
-	c.When(!oneOf(s.ControlType, SwitchControlTypeSwitch, SwitchControlTypeCheckBox), ruleSwitchType, "controlType")
+	c.When(!oneOf(s.ControlType, switchControlTypes...), ruleSwitchType, "controlType")
 	if s.OnChangeAction != nil {
 		c.Child("onChangeAction", s.OnChangeAction.check)
 	}
@@ -303,7 +322,7 @@ func (b ButtonList) check(c *validation.Check) {
 
 func (b Button) check(c *validation.Check) {
 	c.When(b.Text == "" && b.Icon == nil, ruleButtonContent, "")
-	c.When(!oneOf(b.Type, ButtonTypeOutlined, ButtonTypeFilled, ButtonTypeFilledTonal, ButtonTypeBorderless), ruleButtonTypeValue, "type")
+	c.When(!oneOf(b.Type, buttonTypes...), ruleButtonTypeValue, "type")
 	c.When(b.Color != nil && b.Type != "" && b.Type != ButtonTypeFilled, ruleButtonTypeColor, "type")
 	if b.Icon != nil {
 		c.Child("icon", b.Icon.check)
@@ -365,8 +384,8 @@ func (o OnClick) check(c *validation.Check) {
 
 func (a Action) check(c *validation.Check) {
 	c.When(a.Function == "", ruleActionFunction, "function")
-	c.When(!oneOf(a.LoadIndicator, LoadIndicatorSpinner, LoadIndicatorNone), ruleActionLoad, "loadIndicator")
-	c.When(!oneOf(a.Interaction, InteractionOpenDialog), ruleActionInteraction, "interaction")
+	c.When(!oneOf(a.LoadIndicator, loadIndicators...), ruleActionLoad, "loadIndicator")
+	c.When(!oneOf(a.Interaction, interactions...), ruleActionInteraction, "interaction")
 	c.When(a.AllWidgetsAreRequired && len(a.RequiredWidgets) != 0, ruleActionRequired, "requiredWidgets")
 	for i, name := range a.RequiredWidgets {
 		c.When(name == "", ruleActionRequiredName, fmt.Sprintf("requiredWidgets[%d]", i))
@@ -409,9 +428,9 @@ func (columns Columns) check(c *validation.Check) {
 
 func (column Column) check(c *validation.Check) {
 	c.When(len(column.Widgets) == 0, ruleColumnWidgets, "widgets")
-	c.When(!oneOf(column.HorizontalSizeStyle, HorizontalSizeStyleFillAvailableSpace, HorizontalSizeStyleFillMinimumSpace), ruleColumnSizeStyle, "horizontalSizeStyle")
+	c.When(!oneOf(column.HorizontalSizeStyle, horizontalSizeStyles...), ruleColumnSizeStyle, "horizontalSizeStyle")
 	alignment(c, column.HorizontalAlignment, "horizontalAlignment")
-	c.When(!oneOf(column.VerticalAlignment, ColumnVerticalAlignmentCenter, ColumnVerticalAlignmentTop, ColumnVerticalAlignmentBottom), ruleColumnVertical, "verticalAlignment")
+	c.When(!oneOf(column.VerticalAlignment, columnVerticalAlignments...), ruleColumnVertical, "verticalAlignment")
 	for i, widget := range column.Widgets {
 		content(c, fmt.Sprintf("widgets[%d]", i), widget.Content)
 	}
@@ -433,7 +452,7 @@ func (g Grid) check(c *validation.Check) {
 
 func (i GridItem) check(c *validation.Check) {
 	c.When(i.Title == "" && i.Subtitle == "" && i.Image == nil, ruleGridItemContent, "")
-	c.When(!oneOf(i.Layout, GridItemLayoutTextBelow, GridItemLayoutTextAbove), ruleGridItemLayout, "layout")
+	c.When(!oneOf(i.Layout, gridItemLayouts...), ruleGridItemLayout, "layout")
 	if i.Image != nil {
 		c.Child("image", i.Image.check)
 	}
@@ -450,7 +469,7 @@ func (i ImageComponent) check(c *validation.Check) {
 }
 
 func (s ImageCropStyle) check(c *validation.Check) {
-	c.When(!oneOf(s.Type, ImageCropTypeSquare, ImageCropTypeCircle, ImageCropTypeRectangleCustom, ImageCropTypeRectangle4By3), ruleCropTypeValue, "type")
+	c.When(!oneOf(s.Type, imageCropTypes...), ruleCropTypeValue, "type")
 	finite := !math.IsNaN(s.AspectRatio) && !math.IsInf(s.AspectRatio, 0)
 	if s.Type == ImageCropTypeRectangleCustom {
 		c.When(!finite || s.AspectRatio <= 0, ruleCropRatioValue, "aspectRatio")
@@ -460,7 +479,7 @@ func (s ImageCropStyle) check(c *validation.Check) {
 }
 
 func (b BorderStyle) check(c *validation.Check) {
-	c.When(!oneOf(b.Type, BorderTypeNone, BorderTypeStroke), ruleBorderTypeValue, "type")
+	c.When(!oneOf(b.Type, borderTypes...), ruleBorderTypeValue, "type")
 	c.When(b.Type == BorderTypeNone && b.StrokeColor != nil, ruleBorderStroke, "strokeColor")
 	c.When(b.CornerRadius < 0, ruleBorderRadius, "cornerRadius")
 	if b.StrokeColor != nil {
@@ -487,7 +506,7 @@ func (card CarouselCard) check(c *validation.Check) {
 
 func (l ChipList) check(c *validation.Check) {
 	c.When(len(l.Chips) == 0, ruleChipListChips, "chips")
-	c.When(!oneOf(l.Layout, ChipListLayoutWrapped, ChipListLayoutHorizontalScrollable), ruleChipListLayout, "layout")
+	c.When(!oneOf(l.Layout, chipListLayouts...), ruleChipListLayout, "layout")
 	for i, chip := range l.Chips {
 		c.Child(fmt.Sprintf("chips[%d]", i), chip.check)
 	}

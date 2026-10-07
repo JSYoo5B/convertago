@@ -19,6 +19,9 @@ func (r *Reader) path(slot string) string {
 			return p.Path
 		}
 	}
+	if fixed, ok := r.Node.fixed(slot); ok {
+		return fixed.Path
+	}
 	return r.Node.Path
 }
 
