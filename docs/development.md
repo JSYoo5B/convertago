@@ -56,7 +56,7 @@ diagnostics, and skip diagnostics for all three platforms against reflection.
 
 ## CI
 
-CI runs tests, the race detector, and `go vet` on Go 1.25 and the current stable
+CI runs tests, the race detector, and `go vet` on Go 1.26 and the current stable
 release. It regenerates the checked-in benchmark accessors and rejects a diff.
 It also runs bounded fuzz checks and exercises each benchmark without timing
 thresholds.

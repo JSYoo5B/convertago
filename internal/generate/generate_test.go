@@ -15,7 +15,7 @@ func samplePackage(t *testing.T) string {
 	if err != nil {
 		t.Fatal(err)
 	}
-	module := "module example.com/sample\n\ngo 1.25.0\n\nrequire " + modulePath + " v0.0.0\nreplace " + modulePath + " => " + filepath.ToSlash(root) + "\n"
+	module := "module example.com/sample\n\ngo 1.26.0\n\nrequire " + modulePath + " v0.0.0\nreplace " + modulePath + " => " + filepath.ToSlash(root) + "\n"
 	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(module), 0644); err != nil {
 		t.Fatal(err)
 	}

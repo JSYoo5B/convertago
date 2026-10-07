@@ -6,7 +6,7 @@ source struct can describe messages for several platforms.
 
 ## Installation
 
-Go 1.25 or later is required.
+Go 1.26 or later is required.
 
 ```sh
 go get github.com/JSYoo5B/convertago
@@ -91,6 +91,7 @@ source types, regeneration, and cross compilation.
 | [Development](docs/development.md) | Repository layout, test placement, CI, fuzzing, and cross-build checks. |
 | [Benchmark execution](benchmarks/running.md) | Allocation reporting, process CPU, and peak memory measurements. |
 | [Benchmark results](benchmarks/README.md) | Recorded reflection-cache and generated-accessor comparisons. |
+| [Changelog](CHANGELOG.md) | Release history and known limitations. |
 
 ## License
 
